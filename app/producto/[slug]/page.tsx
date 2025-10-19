@@ -97,7 +97,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
               </div>
               <div className="flex items-center justify-between">
                 <span>Concierge</span>
-                <span>Respuesta < 15min</span>
+                <span>Respuesta &lt; 15min</span>
               </div>
               <div className="flex items-center justify-between">
                 <span>Envío</span>
