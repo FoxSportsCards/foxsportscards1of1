@@ -1,0 +1,195 @@
+import Image from "next/image";
+import { PortableText } from "@portabletext/react";
+import { formatCurrency } from "@/lib/pricing";
+import { getAllProducts, getProductBySlug } from "@/lib/products";
+import AddToCart from "@/components/AddToCart";
+import WhatsAppBuy from "@/components/WhatsAppBuy";
+
+export const revalidate = 60;
+
+export async function generateStaticParams() {
+  const products = await getAllProducts();
+  return products.map((product) => ({ slug: product.slug }));
+}
+
+export default async function ProductPage({ params }: { params: { slug: string } }) {
+  const [product, allProducts] = await Promise.all([
+    getProductBySlug(params.slug),
+    getAllProducts(),
+  ]);
+
+  const heroImage = product.images[0];
+  const gallery = product.images.slice(1);
+  const recommendations = allProducts
+    .filter(
+      (item) =>
+        item.slug !== product.slug &&
+        (item.sport === product.sport || item.productType === product.productType),
+    )
+    .slice(0, 3);
+
+  return (
+    <div className="container py-16">
+      <div className="grid gap-12 lg:grid-cols-[1.25fr_0.9fr]">
+        <div className="space-y-6">
+          <div className="relative aspect-[4/5] overflow-hidden rounded-4xl border border-white/10 bg-surface shadow-soft">
+            <Image
+              src={heroImage?.url ?? "/hero.jpg"}
+              alt={heroImage?.alt ?? product.title}
+              fill
+              sizes="(min-width: 1280px) 45vw, (min-width: 768px) 60vw, 90vw"
+              className="object-cover"
+              priority
+            />
+            {product.status && product.status !== "available" && (
+              <span className="absolute left-5 top-5 rounded-full bg-black/70 px-4 py-1 text-sm uppercase tracking-[0.3em] text-white">
+                {product.status === "sold"
+                  ? "Vendido"
+                  : product.status === "reserved"
+                    ? "Reservado"
+                    : "Próximo lanzamiento"}
+              </span>
+            )}
+          </div>
+
+          {gallery.length > 0 && (
+            <div className="grid gap-3 sm:grid-cols-4">
+              {gallery.map((image) => (
+                <div
+                  key={`${image.url}-${image.label ?? ""}`}
+                  className="relative aspect-square overflow-hidden rounded-2xl border border-white/10 bg-surface"
+                >
+                  <Image
+                    src={image.url}
+                    alt={image.alt ?? product.title}
+                    fill
+                    sizes="(min-width: 768px) 18vw, 33vw"
+                    className="object-cover transition-transform duration-300 hover:scale-105"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-8">
+          <div className="space-y-4 rounded-4xl border border-white/10 bg-white/5 p-6 shadow-soft backdrop-blur lg:sticky lg:top-28">
+            <div className="flex flex-wrap gap-2 text-xs uppercase tracking-[0.3em] text-muted">
+              <span>{product.sport ?? product.productType ?? "Coleccionable"}</span>
+              {product.year && <span>Edición {product.year}</span>}
+              {product.certification && <span>Grading {product.certification}</span>}
+              {product.rarity && <span>{product.rarity}</span>}
+            </div>
+            <h1 className="text-3xl font-heading font-semibold text-white">{product.title}</h1>
+            <p className="text-2xl font-heading text-accent">{formatCurrency(product.price, product.currency)}</p>
+            {product.shortDescription && <p className="text-sm text-muted">{product.shortDescription}</p>}
+
+            <div className="flex flex-wrap gap-3">
+              <AddToCart product={product} />
+              <WhatsAppBuy product={product} />
+            </div>
+
+            <div className="grid gap-4 rounded-3xl border border-white/5 bg-background/70 p-5 text-xs uppercase tracking-[0.3em] text-muted">
+              <div className="flex items-center justify-between">
+                <span>Inventario</span>
+                <span>{typeof product.inventory === "number" ? `${product.inventory} disponibles` : "Bajo pedido"}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Concierge</span>
+                <span>Respuesta < 15min</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Envío</span>
+                <span>Seguro 24-48h RD</span>
+              </div>
+            </div>
+
+            <div className="space-y-2 text-sm text-muted">
+              <p>• Autenticidad verificada y documentación disponible.</p>
+              <p>• Asesoría personalizada para inversionistas y coleccionistas.</p>
+              <p>• Envíos asegurados a toda República Dominicana y coordinación internacional.</p>
+            </div>
+          </div>
+
+          {product.highlights && product.highlights.length > 0 && (
+            <div className="space-y-3 rounded-3xl border border-white/10 bg-white/5 p-6 shadow-soft">
+              <h2 className="text-sm uppercase tracking-[0.3em] text-muted">Por qué destaca</h2>
+              <ul className="space-y-2 text-sm text-muted">
+                {product.highlights.map((highlight, index) => (
+                  <li key={index} className="flex items-start gap-2">
+                    <span className="mt-1 block h-1.5 w-1.5 rounded-full bg-accent" />
+                    <span>{highlight}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {product.description && (
+            <div className="space-y-3 rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-muted shadow-soft">
+              <h2 className="text-sm uppercase tracking-[0.3em] text-muted">Descripción detallada</h2>
+              <PortableText value={product.description} />
+            </div>
+          )}
+
+          {product.tags && product.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {product.tags.map((tag) => (
+                <span key={tag} className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs uppercase tracking-[0.3em] text-muted">
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {recommendations.length > 0 && (
+        <section className="mt-20 space-y-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <span className="eyebrow">También te puede interesar</span>
+              <h2 className="mt-3 text-2xl font-heading font-semibold text-white">Más piezas seleccionadas para ti</h2>
+            </div>
+            <Link
+              href="/catalogo"
+              className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-muted transition hover:border-white/40 hover:text-white"
+            >
+              Ver catálogo →
+            </Link>
+          </div>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {recommendations.map((item) => (
+              <Link
+                key={item.slug}
+                href={`/producto/${item.slug}`}
+                className="group overflow-hidden rounded-3xl border border-white/10 bg-surface shadow-soft transition hover:-translate-y-1 hover:border-white/25 hover:shadow-glow"
+              >
+                <div className="relative aspect-[4/5]">
+                  <Image
+                    src={item.images[0]?.url ?? "/hero.jpg"}
+                    alt={item.images[0]?.alt ?? item.title}
+                    fill
+                    sizes="(min-width: 1024px) 25vw, (min-width: 768px) 35vw, 80vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                </div>
+                <div className="space-y-3 p-5">
+                  <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-muted">
+                    <span>{item.sport ?? item.productType ?? "Coleccionable"}</span>
+                    {item.year && <span>{item.year}</span>}
+                  </div>
+                  <h3 className="line-clamp-2 text-sm font-medium text-white/90">{item.title}</h3>
+                  <div className="flex items-center justify-between text-sm font-semibold text-accent">
+                    <span>{formatCurrency(item.price, item.currency)}</span>
+                    {item.rarity && <span className="text-xs text-muted">{item.rarity}</span>}
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
+  );
+}

@@ -1,0 +1,1 @@
+export default function Page(){return(<div className='container py-10 space-y-4'><h1 className='text-3xl font-semibold'>Preguntas frecuentes</h1><p className='text-muted'>Coordinamos pagos por WhatsApp. Envíos a todo RD. Autenticidad garantizada.</p></div>)}

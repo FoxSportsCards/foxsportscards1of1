@@ -1,0 +1,1 @@
+export default function Page(){return(<div className='container py-10'><h1 className='text-3xl font-semibold mb-3'>Próximos lanzamientos</h1><p className='text-muted'>Anunciaremos próximamente nuevas piezas y drops.</p></div>)}

@@ -1,0 +1,1 @@
+export default function Page(){return(<div className='container py-10'><h1 className='text-3xl font-semibold'>Sobre la marca</h1><p className='text-muted max-w-2xl mt-4'>foxsportscards nace con la misión de ofrecer coleccionables auténticos y curados con atención al detalle. Atención personalizada por WhatsApp y envíos en RD.</p></div>)}
