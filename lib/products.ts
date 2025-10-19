@@ -83,7 +83,7 @@ function mapGallery(images: SanityProductDocument["gallery"], fallbackTitle: str
         label: image?.displayName ?? null,
       };
     })
-    .filter((img): img is ProductImage => Boolean(img));
+    .filter((img): img is ProductImage => img !== null);
 }
 
 function mapSanityProduct(doc: SanityProductDocument): Product {
