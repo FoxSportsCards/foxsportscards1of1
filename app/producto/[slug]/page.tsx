@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { PortableText } from "@portabletext/react";
 import { formatCurrency } from "@/lib/pricing";
 import { getAllProducts, getProductBySlug } from "@/lib/products";
