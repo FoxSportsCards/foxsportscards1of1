@@ -22,4 +22,4 @@ export const useCart = create<State>()(persist((set, get) => ({
   },
   remove: (slug) => set({ items: get().items.filter(it => it.product.slug !== slug) }),
   clear: () => set({ items: [] }),
-}), { name: 'foxsportscards-cart' }));
+}), { name: 'foxsportscards1of1-cart' }));

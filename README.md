@@ -1,4 +1,4 @@
-# foxsportscards
+# foxsportscards1of1
 
 Sitio de coleccionables premium (Next.js + Tailwind) con catálogo gestionado vía Sanity y checkout manual por WhatsApp.
 

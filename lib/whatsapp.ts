@@ -30,7 +30,7 @@ export function buildWhatsAppUrl(numberIntl: string, lines: CartLine[], options?
 
   const totalAmount = lines.reduce((acc, line) => acc + line.qty * line.price, 0);
   const total = formatCurrency(totalAmount, fallbackCurrency);
-  const site = options?.siteUrl ?? "https://foxsportscards.pages.dev";
+  const site = options?.siteUrl ?? "https://foxsportscards1of1.com";
 
   const body = `${intro}\n${formattedLines}\nTotal estimado: ${total}\nSitio: ${site}`;
 

@@ -20,18 +20,18 @@ const heading = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "foxsportscards — Premium Collectibles",
-  description: "Coleccionables premium: cartas deportivas, TCG y memorabilia curada. Compra directa y asesoría personalizada.",
+  title: "foxsportscards1of1 - Premium Collectibles",
+  description: "Coleccionables premium: cartas deportivas, TCG y memorabilia curada. Compra directa y asesoria personalizada.",
   openGraph: {
-    title: "foxsportscards — Premium Collectibles",
+    title: "foxsportscards1of1 - Premium Collectibles",
     description: "Cartas deportivas, TCG y memorabilia curada para coleccionistas exigentes.",
-    url: "https://www.foxsportscards.com",
-    siteName: "foxsportscards",
+    url: "https://foxsportscards1of1.com",
+    siteName: "foxsportscards1of1",
     images: ["/og.jpg"],
     locale: "es_DO",
     type: "website",
   },
-  metadataBase: new URL("https://foxsportscards.pages.dev"),
+  metadataBase: new URL("https://foxsportscards1of1.com"),
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

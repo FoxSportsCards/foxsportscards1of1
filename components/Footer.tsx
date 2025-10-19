@@ -40,7 +40,7 @@ export default function Footer() {
         <div className="mt-12 grid gap-10 border-t border-white/5 pt-12 lg:grid-cols-4">
           <div className="space-y-4">
             <Link href="/" className="text-2xl font-heading font-semibold">
-              <span className="text-accent">fox</span>sportscards
+              <span className="text-accent">fox</span>sportscards1of1
             </Link>
             <p className="text-sm text-muted">
               Curamos colecciones premium de deportes, TCG y memorabilia certificada para coleccionistas que exigen lo mejor.
@@ -73,15 +73,15 @@ export default function Footer() {
           <div className="space-y-4">
             <h3 className="text-xs uppercase tracking-[0.25em] text-muted">Contacto directo</h3>
             <div className="space-y-2 text-sm text-muted">
-              <a href="mailto:hola@foxsportscards.com" className="transition hover:text-white">
-                hola@foxsportscards.com
+              <a href="mailto:hola@foxsportscards1of1.com" className="transition hover:text-white">
+                hola@foxsportscards1of1.com
               </a>
               <p>WhatsApp: +1 829 000 0000</p>
             </div>
           </div>
         </div>
         <div className="mt-12 flex flex-col gap-4 border-t border-white/5 pt-6 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
-          <p>© {currentYear} foxsportscards. Todos los derechos reservados.</p>
+          <p>Copyright {currentYear} foxsportscards1of1. Todos los derechos reservados.</p>
           <p className="text-muted">
             Operamos desde República Dominicana con envíos asegurados a todo el país.
           </p>

@@ -6,7 +6,7 @@ import { getAllProducts } from "@/lib/products";
 export const revalidate = 60;
 
 export const metadata = {
-  title: "Catálogo | foxsportscards",
+  title: "Catalogo | foxsportscards1of1",
 };
 
 export default async function Page() {

@@ -302,7 +302,7 @@ export default async function Page() {
               <span className="eyebrow">Nuestra historia</span>
               <h2 className="text-3xl font-heading font-semibold text-white">De la pasión por el deporte al vault premium.</h2>
               <p className="text-sm text-muted">
-                foxsportscards nace de años coleccionando, viajando a shows internacionales y construyendo relaciones con dealers,
+                foxsportscards1of1 nace de anos coleccionando, viajando a shows internacionales y construyendo relaciones con dealers,
                 breakers y empresas de grading. Curamos cada pieza con criterios de inversión y storytelling para que cada compra
                 sea una experiencia memorable.
               </p>
