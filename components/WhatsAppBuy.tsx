@@ -3,7 +3,7 @@
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import type { Product } from "@/types/product";
 
-const WHATSAPP_NUMBER = "18290000000"; // Reemplazar por el número real sin '+'
+const WHATSAPP_NUMBER = "18492617328"; // Número de WhatsApp en formato internacional sin '+'
 
 export default function WhatsAppBuy({ product }: { product: Product }) {
   const href = buildWhatsAppUrl(

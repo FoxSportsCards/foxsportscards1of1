@@ -2,88 +2,100 @@ import Image from "next/image";
 import Link from "next/link";
 import { PortableText } from "@portabletext/react";
 import { formatCurrency } from "@/lib/pricing";
+import { notFound } from "next/navigation";
 import { getAllProducts, getProductBySlug } from "@/lib/products";
 import AddToCart from "@/components/AddToCart";
 import WhatsAppBuy from "@/components/WhatsAppBuy";
+import ProductGallery from "@/components/ProductGallery";
+import type { Product, ProductImage } from "@/types/product";
 
 export const revalidate = 60;
 
 export async function generateStaticParams() {
-  const products = await getAllProducts();
-  return products.map((product) => ({ slug: product.slug }));
+  try {
+    const products = await getAllProducts();
+    return products.map((product) => ({ slug: product.slug }));
+  } catch (error) {
+    console.error("[producto] Failed to preload product slugs", error);
+    return [];
+  }
+}
+
+function ensureImages(product: Product): ProductImage[] {
+  if (product.images.length > 0) {
+    return product.images;
+  }
+  return [
+    {
+      url: "/hero.jpg",
+      alt: product.title,
+      label: "placeholder",
+    },
+  ];
 }
 
 export default async function ProductPage({ params }: { params: { slug: string } }) {
-  const [product, allProducts] = await Promise.all([
-    getProductBySlug(params.slug),
-    getAllProducts(),
-  ]);
+  let product: Product | null = null;
+  let allProducts: Product[] = [];
 
-  const heroImage = product.images[0];
-  const gallery = product.images.slice(1);
-  const recommendations = allProducts
-    .filter(
-      (item) =>
-        item.slug !== product.slug &&
-        (item.sport === product.sport || item.productType === product.productType),
-    )
-    .slice(0, 3);
+  try {
+    const [productResult, allProductsResult] = await Promise.all([
+      getProductBySlug(params.slug),
+      getAllProducts(),
+    ]);
+    product = productResult;
+    allProducts = Array.isArray(allProductsResult) ? allProductsResult : [];
+  } catch (error) {
+    console.error(`[producto] Failed to load product ${params.slug}`, error);
+    notFound();
+  }
+
+  if (!product) {
+    notFound();
+  }
+
+  const productImages = ensureImages(product);
+
+  const relatedPool = allProducts.filter((item) => item.slug !== product!.slug);
+  const prioritized = relatedPool.filter(
+    (item) => item.sport === product!.sport || item.productType === product!.productType,
+  );
+  const deduped = [...prioritized, ...relatedPool].filter(
+    (item, index, array) => array.findIndex((entry) => entry.slug === item.slug) === index,
+  );
+  const recommendations = deduped.slice(0, 3);
+
+  const statusLabel =
+    product.status === "sold"
+      ? "No disponible"
+      : product.status === "reserved"
+        ? "Reservado"
+        : product.status === "upcoming"
+          ? "Próximo lanzamiento"
+          : "Disponible";
 
   return (
     <div className="container py-16">
-      <div className="grid gap-12 lg:grid-cols-[1.25fr_0.9fr]">
-        <div className="space-y-6">
-          <div className="relative aspect-[4/5] overflow-hidden rounded-4xl border border-white/10 bg-surface shadow-soft">
-            <Image
-              src={heroImage?.url ?? "/hero.jpg"}
-              alt={heroImage?.alt ?? product.title}
-              fill
-              sizes="(min-width: 1280px) 45vw, (min-width: 768px) 60vw, 90vw"
-              className="object-cover"
-              priority
-            />
-            {product.status && product.status !== "available" && (
-              <span className="absolute left-5 top-5 rounded-full bg-black/70 px-4 py-1 text-sm uppercase tracking-[0.3em] text-white">
-                {product.status === "sold"
-                  ? "Vendido"
-                  : product.status === "reserved"
-                    ? "Reservado"
-                    : "Próximo lanzamiento"}
-              </span>
-            )}
-          </div>
-
-          {gallery.length > 0 && (
-            <div className="grid gap-3 sm:grid-cols-4">
-              {gallery.map((image) => (
-                <div
-                  key={`${image.url}-${image.label ?? ""}`}
-                  className="relative aspect-square overflow-hidden rounded-2xl border border-white/10 bg-surface"
-                >
-                  <Image
-                    src={image.url}
-                    alt={image.alt ?? product.title}
-                    fill
-                    sizes="(min-width: 768px) 18vw, 33vw"
-                    className="object-cover transition-transform duration-300 hover:scale-105"
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+      <div className="grid gap-12 lg:grid-cols-[1.2fr_0.9fr]">
+        <ProductGallery title={product.title} images={productImages} status={product.status ?? "available"} />
 
         <div className="space-y-8">
-          <div className="space-y-4 rounded-4xl border border-white/10 bg-white/5 p-6 shadow-soft backdrop-blur lg:sticky lg:top-28">
+          <div className="space-y-5 rounded-4xl border border-white/10 bg-white/5 p-6 shadow-soft backdrop-blur lg:sticky lg:top-28">
             <div className="flex flex-wrap gap-2 text-xs uppercase tracking-[0.3em] text-muted">
               <span>{product.sport ?? product.productType ?? "Coleccionable"}</span>
               {product.year && <span>Edición {product.year}</span>}
               {product.certification && <span>Grading {product.certification}</span>}
               {product.rarity && <span>{product.rarity}</span>}
             </div>
-            <h1 className="text-3xl font-heading font-semibold text-white">{product.title}</h1>
-            <p className="text-2xl font-heading text-accent">{formatCurrency(product.price, product.currency)}</p>
-            {product.shortDescription && <p className="text-sm text-muted">{product.shortDescription}</p>}
+
+            <div className="space-y-3">
+              <span className="inline-block rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] uppercase tracking-[0.35em] text-white/70">
+                {statusLabel}
+              </span>
+              <h1 className="text-3xl font-heading font-semibold text-white lg:text-[34px]">{product.title}</h1>
+              <p className="text-2xl font-heading text-accent">{formatCurrency(product.price, product.currency)}</p>
+              {product.shortDescription && <p className="text-sm text-muted">{product.shortDescription}</p>}
+            </div>
 
             <div className="flex flex-wrap gap-3">
               <AddToCart product={product} />
@@ -93,11 +105,15 @@ export default async function ProductPage({ params }: { params: { slug: string }
             <div className="grid gap-4 rounded-3xl border border-white/5 bg-background/70 p-5 text-xs uppercase tracking-[0.3em] text-muted">
               <div className="flex items-center justify-between">
                 <span>Inventario</span>
-                <span>{typeof product.inventory === "number" ? `${product.inventory} disponibles` : "Bajo pedido"}</span>
+                <span>
+                  {typeof product.inventory === "number"
+                    ? `${product.inventory} ${product.inventory === 1 ? "pieza" : "piezas"}`
+                    : "Bajo pedido"}
+                </span>
               </div>
               <div className="flex items-center justify-between">
                 <span>Concierge</span>
-                <span>Respuesta &lt; 15min</span>
+                <span>Respuesta &lt; 15 min</span>
               </div>
               <div className="flex items-center justify-between">
                 <span>Envío</span>
@@ -106,9 +122,9 @@ export default async function ProductPage({ params }: { params: { slug: string }
             </div>
 
             <div className="space-y-2 text-sm text-muted">
-              <p>• Autenticidad verificada y documentación disponible.</p>
+              <p>• Autenticidad verificada con documentación disponible.</p>
               <p>• Asesoría personalizada para inversionistas y coleccionistas.</p>
-              <p>• Envíos asegurados a toda República Dominicana y coordinación internacional.</p>
+              <p>• Envíos asegurados en República Dominicana y coordinación internacional.</p>
             </div>
           </div>
 
@@ -136,7 +152,10 @@ export default async function ProductPage({ params }: { params: { slug: string }
           {product.tags && product.tags.length > 0 && (
             <div className="flex flex-wrap gap-2">
               {product.tags.map((tag) => (
-                <span key={tag} className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs uppercase tracking-[0.3em] text-muted">
+                <span
+                  key={tag}
+                  className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs uppercase tracking-[0.3em] text-muted"
+                >
                   #{tag}
                 </span>
               ))}

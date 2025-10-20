@@ -3,6 +3,14 @@ import type { PortableTextBlock } from "sanity";
 import { sanityClient, urlForImage } from "@/lib/sanity.client";
 import type { Product, ProductImage } from "@/types/product";
 
+type GalleryImage = {
+  _key?: string;
+  alt?: string;
+  displayName?: string;
+  url?: string;
+  asset?: { _ref?: string; _id?: string };
+};
+
 type SanityProductDocument = {
   _id: string;
   id?: string;
@@ -24,14 +32,14 @@ type SanityProductDocument = {
   whatsappMessage?: string;
   heroVideoUrl?: string;
   featured?: boolean;
-  gallery?: Array<{
-    _key?: string;
-    alt?: string;
-    displayName?: string;
-    url?: string;
-    asset?: { _ref?: string; _id?: string };
-  }>;
+  gallery?: GalleryImage[];
 };
+
+function hasImageSource(image: unknown): image is GalleryImage {
+  if (!image || typeof image !== "object") return false;
+  const candidate = image as GalleryImage;
+  return Boolean(candidate.asset) || typeof candidate.url === "string";
+}
 
 const PRODUCT_FIELDS = groq`
   _id,
@@ -72,10 +80,14 @@ const PRODUCT_BY_SLUG_QUERY = groq`*[_type == "product" && slug.current == $slug
 }`;
 
 function mapGallery(images: SanityProductDocument["gallery"], fallbackTitle: string): ProductImage[] {
-  if (!images?.length) return [];
-  return images
-    .map((image) => {
-      const url = urlForImage(image?.asset ?? image ?? image?.url ?? "") ?? image?.url ?? null;
+  const gallery = Array.isArray(images) ? images : [];
+  if (!gallery.length) return [];
+  return gallery
+    .filter(hasImageSource)
+    .map<ProductImage | null>((image) => {
+      const assetUrl = image.asset ? urlForImage(image.asset) : null;
+      const directUrl = typeof image.url === "string" && image.url.length > 0 ? image.url : null;
+      const url = assetUrl ?? directUrl ?? null;
       if (!url) return null;
       return {
         url,
