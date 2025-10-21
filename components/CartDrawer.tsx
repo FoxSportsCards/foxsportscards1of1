@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import clsx from "clsx";
 import { useCart } from "@/store/cart";
@@ -11,6 +12,7 @@ const WHATSAPP_NUMBER = "18492617328";
 
 export default function CartDrawer() {
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const items = useCart((state) => state.items);
   const remove = useCart((state) => state.remove);
   const clear = useCart((state) => state.clear);
@@ -35,6 +37,10 @@ export default function CartDrawer() {
       introMessage: "Hola, quiero confirmar este pedido:",
     });
   }, [items]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -70,124 +76,122 @@ export default function CartDrawer() {
         )}
       </button>
 
-      {open && (
-        <div className="fixed inset-0 z-50">
+      {mounted && open && createPortal(
+        <div className="fixed inset-0 z-[60] grid place-items-center p-4 sm:p-6">
           <div
             className="absolute inset-0 bg-black/70 backdrop-blur-md transition-opacity md:bg-black/80"
             onClick={() => setOpen(false)}
             aria-hidden
           />
-          <div className="absolute inset-0 flex items-center justify-center p-4 sm:p-6">
-            <aside
-              role="dialog"
-              aria-modal="true"
-              className="relative flex h-full w-full max-w-md flex-col overflow-hidden rounded-3xl border border-white/10 bg-background text-white shadow-[0_30px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:max-w-lg md:h-auto md:max-h-[85vh] md:max-w-4xl"
-            >
-              <header className="flex items-center justify-between border-b border-white/10 px-6 py-5">
-                <div>
-                  <h2 className="text-lg font-semibold">Resumen de tu pedido</h2>
-                  <p className="text-xs uppercase tracking-[0.35em] text-muted">
-                    {itemCount} {itemCount === 1 ? "pieza" : "piezas"}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setOpen(false)}
-                  className="rounded-full border border-white/10 px-3 py-1 text-sm text-muted transition hover:border-white/30 hover:text-white"
-                >
-                  Cerrar
-                </button>
-              </header>
+          <aside
+            role="dialog"
+            aria-modal="true"
+            className="relative z-10 flex w-full max-w-md flex-col overflow-hidden rounded-3xl border border-white/10 bg-background text-white shadow-[0_30px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl max-h-[calc(100vh-3rem)] sm:max-w-lg md:max-h-[85vh] md:max-w-4xl"
+          >
+            <header className="flex items-center justify-between border-b border-white/10 px-6 py-5">
+              <div>
+                <h2 className="text-lg font-semibold">Resumen de tu pedido</h2>
+                <p className="text-xs uppercase tracking-[0.35em] text-muted">
+                  {itemCount} {itemCount === 1 ? "pieza" : "piezas"}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="rounded-full border border-white/10 px-3 py-1 text-sm text-muted transition hover:border-white/30 hover:text-white"
+              >
+                Cerrar
+              </button>
+            </header>
 
-              <div className="flex-1 overflow-y-auto px-6 py-6 md:max-h-[55vh]">
-                {items.length === 0 ? (
-                  <p className="text-sm text-muted">
-                    Tu carrito está vacío. Explora el catálogo para añadir piezas.
-                  </p>
-                ) : (
-                  <ul className="space-y-6">
-                    {items.map(({ product, qty }) => {
-                      const cover = product.images[0]?.url ?? "/hero.jpg";
-                      return (
-                        <li key={product.slug} className="flex gap-4">
-                          <div className="relative h-20 w-16 overflow-hidden rounded-xl border border-white/10 bg-white/5">
-                            <Image
-                              src={cover}
-                              alt={product.images[0]?.alt ?? product.title}
-                              fill
-                              sizes="64px"
-                              className="object-cover"
-                            />
+            <div className="flex-1 overflow-y-auto px-6 py-6 md:max-h-[55vh]">
+              {items.length === 0 ? (
+                <p className="text-sm text-muted">
+                  Tu carrito está vacío. Explora el catálogo para añadir piezas.
+                </p>
+              ) : (
+                <ul className="space-y-6">
+                  {items.map(({ product, qty }) => {
+                    const cover = product.images[0]?.url ?? "/hero.jpg";
+                    return (
+                      <li key={product.slug} className="flex gap-4">
+                        <div className="relative h-20 w-16 overflow-hidden rounded-xl border border-white/10 bg-white/5">
+                          <Image
+                            src={cover}
+                            alt={product.images[0]?.alt ?? product.title}
+                            fill
+                            sizes="64px"
+                            className="object-cover"
+                          />
+                        </div>
+                        <div className="flex flex-1 flex-col justify-between text-sm">
+                          <div>
+                            <p className="font-medium text-white/90">{product.title}</p>
+                            <p className="text-xs text-muted">
+                              {qty} x {formatCurrency(product.price, product.currency ?? "DOP")}
+                            </p>
                           </div>
-                          <div className="flex flex-1 flex-col justify-between text-sm">
-                            <div>
-                              <p className="font-medium text-white/90">{product.title}</p>
-                              <p className="text-xs text-muted">
-                                {qty} x {formatCurrency(product.price, product.currency ?? "DOP")}
-                              </p>
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm font-semibold text-accent">
-                                {formatCurrency(product.price * qty, product.currency ?? "DOP")}
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => remove(product.slug)}
-                                className="text-xs text-muted transition hover:text-white"
-                              >
-                                Quitar
-                              </button>
-                            </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-semibold text-accent">
+                              {formatCurrency(product.price * qty, product.currency ?? "DOP")}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => remove(product.slug)}
+                              className="text-xs text-muted transition hover:text-white"
+                            >
+                              Quitar
+                            </button>
                           </div>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
+
+            <footer className="space-y-4 border-t border-white/10 px-6 py-6">
+              <div className="flex items-center justify-between text-sm">
+                <span>Total estimado</span>
+                <span className="text-base font-semibold text-accent">
+                  {formatCurrency(totalAmount, totalCurrency)}
+                </span>
               </div>
 
-              <footer className="space-y-4 border-t border-white/10 px-6 py-6">
-                <div className="flex items-center justify-between text-sm">
-                  <span>Total estimado</span>
-                  <span className="text-base font-semibold text-accent">
-                    {formatCurrency(totalAmount, totalCurrency)}
-                  </span>
-                </div>
-
-                <div className="flex flex-col gap-3">
-                  <a
-                    href={whatsappLink}
-                    target="_blank"
-                    rel="noreferrer"
-                    className={clsx(
-                      "inline-flex items-center justify-center rounded-full bg-accent px-4 py-3 text-sm font-semibold text-black transition",
-                      items.length ? "hover:opacity-90 shadow-glow" : "cursor-not-allowed opacity-40",
-                    )}
-                    aria-disabled={!items.length}
-                    onClick={() => {
-                      if (!items.length) return;
-                      setOpen(false);
-                    }}
-                  >
-                    Confirmar por WhatsApp
-                  </a>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      clear();
-                      setOpen(false);
-                    }}
-                    className="rounded-full border border-white/10 px-4 py-2 text-sm text-muted transition hover:border-white/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
-                    disabled={!items.length}
-                  >
-                    Vaciar carrito
-                  </button>
-                </div>
-              </footer>
-            </aside>
-          </div>
+              <div className="flex flex-col gap-3">
+                <a
+                  href={whatsappLink}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={clsx(
+                    "inline-flex items-center justify-center rounded-full bg-accent px-4 py-3 text-sm font-semibold text-black transition",
+                    items.length ? "hover:opacity-90 shadow-glow" : "cursor-not-allowed opacity-40",
+                  )}
+                  aria-disabled={!items.length}
+                  onClick={() => {
+                    if (!items.length) return;
+                    setOpen(false);
+                  }}
+                >
+                  Confirmar por WhatsApp
+                </a>
+                <button
+                  type="button"
+                  onClick={() => {
+                    clear();
+                    setOpen(false);
+                  }}
+                  className="rounded-full border border-white/10 px-4 py-2 text-sm text-muted transition hover:border-white/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                  disabled={!items.length}
+                >
+                  Vaciar carrito
+                </button>
+              </div>
+            </footer>
+          </aside>
         </div>
-      )}
+      , document.body)}
     </>
   );
 }
