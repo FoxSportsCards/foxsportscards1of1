@@ -11,7 +11,7 @@ type Props = {
   products: Product[];
 };
 
-const STATUS_FILTERS = ["Disponibles", "Reservados", "Pr\u00f3ximos", "Vendidos"];
+const STATUS_FILTERS = ["Disponibles", "Reservados", "Próximos", "Vendidos"];
 
 function normalize(value: string) {
   return value
@@ -89,18 +89,18 @@ export function CatalogClient({ products }: Props) {
     <>
       <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div className="space-y-3">
-          <span className="eyebrow">Cat\u00e1logo curado</span>
-          <h1 className="text-4xl font-heading font-semibold text-white">Encuentra tu pr\u00f3xima pieza estrella</h1>
+          <span className="eyebrow">Catálogo curado</span>
+          <h1 className="text-4xl font-heading font-semibold text-white">Encuentra tu próxima pieza estrella</h1>
           <p className="max-w-2xl text-sm text-muted">
             Singles premium, cajas selladas y memorabilia certificada. Ordenamos primero las piezas disponibles y destacadas
-            para que hagas movimientos r\u00e1pidos.
+            para que hagas movimientos rápidos.
           </p>
         </div>
         <Link
           href="/studio"
           className="inline-flex items-center gap-2 rounded-full border border-white/15 px-5 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-muted transition hover:border-white/40 hover:text-white"
         >
-          Gestionar contenido en el Studio \u2192
+          Gestionar contenido en el Studio →
         </Link>
       </div>
 
@@ -110,7 +110,7 @@ export function CatalogClient({ products }: Props) {
             type="search"
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
-            placeholder="Buscar por jugador, equipo o categor\u00eda"
+            placeholder="Buscar por jugador, equipo o categoría"
             className="w-full rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm text-white placeholder:text-muted shadow-soft focus:border-accent/60 focus:outline-none focus:ring-0"
           />
           {searchTerm && (
@@ -171,7 +171,7 @@ export function CatalogClient({ products }: Props) {
                 />
                 {status !== "available" && (
                   <span className="absolute left-3 top-3 rounded-full bg-black/70 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white">
-                    {status === "sold" ? "Vendido" : status === "reserved" ? "Reservado" : "Pr\u00f3ximo"}
+                    {status === "sold" ? "Vendido" : status === "reserved" ? "Reservado" : "Próximo"}
                   </span>
                 )}
               </div>
@@ -193,7 +193,7 @@ export function CatalogClient({ products }: Props) {
 
       {visibleProducts.length === 0 && (
         <div className="mt-16 rounded-3xl border border-white/5 bg-white/5 p-10 text-center text-sm text-muted">
-          No encontramos piezas para esta b\u00fasqueda. Ajusta los filtros o escr\u00edbenos por WhatsApp y te ayudamos a localizarla.
+          No encontramos piezas para esta búsqueda. Ajusta los filtros o escríbenos por WhatsApp y te ayudamos a localizarla.
         </div>
       )}
     </>

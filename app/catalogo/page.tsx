@@ -4,7 +4,7 @@ import { CatalogClient } from "./CatalogClient";
 export const revalidate = 60;
 
 export const metadata = {
-  title: "Cat\u00e1logo | foxsportscards1of1",
+  title: "Catálogo | foxsportscards1of1",
 };
 
 export default async function CatalogPage() {

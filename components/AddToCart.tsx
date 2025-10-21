@@ -33,7 +33,7 @@ export default function AddToCart({ product }: { product: Product }) {
       className="rounded-xl bg-white/10 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
       aria-live="polite"
     >
-      {justAdded ? "A\u00f1adido \u2713" : "A\u00f1adir al carrito"}
+      {justAdded ? "Añadido ✓" : "Añadir al carrito"}
     </button>
   );
 }
