@@ -11,7 +11,9 @@ if (!shouldRun) {
   process.exit(0);
 }
 
-const result = spawnSync("npx", ["@cloudflare/next-on-pages", "--skip-build"], {
+const args = ["@cloudflare/next-on-pages"];
+
+const result = spawnSync("npx", args, {
   stdio: "inherit",
   shell: process.platform === "win32",
 });
