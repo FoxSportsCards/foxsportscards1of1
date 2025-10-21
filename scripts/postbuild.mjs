@@ -1,10 +1,12 @@
 import { spawnSync } from "node:child_process";
 
+const normalize = (value) => (value ?? "").toString().trim().toLowerCase();
+
 const shouldRun =
-  process.env.CI === "true" ||
-  process.env.CI === "1" ||
-  process.env.CF_PAGES === "1" ||
-  process.env.CF_PAGES === "true";
+  normalize(process.env.CI) === "true" ||
+  normalize(process.env.CI) === "1" ||
+  normalize(process.env.CF_PAGES) === "true" ||
+  normalize(process.env.CF_PAGES) === "1";
 
 if (!shouldRun) {
   console.log("[postbuild] Skipping @cloudflare/next-on-pages conversion outside CI.");
