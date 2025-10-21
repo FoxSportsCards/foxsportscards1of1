@@ -9,7 +9,8 @@
     "lint": "next lint",
     "sanity:dev": "sanity dev --host 0.0.0.0",
     "sanity:deploy": "sanity deploy",
-    "sanity:manage": "sanity manage"
+    "sanity:manage": "sanity manage",
+    "postbuild": "node scripts/postbuild.mjs"
   },
   "dependencies": {
     "@portabletext/react": "^4.0.3",
@@ -27,6 +28,7 @@
     "zustand": "4.5.2"
   },
   "devDependencies": {
+    "@cloudflare/next-on-pages": "^1.13.16",
     "@types/node": "24.8.1",
     "@types/react": "19.2.2",
     "autoprefixer": "10.4.19",
