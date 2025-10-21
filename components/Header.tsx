@@ -47,6 +47,7 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <CartDrawer />
           <a
             href="https://www.instagram.com/foxsportscards1of1"
             target="_blank"
