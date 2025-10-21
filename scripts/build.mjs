@@ -13,6 +13,11 @@ const isCloudflarePages =
   Boolean(process.env.CF_PAGES_URL) ||
   Boolean(process.env.CF_PAGES_PROJECT_ID);
 
+const isVercelBuild =
+  toBoolean(process.env.VERCEL) ||
+  toBoolean(process.env.VERCEL_BUILD) ||
+  Boolean(process.env.VERCEL_URL);
+
 function run(command, args) {
   const result = spawnSync(command, args, {
     stdio: "inherit",
@@ -23,7 +28,10 @@ function run(command, args) {
   }
 }
 
-if (isCloudflarePages) {
+if (isVercelBuild) {
+  console.log("[build] Detected Vercel build environment. Running Next.js build only.");
+  run("npx", ["next", "build"]);
+} else if (isCloudflarePages) {
   console.log("[build] Detected Cloudflare Pages environment. Running @cloudflare/next-on-pages.");
   run("npx", ["@cloudflare/next-on-pages"]);
 } else {
