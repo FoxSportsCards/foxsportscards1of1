@@ -1,8 +1,10 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import clsx from "clsx";
 import { usePathname } from "next/navigation";
+import CartDrawer from "./CartDrawer";
 
 const NAV_ITEMS = [
   { label: "Catálogo", href: "/catalogo" },
@@ -18,8 +20,18 @@ export default function Header() {
     <header className="sticky top-0 z-50 border-b border-white/10 bg-background/70 backdrop-blur-xl">
       <div className="container flex h-20 flex-wrap items-center justify-between gap-4 py-3 sm:flex-nowrap sm:py-0">
         <div className="flex flex-1 items-center gap-3">
-          <Link href="/" className="text-2xl font-heading font-semibold tracking-tight text-white transition hover:text-accent">
-            <span className="text-accent">fox</span>sportscards<span className="text-accent">1of1</span>
+          <Link href="/" className="flex items-center gap-3 text-white transition hover:text-accent">
+            <Image
+              src="/fox-logo.png"
+              alt="Foxsportscards1of1"
+              width={44}
+              height={44}
+              className="h-11 w-11 rounded-full border border-white/20 bg-black/40 object-cover"
+              priority
+            />
+            <span className="text-2xl font-heading font-semibold tracking-tight">
+              <span className="text-accent">fox</span>sportscards<span className="text-accent">1of1</span>
+            </span>
           </Link>
           <span className="hidden border-l border-white/10 pl-3 text-[11px] uppercase tracking-[0.35em] text-muted lg:inline">
             Vault curado premium
