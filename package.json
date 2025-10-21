@@ -4,13 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/build.mjs",
     "start": "next start",
     "lint": "next lint",
     "sanity:dev": "sanity dev --host 0.0.0.0",
     "sanity:deploy": "sanity deploy",
-    "sanity:manage": "sanity manage",
-    "postbuild": "node scripts/postbuild.mjs"
+    "sanity:manage": "sanity manage"
   },
   "dependencies": {
     "@portabletext/react": "^4.0.3",
