@@ -101,7 +101,7 @@ export default function CartDrawer() {
             <div className="flex-1 overflow-y-auto px-6 py-6">
               {items.length === 0 ? (
                 <p className="text-sm text-muted">
-                  Tu carrito est\u00E1 vac\u00EDo. Explora el cat\u00E1logo para a\u00F1adir piezas.
+                  Tu carrito está vacío. Explora el catálogo para añadir piezas.
                 </p>
               ) : (
                 <ul className="space-y-6">
@@ -122,7 +122,7 @@ export default function CartDrawer() {
                           <div>
                             <p className="font-medium text-white/90">{product.title}</p>
                             <p className="text-xs text-muted">
-                              {qty} \u00D7 {formatCurrency(product.price, product.currency ?? "DOP")}
+                              {qty} x {formatCurrency(product.price, product.currency ?? "DOP")}
                             </p>
                           </div>
                           <div className="flex items-center justify-between">

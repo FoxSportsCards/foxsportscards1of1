@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import CartDrawer from "./CartDrawer";
 
 const NAV_ITEMS = [
-  { label: "Cat\u00E1logo", href: "/catalogo" },
+  { label: "Catálogo", href: "/catalogo" },
   { label: "Lanzamientos", href: "/lanzamientos" },
   { label: "Historias", href: "/sobre" },
   { label: "Preguntas", href: "/preguntas" },
@@ -18,8 +18,8 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-background/85 backdrop-blur-xl">
-      <div className="container flex h-20 items-center gap-4 py-3 sm:py-0">
-        <div className="flex min-w-0 flex-1 items-center gap-3">
+      <div className="container flex h-auto flex-wrap items-center justify-between gap-3 py-3 sm:h-20 sm:flex-nowrap sm:items-center sm:gap-4 sm:py-0">
+        <div className="flex min-w-0 items-center gap-3 sm:flex-1">
           <Link href="/" className="flex items-center gap-3 text-white transition hover:text-accent">
             <span className="relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border border-white/20 bg-black/60">
               <Image
@@ -40,7 +40,7 @@ export default function Header() {
           </span>
         </div>
 
-        <nav className="hidden flex-1 items-center justify-center gap-1 rounded-full border border-white/10 bg-white/5 px-2 py-1 text-sm shadow-soft md:flex">
+        <nav className="hidden w-full items-center justify-center gap-1 rounded-full border border-white/10 bg-white/5 px-2 py-1 text-sm shadow-soft md:flex md:w-auto md:flex-1">
           {NAV_ITEMS.map(({ label, href }) => {
             const isActive = pathname === href;
             return (
@@ -60,7 +60,7 @@ export default function Header() {
           })}
         </nav>
 
-        <div className="flex flex-1 items-center justify-end gap-2">
+        <div className="flex items-center gap-2 sm:flex-1 sm:justify-end">
           <CartDrawer />
           <a
             href="https://www.instagram.com/foxsportscards1of1"
