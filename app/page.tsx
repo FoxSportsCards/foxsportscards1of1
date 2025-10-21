@@ -274,7 +274,7 @@ export default async function Page() {
               </p>
             </div>
             <a
-              href="https://wa.me/18290000000"
+              href="https://wa.me/18492617328"
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-black shadow-glow transition hover:bg-accent-soft"

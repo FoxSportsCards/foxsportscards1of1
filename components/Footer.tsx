@@ -23,17 +23,17 @@ export default function Footer() {
           <div className="max-w-xl space-y-4">
             <h2 className="text-3xl font-heading font-semibold">Colecciona con confianza.</h2>
             <p className="text-sm text-muted">
-              Vault curado, piezas verificadas y asesoría personalizada para cada adquisición. Construyamos juntos la
-              vitrina que represente tu historia.
+              Vault curado, piezas verificadas y asesoría personalizada para cada adquisición. Construyamos juntos la vitrina
+              que represente tu historia.
             </p>
           </div>
           <a
-            href="https://wa.me/18290000000"
+            href="https://wa.me/18492617328"
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-black shadow-glow transition hover:bg-accent-soft"
           >
-            Agenda tu sesión concierge
+            Contáctanos por WhatsApp
           </a>
         </div>
 
@@ -76,15 +76,14 @@ export default function Footer() {
               <a href="mailto:hola@foxsportscards1of1.com" className="transition hover:text-white">
                 hola@foxsportscards1of1.com
               </a>
-              <p>WhatsApp: +1 829 000 0000</p>
+              <p>WhatsApp: +1 (849) 261-7328</p>
             </div>
           </div>
         </div>
+
         <div className="mt-12 flex flex-col gap-4 border-t border-white/5 pt-6 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
           <p>Copyright {currentYear} foxsportscards1of1. Todos los derechos reservados.</p>
-          <p className="text-muted">
-            Operamos desde República Dominicana con envíos asegurados a todo el país.
-          </p>
+          <p>Operamos desde República Dominicana con envíos asegurados a todo el país.</p>
         </div>
       </div>
     </footer>

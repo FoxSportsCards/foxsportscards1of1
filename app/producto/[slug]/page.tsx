@@ -36,6 +36,12 @@ function ensureImages(product: Product): ProductImage[] {
   ];
 }
 
+const SERVICE_NOTES = [
+  "Autenticidad verificada con documentaci\u00f3n disponible.",
+  "Asesor\u00eda personalizada para inversionistas y coleccionistas.",
+  "Env\u00edos asegurados en Rep\u00fablica Dominicana y coordinaci\u00f3n internacional.",
+];
+
 export default async function ProductPage({ params }: { params: { slug: string } }) {
   let product: Product | null = null;
   let allProducts: Product[] = [];
@@ -73,7 +79,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
       : product.status === "reserved"
         ? "Reservado"
         : product.status === "upcoming"
-          ? "Próximo lanzamiento"
+          ? "Pr\u00f3ximo lanzamiento"
           : "Disponible";
 
   return (
@@ -85,7 +91,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
           <div className="space-y-5 rounded-4xl border border-white/10 bg-white/5 p-6 shadow-soft backdrop-blur lg:sticky lg:top-28">
             <div className="flex flex-wrap gap-2 text-xs uppercase tracking-[0.3em] text-muted">
               <span>{product.sport ?? product.productType ?? "Coleccionable"}</span>
-              {product.year && <span>Edición {product.year}</span>}
+              {product.year && <span>Edici\u00f3n {product.year}</span>}
               {product.certification && <span>Grading {product.certification}</span>}
               {product.rarity && <span>{product.rarity}</span>}
             </div>
@@ -104,35 +110,40 @@ export default async function ProductPage({ params }: { params: { slug: string }
               <WhatsAppBuy product={product} />
             </div>
 
-            <div className="grid gap-4 rounded-3xl border border-white/5 bg-background/70 p-5 text-xs uppercase tracking-[0.3em] text-muted">
-              <div className="flex items-center justify-between">
-                <span>Inventario</span>
-                <span>
-                  {typeof product.inventory === "number"
-                    ? `${product.inventory} ${product.inventory === 1 ? "pieza" : "piezas"}`
-                    : "Bajo pedido"}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span>Concierge</span>
-                <span>Respuesta &lt; 15 min</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span>Envío</span>
-                <span>Seguro 24-48h RD</span>
-              </div>
+            <div className="rounded-3xl border border-white/10 bg-background/70 p-6">
+              <dl className="grid gap-5 text-left sm:grid-cols-3">
+                <div>
+                  <dt className="text-[11px] uppercase tracking-[0.35em] text-muted">Inventario</dt>
+                  <dd className="mt-2 text-sm font-semibold text-white">
+                    {typeof product.inventory === "number"
+                      ? `${product.inventory} ${product.inventory === 1 ? "pieza" : "piezas"}`
+                      : "Bajo pedido"}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-[11px] uppercase tracking-[0.35em] text-muted">Respuesta</dt>
+                  <dd className="mt-2 text-sm font-semibold text-white">Menos de 15 min</dd>
+                </div>
+                <div>
+                  <dt className="text-[11px] uppercase tracking-[0.35em] text-muted">Env\u00edo</dt>
+                  <dd className="mt-2 text-sm font-semibold text-white">Seguro 24-48h RD</dd>
+                </div>
+              </dl>
             </div>
 
-            <div className="space-y-2 text-sm text-muted">
-              <p>• Autenticidad verificada con documentación disponible.</p>
-              <p>• Asesoría personalizada para inversionistas y coleccionistas.</p>
-              <p>• Envíos asegurados en República Dominicana y coordinación internacional.</p>
-            </div>
+            <ul className="space-y-2 text-sm text-muted">
+              {SERVICE_NOTES.map((note) => (
+                <li key={note} className="flex items-start gap-2">
+                  <span className="mt-2 block h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent" aria-hidden />
+                  <span>{note}</span>
+                </li>
+              ))}
+            </ul>
           </div>
 
           {product.highlights && product.highlights.length > 0 && (
             <div className="space-y-3 rounded-3xl border border-white/10 bg-white/5 p-6 shadow-soft">
-              <h2 className="text-sm uppercase tracking-[0.3em] text-muted">Por qué destaca</h2>
+              <h2 className="text-sm uppercase tracking-[0.3em] text-muted">Por qu\u00e9 destaca</h2>
               <ul className="space-y-2 text-sm text-muted">
                 {product.highlights.map((highlight, index) => (
                   <li key={index} className="flex items-start gap-2">
@@ -146,7 +157,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
 
           {product.description && (
             <div className="space-y-3 rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-muted shadow-soft">
-              <h2 className="text-sm uppercase tracking-[0.3em] text-muted">Descripción detallada</h2>
+              <h2 className="text-sm uppercase tracking-[0.3em] text-muted">Descripci\u00f3n detallada</h2>
               <PortableText value={product.description} />
             </div>
           )}
@@ -170,14 +181,14 @@ export default async function ProductPage({ params }: { params: { slug: string }
         <section className="mt-20 space-y-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <span className="eyebrow">También te puede interesar</span>
-              <h2 className="mt-3 text-2xl font-heading font-semibold text-white">Más piezas seleccionadas para ti</h2>
+              <span className="eyebrow">Tambi\u00e9n te puede interesar</span>
+              <h2 className="mt-3 text-2xl font-heading font-semibold text-white">M\u00e1s piezas seleccionadas para ti</h2>
             </div>
             <Link
               href="/catalogo"
               className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-muted transition hover:border-white/40 hover:text-white"
             >
-              Ver catálogo →
+              Ver cat\u00e1logo \u2192
             </Link>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
