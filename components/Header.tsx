@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
@@ -8,7 +8,7 @@ import { usePathname } from "next/navigation";
 import CartDrawer from "./CartDrawer";
 
 const NAV_ITEMS = [
-  { label: "Catálogo", href: "/catalogo" },
+  { label: "Cat\u00E1logo", href: "/catalogo" },
   { label: "Lanzamientos", href: "/lanzamientos" },
   { label: "Historias", href: "/sobre" },
   { label: "Preguntas", href: "/preguntas" },
@@ -17,7 +17,7 @@ const NAV_ITEMS = [
 const QUICK_LINKS = [
   {
     label: "Concierge VIP",
-    description: "Agenda asesoría personalizada",
+    description: "Agenda asesor\u00EDa personalizada",
     href: "/contacto",
   },
   {
@@ -27,12 +27,12 @@ const QUICK_LINKS = [
   },
   {
     label: "Drops programados",
-    description: "Revisa próximos lanzamientos",
+    description: "Revisa pr\u00F3ximos lanzamientos",
     href: "/lanzamientos",
   },
   {
     label: "Preguntas clave",
-    description: "Todo sobre envíos y garantías",
+    description: "Todo sobre env\u00EDos y garant\u00EDas",
     href: "/preguntas",
   },
 ];
@@ -110,7 +110,7 @@ export default function Header() {
           })}
         </nav>
 
-        <div className="order-2 flex items-center gap-2 md:order-3 md:justify-end">
+        <div className="order-2 flex flex-wrap items-center gap-2 md:order-3 md:flex-nowrap md:justify-end">
           <CartDrawer />
           <a
             href="https://www.instagram.com/foxsportscards1of1"
@@ -121,6 +121,15 @@ export default function Header() {
             Instagram
           </a>
 
+          <a
+            href="https://wa.me/18492617328"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-accent to-[#f9d16f] px-5 py-2 text-sm font-semibold text-black shadow-glow transition hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+          >
+            WhatsApp
+          </a>
+
           <div ref={menuRef} className="relative">
             <button
               type="button"
@@ -129,7 +138,7 @@ export default function Header() {
               onClick={() => setMenuOpen((value) => !value)}
               className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/5 px-4 py-2 text-sm text-muted transition hover:border-white/35 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
             >
-              Experiencias
+              Men\u00FA
               <ChevronDownIcon className={clsx("h-3 w-3 transition-transform", menuOpen && "rotate-180")} />
             </button>
 
@@ -151,15 +160,6 @@ export default function Header() {
               </div>
             )}
           </div>
-
-          <a
-            href="https://wa.me/18492617328"
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-accent to-[#f9d16f] px-5 py-2 text-sm font-semibold text-black shadow-glow transition hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
-          >
-            WhatsApp
-          </a>
         </div>
       </div>
     </header>
@@ -181,3 +181,9 @@ function ChevronDownIcon({ className }: { className?: string }) {
     </svg>
   );
 }
+
+
+
+
+
+
