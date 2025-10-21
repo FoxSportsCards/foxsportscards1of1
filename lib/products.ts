@@ -1,6 +1,7 @@
 import groq from "groq";
 import type { PortableTextBlock } from "sanity";
-import { sanityClient, urlForImage } from "@/lib/sanity.client";
+import { FALLBACK_PRODUCTS } from "@/data/fallback-products";
+import { getSanityClient, isSanityConfigured, urlForImage } from "@/lib/sanity.client";
 import type { Product, ProductImage } from "@/types/product";
 
 type GalleryImage = {
@@ -79,6 +80,14 @@ const PRODUCT_BY_SLUG_QUERY = groq`*[_type == "product" && slug.current == $slug
   ${PRODUCT_FIELDS}
 }`;
 
+let warnedAboutFallback = false;
+function warnAboutFallbackUsage() {
+  if (!warnedAboutFallback) {
+    console.warn("[sanity] Using local fallback product data because Sanity credentials are missing.");
+    warnedAboutFallback = true;
+  }
+}
+
 function mapGallery(images: SanityProductDocument["gallery"], fallbackTitle: string): ProductImage[] {
   const gallery = Array.isArray(images) ? images : [];
   if (!gallery.length) return [];
@@ -134,12 +143,30 @@ function mapSanityProduct(doc: SanityProductDocument): Product {
 }
 
 export async function getAllProducts(): Promise<Product[]> {
-  const docs = await sanityClient.fetch<SanityProductDocument[]>(ALL_PRODUCTS_QUERY);
+  if (!isSanityConfigured) {
+    warnAboutFallbackUsage();
+    return FALLBACK_PRODUCTS.map((product) => ({
+      ...product,
+      images: product.images.map((image) => ({ ...image })),
+    }));
+  }
+  const docs = await getSanityClient().fetch<SanityProductDocument[]>(ALL_PRODUCTS_QUERY);
   return docs.map(mapSanityProduct);
 }
 
 export async function getProductBySlug(slug: string): Promise<Product> {
-  const doc = await sanityClient.fetch<SanityProductDocument>(PRODUCT_BY_SLUG_QUERY, { slug });
+  if (!isSanityConfigured) {
+    warnAboutFallbackUsage();
+    const fallback = FALLBACK_PRODUCTS.find((item) => item.slug === slug);
+    if (!fallback) {
+      throw new Error("Producto no encontrado");
+    }
+    return {
+      ...fallback,
+      images: fallback.images.map((image) => ({ ...image })),
+    };
+  }
+  const doc = await getSanityClient().fetch<SanityProductDocument>(PRODUCT_BY_SLUG_QUERY, { slug });
   if (!doc?._id) {
     throw new Error("Producto no encontrado");
   }
