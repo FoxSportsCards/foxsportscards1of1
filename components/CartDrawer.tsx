@@ -77,11 +77,11 @@ export default function CartDrawer() {
             onClick={() => setOpen(false)}
             aria-hidden
           />
-          <div className="absolute inset-0 flex items-end justify-center p-4 sm:p-6 md:items-center">
+          <div className="absolute inset-0 flex items-center justify-center p-4 sm:p-6">
             <aside
               role="dialog"
               aria-modal="true"
-              className="relative flex h-full w-full max-w-md flex-col overflow-hidden rounded-3xl border border-white/10 bg-background text-white shadow-[0_0_45px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:max-w-lg md:h-auto md:max-h-[85vh] md:max-w-3xl md:shadow-[0_30px_80px_rgba(0,0,0,0.45)]"
+              className="relative flex h-full w-full max-w-md flex-col overflow-hidden rounded-3xl border border-white/10 bg-background text-white shadow-[0_30px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:max-w-lg md:h-auto md:max-h-[85vh] md:max-w-4xl"
             >
               <header className="flex items-center justify-between border-b border-white/10 px-6 py-5">
                 <div>
@@ -99,7 +99,7 @@ export default function CartDrawer() {
                 </button>
               </header>
 
-              <div className="flex-1 overflow-y-auto px-6 py-6 md:max-h-[50vh]">
+              <div className="flex-1 overflow-y-auto px-6 py-6 md:max-h-[55vh]">
                 {items.length === 0 ? (
                   <p className="text-sm text-muted">
                     Tu carrito está vacío. Explora el catálogo para añadir piezas.
