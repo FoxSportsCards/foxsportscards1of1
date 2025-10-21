@@ -1,4 +1,4 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 import Link from "next/link";
 import { PortableText } from "@portabletext/react";
 import { formatCurrency } from "@/lib/pricing";
@@ -88,7 +88,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
         <ProductGallery title={product.title} images={productImages} status={product.status ?? "available"} />
 
         <div className="space-y-8">
-          <div className="space-y-5 rounded-4xl border border-white/10 bg-white/5 p-6 shadow-soft backdrop-blur lg:sticky lg:top-28">
+        <div className="space-y-5 rounded-4xl border border-white/10 bg-white/5 p-6 shadow-soft backdrop-blur xl:sticky xl:top-28">
             <div className="flex flex-wrap gap-2 text-xs uppercase tracking-[0.3em] text-muted">
               <span>{product.sport ?? product.productType ?? "Coleccionable"}</span>
               {product.year && <span>Edición {product.year}</span>}
@@ -226,3 +226,16 @@ export default async function ProductPage({ params }: { params: { slug: string }
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+

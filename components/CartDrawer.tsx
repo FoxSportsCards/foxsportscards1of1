@@ -71,120 +71,122 @@ export default function CartDrawer() {
       </button>
 
       {open && (
-        <>
+        <div className="fixed inset-0 z-50">
           <div
-            className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md transition-opacity md:bg-black/80"
+            className="absolute inset-0 bg-black/70 backdrop-blur-md transition-opacity md:bg-black/80"
             onClick={() => setOpen(false)}
             aria-hidden
           />
-          <aside
-            role="dialog"
-            aria-modal="true"
-            className="fixed inset-x-0 top-0 z-50 flex h-full w-full max-w-md flex-col bg-background text-white shadow-[0_0_45px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:max-w-lg md:inset-auto md:left-1/2 md:top-1/2 md:h-auto md:w-full md:max-h-[85vh] md:max-w-3xl md:-translate-x-1/2 md:-translate-y-1/2 md:overflow-hidden md:rounded-3xl md:border md:border-white/10 md:bg-background md:shadow-[0_30px_80px_rgba(0,0,0,0.45)]"
-          >
-            <header className="flex items-center justify-between border-b border-white/10 px-6 py-5">
-              <div>
-                <h2 className="text-lg font-semibold">Resumen de tu pedido</h2>
-                <p className="text-xs uppercase tracking-[0.35em] text-muted">
-                  {itemCount} {itemCount === 1 ? "pieza" : "piezas"}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                className="rounded-full border border-white/10 px-3 py-1 text-sm text-muted transition hover:border-white/30 hover:text-white"
-              >
-                Cerrar
-              </button>
-            </header>
-
-            <div className="flex-1 overflow-y-auto px-6 py-6 md:max-h-[50vh]">
-              {items.length === 0 ? (
-                <p className="text-sm text-muted">
-                  Tu carrito está vacío. Explora el catálogo para añadir piezas.
-                </p>
-              ) : (
-                <ul className="space-y-6">
-                  {items.map(({ product, qty }) => {
-                    const cover = product.images[0]?.url ?? "/hero.jpg";
-                    return (
-                      <li key={product.slug} className="flex gap-4">
-                        <div className="relative h-20 w-16 overflow-hidden rounded-xl border border-white/10 bg-white/5">
-                          <Image
-                            src={cover}
-                            alt={product.images[0]?.alt ?? product.title}
-                            fill
-                            sizes="64px"
-                            className="object-cover"
-                          />
-                        </div>
-                        <div className="flex flex-1 flex-col justify-between text-sm">
-                          <div>
-                            <p className="font-medium text-white/90">{product.title}</p>
-                            <p className="text-xs text-muted">
-                              {qty} x {formatCurrency(product.price, product.currency ?? "DOP")}
-                            </p>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm font-semibold text-accent">
-                              {formatCurrency(product.price * qty, product.currency ?? "DOP")}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => remove(product.slug)}
-                              className="text-xs text-muted transition hover:text-white"
-                            >
-                              Quitar
-                            </button>
-                          </div>
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </div>
-
-            <footer className="space-y-4 border-t border-white/10 px-6 py-6">
-              <div className="flex items-center justify-between text-sm">
-                <span>Total estimado</span>
-                <span className="text-base font-semibold text-accent">
-                  {formatCurrency(totalAmount, totalCurrency)}
-                </span>
-              </div>
-
-              <div className="flex flex-col gap-3">
-                <a
-                  href={whatsappLink}
-                  target="_blank"
-                  rel="noreferrer"
-                  className={clsx(
-                    "inline-flex items-center justify-center rounded-full bg-accent px-4 py-3 text-sm font-semibold text-black transition",
-                    items.length ? "hover:opacity-90 shadow-glow" : "cursor-not-allowed opacity-40",
-                  )}
-                  aria-disabled={!items.length}
-                  onClick={() => {
-                    if (!items.length) return;
-                    setOpen(false);
-                  }}
-                >
-                  Confirmar por WhatsApp
-                </a>
+          <div className="absolute inset-0 flex items-end justify-center p-4 sm:p-6 md:items-center">
+            <aside
+              role="dialog"
+              aria-modal="true"
+              className="relative flex h-full w-full max-w-md flex-col overflow-hidden rounded-3xl border border-white/10 bg-background text-white shadow-[0_0_45px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:max-w-lg md:h-auto md:max-h-[85vh] md:max-w-3xl md:shadow-[0_30px_80px_rgba(0,0,0,0.45)]"
+            >
+              <header className="flex items-center justify-between border-b border-white/10 px-6 py-5">
+                <div>
+                  <h2 className="text-lg font-semibold">Resumen de tu pedido</h2>
+                  <p className="text-xs uppercase tracking-[0.35em] text-muted">
+                    {itemCount} {itemCount === 1 ? "pieza" : "piezas"}
+                  </p>
+                </div>
                 <button
                   type="button"
-                  onClick={() => {
-                    clear();
-                    setOpen(false);
-                  }}
-                  className="rounded-full border border-white/10 px-4 py-2 text-sm text-muted transition hover:border-white/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
-                  disabled={!items.length}
+                  onClick={() => setOpen(false)}
+                  className="rounded-full border border-white/10 px-3 py-1 text-sm text-muted transition hover:border-white/30 hover:text-white"
                 >
-                  Vaciar carrito
+                  Cerrar
                 </button>
+              </header>
+
+              <div className="flex-1 overflow-y-auto px-6 py-6 md:max-h-[50vh]">
+                {items.length === 0 ? (
+                  <p className="text-sm text-muted">
+                    Tu carrito está vacío. Explora el catálogo para añadir piezas.
+                  </p>
+                ) : (
+                  <ul className="space-y-6">
+                    {items.map(({ product, qty }) => {
+                      const cover = product.images[0]?.url ?? "/hero.jpg";
+                      return (
+                        <li key={product.slug} className="flex gap-4">
+                          <div className="relative h-20 w-16 overflow-hidden rounded-xl border border-white/10 bg-white/5">
+                            <Image
+                              src={cover}
+                              alt={product.images[0]?.alt ?? product.title}
+                              fill
+                              sizes="64px"
+                              className="object-cover"
+                            />
+                          </div>
+                          <div className="flex flex-1 flex-col justify-between text-sm">
+                            <div>
+                              <p className="font-medium text-white/90">{product.title}</p>
+                              <p className="text-xs text-muted">
+                                {qty} x {formatCurrency(product.price, product.currency ?? "DOP")}
+                              </p>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm font-semibold text-accent">
+                                {formatCurrency(product.price * qty, product.currency ?? "DOP")}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => remove(product.slug)}
+                                className="text-xs text-muted transition hover:text-white"
+                              >
+                                Quitar
+                              </button>
+                            </div>
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
               </div>
-            </footer>
-          </aside>
-        </>
+
+              <footer className="space-y-4 border-t border-white/10 px-6 py-6">
+                <div className="flex items-center justify-between text-sm">
+                  <span>Total estimado</span>
+                  <span className="text-base font-semibold text-accent">
+                    {formatCurrency(totalAmount, totalCurrency)}
+                  </span>
+                </div>
+
+                <div className="flex flex-col gap-3">
+                  <a
+                    href={whatsappLink}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={clsx(
+                      "inline-flex items-center justify-center rounded-full bg-accent px-4 py-3 text-sm font-semibold text-black transition",
+                      items.length ? "hover:opacity-90 shadow-glow" : "cursor-not-allowed opacity-40",
+                    )}
+                    aria-disabled={!items.length}
+                    onClick={() => {
+                      if (!items.length) return;
+                      setOpen(false);
+                    }}
+                  >
+                    Confirmar por WhatsApp
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      clear();
+                      setOpen(false);
+                    }}
+                    className="rounded-full border border-white/10 px-4 py-2 text-sm text-muted transition hover:border-white/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                    disabled={!items.length}
+                  >
+                    Vaciar carrito
+                  </button>
+                </div>
+              </footer>
+            </aside>
+          </div>
+        </div>
       )}
     </>
   );
