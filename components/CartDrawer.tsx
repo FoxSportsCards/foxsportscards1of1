@@ -70,9 +70,15 @@ export default function CartDrawer() {
         <CartIcon className="h-4 w-4 text-muted transition group-hover:text-white" />
         <span>Carrito</span>
         {itemCount > 0 && (
-          <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-accent px-1 text-xs font-semibold text-black shadow-glow">
-            {itemCount}
-          </span>
+          <>
+            <span className="sr-only">{itemCount} {itemCount === 1 ? "artículo en el carrito" : "artículos en el carrito"}</span>
+            <span
+              aria-hidden="true"
+              className="absolute -right-2 -top-2 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-accent px-1 text-xs font-semibold text-black shadow-glow"
+            >
+              {itemCount}
+            </span>
+          </>
         )}
       </button>
 
