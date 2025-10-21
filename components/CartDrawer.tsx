@@ -73,14 +73,14 @@ export default function CartDrawer() {
       {open && (
         <>
           <div
-            className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md transition-opacity"
+            className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md transition-opacity md:bg-black/80"
             onClick={() => setOpen(false)}
             aria-hidden
           />
           <aside
             role="dialog"
             aria-modal="true"
-            className="fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col bg-background text-white shadow-[0_0_45px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:max-w-lg md:max-w-xl md:rounded-l-3xl md:border-l md:border-white/10"
+            className="fixed inset-x-0 top-0 z-50 flex h-full w-full max-w-md flex-col bg-background text-white shadow-[0_0_45px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:max-w-lg md:inset-auto md:left-1/2 md:top-1/2 md:h-auto md:w-full md:max-h-[85vh] md:max-w-3xl md:-translate-x-1/2 md:-translate-y-1/2 md:overflow-hidden md:rounded-3xl md:border md:border-white/10 md:bg-background md:shadow-[0_30px_80px_rgba(0,0,0,0.45)]"
           >
             <header className="flex items-center justify-between border-b border-white/10 px-6 py-5">
               <div>
@@ -98,7 +98,7 @@ export default function CartDrawer() {
               </button>
             </header>
 
-            <div className="flex-1 overflow-y-auto px-6 py-6">
+            <div className="flex-1 overflow-y-auto px-6 py-6 md:max-h-[50vh]">
               {items.length === 0 ? (
                 <p className="text-sm text-muted">
                   Tu carrito está vacío. Explora el catálogo para añadir piezas.
