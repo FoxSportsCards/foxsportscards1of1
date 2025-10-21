@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
@@ -8,7 +8,7 @@ import { usePathname } from "next/navigation";
 import CartDrawer from "./CartDrawer";
 
 const NAV_ITEMS = [
-  { label: "Cat\u00E1logo", href: "/catalogo" },
+  { label: "Catálogo", href: "/catalogo" },
   { label: "Lanzamientos", href: "/lanzamientos" },
   { label: "Historias", href: "/sobre" },
   { label: "Preguntas", href: "/preguntas" },
@@ -17,7 +17,7 @@ const NAV_ITEMS = [
 const QUICK_LINKS = [
   {
     label: "Concierge VIP",
-    description: "Agenda asesor\u00EDa personalizada",
+    description: "Agenda asesoría personalizada",
     href: "/contacto",
   },
   {
@@ -27,12 +27,12 @@ const QUICK_LINKS = [
   },
   {
     label: "Drops programados",
-    description: "Revisa pr\u00F3ximos lanzamientos",
+    description: "Revisa próximos lanzamientos",
     href: "/lanzamientos",
   },
   {
     label: "Preguntas clave",
-    description: "Todo sobre env\u00EDos y garant\u00EDas",
+    description: "Todo sobre envíos y garantías",
     href: "/preguntas",
   },
 ];
@@ -121,44 +121,46 @@ export default function Header() {
             Instagram
           </a>
 
-          <a
-            href="https://wa.me/18492617328"
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-accent to-[#f9d16f] px-5 py-2 text-sm font-semibold text-black shadow-glow transition hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
-          >
-            WhatsApp
-          </a>
-
-          <div ref={menuRef} className="relative">
-            <button
-              type="button"
-              aria-haspopup="menu"
-              aria-expanded={menuOpen}
-              onClick={() => setMenuOpen((value) => !value)}
-              className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/5 px-4 py-2 text-sm text-muted transition hover:border-white/35 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+          <div className="flex items-center gap-2">
+            <a
+              href="https://wa.me/18492617328"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-accent to-[#f9d16f] px-5 py-2 text-sm font-semibold text-black shadow-glow transition hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
             >
-              Men\u00FA
-              <ChevronDownIcon className={clsx("h-3 w-3 transition-transform", menuOpen && "rotate-180")} />
-            </button>
+              WhatsApp
+            </a>
 
-            {menuOpen && (
-              <div className="absolute right-0 top-full z-50 mt-3 w-64 rounded-2xl border border-white/10 bg-background/95 p-3 shadow-[0_20px_60px_rgba(0,0,0,0.45)] backdrop-blur-xl">
-                <ul className="space-y-1">
-                  {QUICK_LINKS.map(({ label, description, href }) => (
-                    <li key={href}>
-                      <Link
-                        href={href}
-                        className="block rounded-2xl px-4 py-3 transition hover:bg-white/8 hover:text-white"
-                      >
-                        <span className="block text-sm font-semibold text-white">{label}</span>
-                        <span className="block text-xs text-muted">{description}</span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            <div ref={menuRef} className="relative">
+              <button
+                type="button"
+                aria-haspopup="menu"
+                aria-expanded={menuOpen}
+                onClick={() => setMenuOpen((value) => !value)}
+                className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/5 px-4 py-2 text-sm text-muted transition hover:border-white/35 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+              >
+                Menú
+                <ChevronDownIcon className={clsx("h-3 w-3 transition-transform", menuOpen && "rotate-180")} />
+              </button>
+
+              {menuOpen && (
+                <div className="absolute right-0 top-full z-50 mt-3 w-64 rounded-2xl border border-white/10 bg-background/95 p-3 shadow-[0_20px_60px_rgba(0,0,0,0.45)] backdrop-blur-xl">
+                  <ul className="space-y-1">
+                    {QUICK_LINKS.map(({ label, description, href }) => (
+                      <li key={href}>
+                        <Link
+                          href={href}
+                          className="block rounded-2xl px-4 py-3 transition hover:bg-white/8 hover:text-white"
+                        >
+                          <span className="block text-sm font-semibold text-white">{label}</span>
+                          <span className="block text-xs text-muted">{description}</span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -181,9 +183,3 @@ function ChevronDownIcon({ className }: { className?: string }) {
     </svg>
   );
 }
-
-
-
-
-
-
