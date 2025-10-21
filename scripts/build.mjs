@@ -1,4 +1,6 @@
 import { spawnSync } from "node:child_process";
+import { existsSync, rmSync } from "node:fs";
+import { join } from "node:path";
 
 const truthy = new Set(["1", "true", "yes"]);
 
@@ -32,6 +34,11 @@ if (isVercelBuild) {
   console.log("[build] Detected Vercel build environment. Running Next.js build only.");
   run("npx", ["next", "build"]);
 } else if (isCloudflarePages) {
+  const studioPath = join(process.cwd(), "app", "studio");
+  if (existsSync(studioPath)) {
+    console.log("[build] Removing Sanity Studio for Cloudflare Pages deployment.");
+    rmSync(studioPath, { recursive: true, force: true });
+  }
   console.log("[build] Detected Cloudflare Pages environment. Running @cloudflare/next-on-pages.");
   run("npx", ["@cloudflare/next-on-pages"]);
 } else {

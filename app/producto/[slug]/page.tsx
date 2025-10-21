@@ -10,6 +10,8 @@ import ProductGallery from "@/components/ProductGallery";
 import type { Product, ProductImage } from "@/types/product";
 
 export const revalidate = 60;
+export const runtime = "edge";
+export const preferredRegion = "auto";
 
 export async function generateStaticParams() {
   try {
