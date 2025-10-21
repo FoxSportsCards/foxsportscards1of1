@@ -73,14 +73,14 @@ export default function CartDrawer() {
       {open && (
         <>
           <div
-            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md transition-opacity"
             onClick={() => setOpen(false)}
             aria-hidden
           />
           <aside
             role="dialog"
             aria-modal="true"
-            className="fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col bg-background/95 text-white shadow-2xl backdrop-blur-xl sm:max-w-lg"
+            className="fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col bg-background text-white shadow-[0_0_45px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:max-w-lg md:max-w-xl md:rounded-l-3xl md:border-l md:border-white/10"
           >
             <header className="flex items-center justify-between border-b border-white/10 px-6 py-5">
               <div>
