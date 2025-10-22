@@ -87,21 +87,13 @@ export function CatalogClient({ products }: Props) {
 
   return (
     <>
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-        <div className="space-y-3">
-          <span className="eyebrow">Catálogo curado</span>
-          <h1 className="text-4xl font-heading font-semibold text-white">Encuentra tu próxima pieza estrella</h1>
-          <p className="max-w-2xl text-sm text-muted">
-            Singles premium, cajas selladas y memorabilia certificada. Ordenamos primero las piezas disponibles y destacadas
-            para que hagas movimientos rápidos.
-          </p>
-        </div>
-        <Link
-          href="/studio"
-          className="inline-flex items-center gap-2 rounded-full border border-white/15 px-5 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-muted transition hover:border-white/40 hover:text-white"
-        >
-          Gestionar contenido en el Studio →
-        </Link>
+      <div className="space-y-3">
+        <span className="eyebrow">Catálogo curado</span>
+        <h1 className="text-4xl font-heading font-semibold text-white">Encuentra tu próxima pieza estrella</h1>
+        <p className="max-w-2xl text-sm text-muted">
+          Singles premium, cajas selladas y memorabilia certificada. Ordenamos primero las piezas disponibles y destacadas
+          para que hagas movimientos rápidos.
+        </p>
       </div>
 
       <div className="mt-10 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">

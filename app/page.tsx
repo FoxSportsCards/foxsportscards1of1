@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { formatCurrency } from "@/lib/pricing";
 import { getAllProducts } from "@/lib/products";
+import { getHomepageContent } from "@/lib/homeContent";
 import type { Product } from "@/types/product";
 
 export const dynamic = "force-dynamic";
@@ -33,45 +34,6 @@ const collections = [
     description: "Jerseys limited, balones certificados y fotos autografiadas con hologramas oficiales.",
     metric: "COA · Fanatics · Beckett",
     href: "/catalogo?tipo=memorabilia",
-  },
-];
-
-const drops = [
-  {
-    date: "22 OCT",
-    title: "Drop Vintage Hall of Fame",
-    description: "Selección de piezas slabbed de los 80s-90s más rarezas Dominican Legends.",
-    status: "Preventa abierta",
-  },
-  {
-    date: "28 OCT",
-    title: "Sealed Night: NBA & MLB Boxes",
-    description: "Box breaks privados con cupos limitados. Incluye guía de inversión y envío express.",
-    status: "Reserva tu slot",
-  },
-  {
-    date: "04 NOV",
-    title: "TCG Crown Zenith Showcase",
-    description: "Singles gem mint y packs sellados. Bonus: live grading coaching durante el drop.",
-    status: "Lista de espera",
-  },
-];
-
-const testimonials = [
-  {
-    quote:
-      "El servicio concierge es otro nivel. Recibí asesoría para armar un set NBA 1/25 y cada pieza llegó perfectamente protegida.",
-    author: "Luis G., Santo Domingo",
-  },
-  {
-    quote:
-      "Compré memorabilia firmada y el acompañamiento fue total: certificación, shipping y seguimiento hasta mi vitrina.",
-    author: "María R., Puerto Rico",
-  },
-  {
-    quote:
-      "Sus drops privados son clave para encontrar grails antes de que lleguen al mercado abierto. Confianza garantizada.",
-    author: "Carlos T., Miami",
   },
 ];
 
@@ -119,7 +81,8 @@ const SEGMENT_DEFINITIONS: SegmentDefinition[] = [
 ];
 
 export default async function Page() {
-  const products = await getAllProducts();
+  const [products, homepage] = await Promise.all([getAllProducts(), getHomepageContent()]);
+  const { drops, testimonials } = homepage;
   const availableProducts = products.filter((product) => product.status !== "sold");
   const featuredProducts = products.filter((product) => product.featured);
 
@@ -467,16 +430,47 @@ export default async function Page() {
               Reservar cupo
             </a>
           </div>
-          <div className="grid gap-6 lg:grid-cols-3">
-            {drops.map((drop) => (
-              <div key={drop.title} className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-soft backdrop-blur">
-                <span className="text-xs uppercase tracking-[0.35em] text-muted">{drop.date}</span>
-                <h3 className="mt-4 text-xl font-heading text-white">{drop.title}</h3>
-                <p className="mt-3 text-sm text-muted">{drop.description}</p>
-                <p className="mt-6 text-xs uppercase tracking-[0.3em] text-accent">{drop.status}</p>
-              </div>
-            ))}
-          </div>
+          {drops.length > 0 ? (
+            <div className="grid gap-6 lg:grid-cols-3">
+              {drops.map((drop) => {
+                const date = drop.scheduledAt ? new Date(drop.scheduledAt) : null;
+                const badge = date
+                  ? date
+                      .toLocaleDateString("es-DO", {
+                        day: "2-digit",
+                        month: "short",
+                      })
+                      .toUpperCase()
+                  : "POR DEFINIR";
+                const fullDate = date
+                  ? date.toLocaleDateString("es-DO", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : "Fecha por confirmar";
+
+                return (
+                  <div
+                    key={drop.id}
+                    className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-soft backdrop-blur"
+                  >
+                    <span className="text-xs uppercase tracking-[0.35em] text-muted">{badge}</span>
+                    <h3 className="mt-4 text-xl font-heading text-white">{drop.title}</h3>
+                    <p className="mt-3 text-sm text-muted">{drop.description}</p>
+                    <p className="mt-6 text-xs uppercase tracking-[0.3em] text-accent">{drop.statusLabel}</p>
+                    <p className="mt-2 text-[11px] uppercase tracking-[0.3em] text-white/50">{fullDate}</p>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-10 text-center text-sm text-muted">
+              Añade drops destacados desde Sanity en la colección “Drop destacado” para que aparezcan aquí automáticamente.
+            </div>
+          )}
         </div>
       </section>
 
@@ -544,17 +538,26 @@ export default async function Page() {
               Construimos relaciones de largo plazo. Cada entrega va acompañada de transparencia, asesoría y seguimiento personalizado.
             </p>
           </div>
-          <div className="grid gap-6 lg:grid-cols-3">
-            {testimonials.map((testimonial) => (
-              <div
-                key={testimonial.author}
-                className="flex h-full flex-col justify-between rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-muted shadow-soft"
-              >
-                <p>“{testimonial.quote}”</p>
-                <p className="mt-6 text-xs uppercase tracking-[0.3em] text-accent">{testimonial.author}</p>
-              </div>
-            ))}
-          </div>
+          {testimonials.length > 0 ? (
+            <div className="grid gap-6 lg:grid-cols-3">
+              {testimonials.map((testimonial) => (
+                <div
+                  key={testimonial.id}
+                  className="flex h-full flex-col justify-between rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-muted shadow-soft"
+                >
+                  <p>“{testimonial.quote}”</p>
+                  <p className="mt-6 text-xs uppercase tracking-[0.3em] text-accent">
+                    {testimonial.author}
+                    {testimonial.location ? ` • ${testimonial.location}` : ""}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-10 text-center text-sm text-muted">
+              Crea testimonios en Sanity para que aparezcan en esta sección. Cada documento nuevo se sincroniza automáticamente.
+            </div>
+          )}
         </div>
       </section>
     </>
