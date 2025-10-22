@@ -7,6 +7,12 @@ export type HomeDrop = {
   ctaLabel?: string | null;
   ctaHref?: string | null;
   showInBanner?: boolean;
+  secondaryCtaLabel?: string | null;
+  secondaryCtaHref?: string | null;
+  bannerMessage?: string | null;
+  bannerCtaLabel?: string | null;
+  bannerAction?: "agenda" | "cta" | "custom" | null;
+  bannerHref?: string | null;
 };
 
 export type Testimonial = {

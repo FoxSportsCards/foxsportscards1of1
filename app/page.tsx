@@ -6,6 +6,12 @@ import { getHomepageContent } from "@/lib/homeContent";
 import type { Product } from "@/types/product";
 import type { HomeDrop } from "@/types/home";
 
+type DropCta = {
+  href: string;
+  label: string;
+  external: boolean;
+};
+
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 export const runtime = "edge";
@@ -84,6 +90,7 @@ const SEGMENT_DEFINITIONS: SegmentDefinition[] = [
 export default async function Page() {
   const [products, homepage] = await Promise.all([getAllProducts(), getHomepageContent()]);
   const { drops, testimonials } = homepage;
+
   const formatDropBadge = (value?: string | null) => {
     if (!value) return "POR DEFINIR";
     const date = new Date(value);
@@ -109,30 +116,82 @@ export default async function Page() {
     });
   };
 
-  const resolveDropCta = (drop: HomeDrop | null) => {
+  const resolveDropCtas = (drop: HomeDrop | null) => {
     if (!drop) return null;
-    const rawHref = drop.ctaHref?.trim();
-    const href = rawHref && rawHref.length > 0 ? rawHref : "https://wa.me/18492617328";
-    return {
-      href,
+    const rawPrimaryHref = drop.ctaHref?.trim();
+    const primaryHref = rawPrimaryHref && rawPrimaryHref.length > 0 ? rawPrimaryHref : "https://wa.me/18492617328";
+    const primary: DropCta = {
+      href: primaryHref,
       label: drop.ctaLabel ?? "Reservar cupo",
-      external: /^https?:\/\//i.test(href),
+      external: /^https?:\/\//i.test(primaryHref),
     };
+
+    let secondary: DropCta | null = null;
+    const rawSecondaryHref = drop.secondaryCtaHref?.trim();
+    if (drop.secondaryCtaLabel && rawSecondaryHref && rawSecondaryHref.length > 0) {
+      secondary = {
+        href: rawSecondaryHref,
+        label: drop.secondaryCtaLabel,
+        external: /^https?:\/\//i.test(rawSecondaryHref),
+      };
+    }
+
+    return { primary, secondary };
+  };
+
+  const resolveBannerDestination = (drop: HomeDrop | null, primaryCta: DropCta | null): DropCta | null => {
+    if (!drop) return null;
+    const defaultCta: DropCta = {
+      href: "#agenda-drops",
+      label: drop.bannerCtaLabel ?? "Ver agenda",
+      external: false,
+    };
+    const action = drop.bannerAction ?? "agenda";
+    if (action === "agenda") {
+      return defaultCta;
+    }
+    if (action === "cta") {
+      if (primaryCta) {
+        return {
+          ...primaryCta,
+          label: drop.bannerCtaLabel ?? primaryCta.label,
+        };
+      }
+      return defaultCta;
+    }
+    if (action === "custom") {
+      const raw = drop.bannerHref?.trim();
+      if (raw && raw.length > 0) {
+        return {
+          href: raw,
+          label: drop.bannerCtaLabel ?? "Ver detalle",
+          external: /^https?:\/\//i.test(raw),
+        };
+      }
+      return defaultCta;
+    }
+    return defaultCta;
   };
 
   const heroBannerDrop = drops.find((drop) => drop.showInBanner) ?? null;
-  const heroBannerHref =
-    heroBannerDrop && heroBannerDrop.ctaHref && heroBannerDrop.ctaHref.trim().length > 0
-      ? heroBannerDrop.ctaHref.trim()
-      : "#agenda-drops";
-  const heroBannerIsExternal = heroBannerDrop ? /^https?:\/\//i.test(heroBannerHref) : false;
-  const heroBannerCtaLabel = heroBannerDrop?.ctaLabel ?? "Ver agenda";
+  const heroBannerCtas = resolveDropCtas(heroBannerDrop);
+  const heroBannerCta = resolveBannerDestination(heroBannerDrop, heroBannerCtas?.primary ?? null);
+  const heroBannerTextRaw = heroBannerDrop?.bannerMessage?.trim();
+  const heroBannerText =
+    heroBannerTextRaw && heroBannerTextRaw.length > 0
+      ? heroBannerTextRaw
+      : heroBannerDrop
+        ? `${formatDropBadge(heroBannerDrop.scheduledAt)} • ${heroBannerDrop.statusLabel} • ${heroBannerDrop.title}`
+        : "";
+  const heroBannerShouldMarquee = heroBannerText.length > 60;
 
   const primaryCalendarDrop = (heroBannerDrop ?? drops[0]) ?? null;
   const secondaryCalendarDrops = primaryCalendarDrop
     ? drops.filter((drop) => drop.id !== primaryCalendarDrop.id)
     : [];
-  const primaryCalendarCta = resolveDropCta(primaryCalendarDrop);
+  const primaryCalendarCtas = resolveDropCtas(primaryCalendarDrop);
+  const primaryCalendarCta = primaryCalendarCtas?.primary ?? null;
+  const secondaryCalendarCta = primaryCalendarCtas?.secondary ?? null;
 
   const availableProducts = products.filter((product) => product.status !== "sold");
   const featuredProducts = products.filter((product) => product.featured);
@@ -247,36 +306,32 @@ export default async function Page() {
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
         <div className="container relative grid gap-12 py-20 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
           <div className="space-y-7">
-            {heroBannerDrop && (
+            {heroBannerDrop && heroBannerCta && heroBannerText.length > 0 && (
               <a
-                href={heroBannerHref}
-                target={heroBannerIsExternal ? "_blank" : undefined}
-                rel={heroBannerIsExternal ? "noreferrer" : undefined}
-                className="group relative overflow-hidden rounded-3xl border border-accent/35 bg-gradient-to-r from-accent/25 via-accent/10 to-transparent px-4 py-4 text-white shadow-[0_12px_40px_rgba(255,215,0,0.15)] transition hover:border-accent/60 hover:shadow-[0_20px_60px_rgba(255,215,0,0.28)] focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+                href={heroBannerCta.href}
+                target={heroBannerCta.external ? "_blank" : undefined}
+                rel={heroBannerCta.external ? "noreferrer" : undefined}
+                className="group relative flex items-center gap-3 overflow-hidden rounded-full border border-accent/50 bg-black/55 px-4 py-3 text-white shadow-[0_12px_40px_rgba(255,215,0,0.15)] transition hover:border-accent/80 hover:shadow-[0_20px_60px_rgba(255,215,0,0.28)] focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
               >
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="rounded-full bg-black/45 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-accent">
-                      {formatDropBadge(heroBannerDrop.scheduledAt)}
-                    </span>
-                    <div className="space-y-1">
-                      <p className="text-[11px] uppercase tracking-[0.35em] text-accent/80">
-                        {heroBannerDrop.statusLabel}
-                      </p>
-                      <p className="text-sm font-semibold uppercase tracking-[0.28em] text-white">
-                        {heroBannerDrop.title}
-                      </p>
-                      <p className="text-[10px] uppercase tracking-[0.3em] text-white/60">
-                        {formatDropFullDate(heroBannerDrop.scheduledAt)}
-                      </p>
-                    </div>
+                <span className="relative flex h-8 w-8 items-center justify-center rounded-full bg-accent/35 text-black shadow-inner">
+                  ✦
+                </span>
+                <div className="relative flex-1 overflow-hidden">
+                  <div
+                    className={`banner-marquee-content text-[11px] uppercase tracking-[0.35em] text-white/80 ${
+                      heroBannerShouldMarquee ? "animate-marquee" : ""
+                    }`}
+                  >
+                    <span>{heroBannerText}</span>
+                    {heroBannerShouldMarquee && <span aria-hidden>{heroBannerText}</span>}
                   </div>
-                  <span className="inline-flex items-center gap-2 self-start rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-black transition group-hover:bg-white/25 group-hover:text-black sm:self-auto">
-                    {heroBannerCtaLabel}
-                    <span aria-hidden>→</span>
-                  </span>
+                  <span className="pointer-events-none absolute left-0 top-0 h-full w-6 bg-gradient-to-r from-black via-black/60 to-transparent" />
+                  <span className="pointer-events-none absolute right-0 top-0 h-full w-6 bg-gradient-to-l from-black via-black/60 to-transparent" />
                 </div>
-                <span className="pointer-events-none absolute -right-10 top-1/2 hidden h-24 w-24 -translate-y-1/2 rounded-full bg-accent/40 blur-3xl sm:block" />
+                <span className="relative inline-flex items-center gap-2 rounded-full bg-white/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-black transition group-hover:bg-white">
+                  {heroBannerCta.label}
+                  <span aria-hidden>→</span>
+                </span>
               </a>
             )}
             <span className="eyebrow">Vault curado • Ediciones limitadas</span>
@@ -401,16 +456,31 @@ export default async function Page() {
                 Drops privados, breaks boutique y showcases virtuales. Los cupos son limitados y cada fecha incluye concierge en vivo.
               </p>
             </div>
-            {primaryCalendarCta && (
-              <a
-                href={primaryCalendarCta.href}
-                target={primaryCalendarCta.external ? "_blank" : undefined}
-                rel={primaryCalendarCta.external ? "noreferrer" : undefined}
-                className="inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-black shadow-glow transition hover:bg-accent-soft"
-              >
-                {primaryCalendarCta.label}
-              </a>
-            )}
+            {(() => {
+              const ctaForHeader = primaryCalendarCta ?? secondaryCalendarCta;
+              if (!ctaForHeader) {
+                return (
+                  <a
+                    href="https://wa.me/18492617328"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-black shadow-glow transition hover:bg-accent-soft"
+                  >
+                    Reservar cupo
+                  </a>
+                );
+              }
+              return (
+                <a
+                  href={ctaForHeader.href}
+                  target={ctaForHeader.external ? "_blank" : undefined}
+                  rel={ctaForHeader.external ? "noreferrer" : undefined}
+                  className="inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-black shadow-glow transition hover:bg-accent-soft"
+                >
+                  {ctaForHeader.label}
+                </a>
+              );
+            })()}
           </div>
           {primaryCalendarDrop ? (
             <div className="space-y-8">
@@ -428,8 +498,8 @@ export default async function Page() {
                   <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.3em] text-white/70">
                     <span>{formatDropFullDate(primaryCalendarDrop.scheduledAt)}</span>
                   </div>
-                  {primaryCalendarCta && (
-                    <div className="flex flex-wrap gap-3">
+                  <div className="flex flex-wrap gap-3">
+                    {primaryCalendarCta ? (
                       <a
                         href={primaryCalendarCta.href}
                         target={primaryCalendarCta.external ? "_blank" : undefined}
@@ -439,6 +509,28 @@ export default async function Page() {
                         {primaryCalendarCta.label}
                         <span aria-hidden>→</span>
                       </a>
+                    ) : (
+                      <a
+                        href="https://wa.me/18492617328"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-black transition hover:opacity-85"
+                      >
+                        Reservar por WhatsApp
+                        <span aria-hidden>→</span>
+                      </a>
+                    )}
+                    {secondaryCalendarCta ? (
+                      <a
+                        href={secondaryCalendarCta.href}
+                        target={secondaryCalendarCta.external ? "_blank" : undefined}
+                        rel={secondaryCalendarCta.external ? "noreferrer" : undefined}
+                        className="inline-flex items-center gap-2 rounded-full border border-white/25 px-5 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-white transition hover:border-white/50 hover:text-white"
+                      >
+                        {secondaryCalendarCta.label}
+                        <span aria-hidden>→</span>
+                      </a>
+                    ) : (
                       <a
                         href="https://wa.me/18492617328"
                         target="_blank"
@@ -446,15 +538,17 @@ export default async function Page() {
                         className="inline-flex items-center gap-2 rounded-full border border-white/25 px-5 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-white transition hover:border-white/50 hover:text-white"
                       >
                         Concierge inmediato
+                        <span aria-hidden>→</span>
                       </a>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               </div>
               {secondaryCalendarDrops.length > 0 ? (
                 <div className="flex gap-4 overflow-x-auto pb-1 pt-1 lg:grid lg:grid-cols-3 lg:gap-6 lg:overflow-visible">
                   {secondaryCalendarDrops.map((drop) => {
-                    const cta = resolveDropCta(drop);
+                    const ctas = resolveDropCtas(drop);
+                    const cta = ctas?.primary ?? null;
                     return (
                       <div
                         key={drop.id}

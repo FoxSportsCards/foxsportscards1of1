@@ -11,6 +11,12 @@ type HomeDropDocument = {
   ctaLabel?: string;
   ctaHref?: string;
   showInBanner?: boolean;
+  secondaryCtaLabel?: string;
+  secondaryCtaHref?: string;
+  bannerMessage?: string;
+  bannerCtaLabel?: string;
+  bannerAction?: "agenda" | "cta" | "custom";
+  bannerHref?: string;
 };
 
 type TestimonialDocument = {
@@ -28,7 +34,13 @@ const HOME_DROPS_QUERY = groq`*[_type == "homeDrop"] | order(scheduledAt asc) {
   description,
   ctaLabel,
   ctaHref,
-  showInBanner
+  secondaryCtaLabel,
+  secondaryCtaHref,
+  showInBanner,
+  bannerMessage,
+  bannerCtaLabel,
+  bannerAction,
+  bannerHref
 }`;
 
 const TESTIMONIALS_QUERY = groq`*[_type == "testimonial"] | order(coalesce(order, 9999) asc, _createdAt desc) {
@@ -48,6 +60,9 @@ const FALLBACK_DROPS: HomeDrop[] = [
     ctaLabel: "Apartar cupo",
     ctaHref: "https://wa.me/18492617328",
     showInBanner: true,
+    bannerMessage: "29 OCT • Preventa abierta • Drop Vintage Hall of Fame",
+    bannerCtaLabel: "Reservar cupo",
+    bannerAction: "cta",
   },
   {
     id: "fallback-drop-2",
@@ -58,6 +73,8 @@ const FALLBACK_DROPS: HomeDrop[] = [
     ctaLabel: "Ver agenda",
     ctaHref: "#agenda-drops",
     showInBanner: false,
+    secondaryCtaLabel: "Hablar con concierge",
+    secondaryCtaHref: "https://wa.me/18492617328",
   },
   {
     id: "fallback-drop-3",
@@ -113,6 +130,12 @@ function mapHomeDrop(doc: HomeDropDocument): HomeDrop {
     ctaLabel: doc.ctaLabel ?? null,
     ctaHref: doc.ctaHref ?? null,
     showInBanner: Boolean(doc.showInBanner),
+    secondaryCtaLabel: doc.secondaryCtaLabel ?? null,
+    secondaryCtaHref: doc.secondaryCtaHref ?? null,
+    bannerMessage: doc.bannerMessage ?? null,
+    bannerCtaLabel: doc.bannerCtaLabel ?? null,
+    bannerAction: doc.bannerAction ?? null,
+    bannerHref: doc.bannerHref ?? null,
   };
 }
 
