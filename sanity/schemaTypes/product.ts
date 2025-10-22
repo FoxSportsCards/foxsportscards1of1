@@ -74,6 +74,27 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: "releaseDate",
+      title: "Fecha de disponibilidad",
+      type: "date",
+      group: "market",
+      description: "Visible cuando el estado es 'Próximo lanzamiento'. Usa una fecha estimada futura.",
+      options: { calendarTodayLabel: "Hoy" },
+      validation: (Rule) =>
+        Rule.custom((value, context) => {
+          const status = (context as any)?.document?.status;
+          if (status === "upcoming") {
+            if (!value) {
+              return "Ingresa la fecha estimada de disponibilidad.";
+            }
+            if (value < new Date().toISOString().slice(0, 10)) {
+              return "La fecha debe ser futura.";
+            }
+          }
+          return true;
+        }),
+    }),
+    defineField({
       name: "featured",
       title: "Destacado en home",
       type: "boolean",

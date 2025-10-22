@@ -34,6 +34,7 @@ type SanityProductDocument = {
   heroVideoUrl?: string;
   featured?: boolean;
   gallery?: GalleryImage[];
+  releaseDate?: string;
 };
 
 function hasImageSource(image: unknown): image is GalleryImage {
@@ -61,6 +62,7 @@ const PRODUCT_FIELDS = groq`
   inventory,
   tags,
   whatsappMessage,
+  releaseDate,
   featured,
   "heroVideoUrl": heroVideo.asset->url,
   gallery[]{
@@ -139,6 +141,7 @@ function mapSanityProduct(doc: SanityProductDocument): Product {
     whatsappMessage: doc.whatsappMessage ?? null,
     heroVideoUrl: doc.heroVideoUrl ?? null,
     category: doc.productType ?? doc.sport ?? null,
+    releaseDate: doc.releaseDate ?? null,
   };
 }
 

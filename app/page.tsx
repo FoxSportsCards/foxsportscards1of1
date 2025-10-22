@@ -95,6 +95,18 @@ export default async function Page() {
               Seleccionamos cartas deportivas, TCG y memorabilia certificada para coleccionistas que exigen piezas únicas.
               Accede a drops exclusivos, asesoría concierge y envíos asegurados en República Dominicana.
             </p>
+            <Link
+              href="/lanzamientos"
+              className="group relative inline-flex items-center gap-3 overflow-hidden rounded-full border border-white/20 bg-gradient-to-r from-accent via-[#f4cf73] to-accent px-6 py-3 text-sm font-semibold text-black shadow-glow transition hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+            >
+              <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/70 to-transparent opacity-70 mix-blend-screen animate-shimmer" />
+              <span className="relative flex items-center gap-3">
+                <span>Explorar próximos drops</span>
+                <span className="rounded-full bg-black/25 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.35em] text-white/90">
+                  Nuevo
+                </span>
+              </span>
+            </Link>
             <div className="flex flex-wrap gap-3">
               <Link
                 href="/catalogo"
@@ -183,7 +195,7 @@ export default async function Page() {
             </div>
             <Link
               href="/lanzamientos"
-              className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-muted transition hover:border-white/40 hover:text-white"
+              className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-muted transition hover:text-white"
             >
               Ver calendario de drops
             </Link>

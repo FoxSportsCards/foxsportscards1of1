@@ -27,4 +27,5 @@ export type Product = {
   whatsappMessage?: string | null;
   heroVideoUrl?: string | null;
   category?: string | null;
+  releaseDate?: string | null;
 };

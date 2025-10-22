@@ -8,14 +8,37 @@ export const revalidate = 0;
 export const runtime = "edge";
 export const preferredRegion = "auto";
 
+function formatReleaseDate(dateString: string) {
+  const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) return null;
+  return {
+    full: date.toLocaleDateString("es-DO", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }),
+    badge: date
+      .toLocaleDateString("es-DO", {
+        day: "2-digit",
+        month: "short",
+      })
+      .toUpperCase(),
+    timestamp: date.getTime(),
+  };
+}
+
 export default async function LanzamientosPage() {
   const products = await getAllProducts();
   const upcoming = products
     .filter((product) => product.status === "upcoming")
+    .map((product) => {
+      const releaseInfo = product.releaseDate ? formatReleaseDate(product.releaseDate) : null;
+      return { product, releaseInfo };
+    })
     .sort((a, b) => {
-      const aYear = a.year ?? 0;
-      const bYear = b.year ?? 0;
-      return bYear - aYear;
+      const aTime = a.releaseInfo?.timestamp ?? Number.POSITIVE_INFINITY;
+      const bTime = b.releaseInfo?.timestamp ?? Number.POSITIVE_INFINITY;
+      return aTime - bTime;
     });
 
   return (
@@ -24,20 +47,22 @@ export default async function LanzamientosPage() {
         <span className="eyebrow">Calendario oficial</span>
         <h1 className="text-4xl font-heading font-semibold text-white">Próximos lanzamientos</h1>
         <p className="text-sm text-muted">
-          Presentamos drops exclusivos, breaks privados y memorabilia que está por llegar al vault. Cada pieza se anuncia
-          con anticipación para que puedas reservarla con tu concierge.
+          Presentamos drops exclusivos, breaks privados y memorabilia que está por llegar al vault. Cada pieza se anuncia con
+          anticipación para que puedas reservarla con tu concierge.
         </p>
       </header>
 
       {upcoming.length === 0 ? (
         <div className="mt-14 rounded-3xl border border-white/10 bg-white/5 p-10 text-center text-sm text-muted">
-          Aún no tenemos lanzamientos programados. Vuelve pronto o escríbenos por WhatsApp para recibir alertas personalizadas.
+          Aún no tenemos lanzamientos programados. Vuelve pronto o escríbenos por WhatsApp para recibir alertas
+          personalizadas.
         </div>
       ) : (
         <div className="mt-12 grid gap-8 md:grid-cols-2 xl:grid-cols-3">
-          {upcoming.map((product) => {
+          {upcoming.map(({ product, releaseInfo }) => {
             const cover = product.images[0]?.url ?? "/hero.jpg";
             const alt = product.images[0]?.alt ?? product.title;
+
             return (
               <article
                 key={product.slug}
@@ -51,9 +76,14 @@ export default async function LanzamientosPage() {
                     sizes="(min-width: 1280px) 25vw, (min-width: 768px) 33vw, 100vw"
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  <span className="absolute left-4 top-4 rounded-full bg-black/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-white">
+                  <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full bg-black/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-white">
                     Próximo drop
-                  </span>
+                    {releaseInfo?.badge && (
+                      <span className="rounded-full bg-white/15 px-2 py-0.5 text-[10px] tracking-[0.35em] text-white">
+                        {releaseInfo.badge}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex flex-1 flex-col gap-5 p-6">
@@ -80,6 +110,12 @@ export default async function LanzamientosPage() {
                       <span>{formatCurrency(product.price, product.currency)}</span>
                     </div>
                   </div>
+
+                  {releaseInfo?.full && (
+                    <div className="rounded-2xl border border-accent/40 bg-accent/15 px-3 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-accent">
+                      Disponible desde {releaseInfo.full}
+                    </div>
+                  )}
 
                   <div className="mt-auto flex flex-col gap-3 text-sm">
                     <Link
