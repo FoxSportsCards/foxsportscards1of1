@@ -5,6 +5,7 @@ import { getAllProducts } from "@/lib/products";
 import { getHomepageContent } from "@/lib/homeContent";
 import type { Product } from "@/types/product";
 import type { HomeDrop } from "@/types/home";
+import HeroBannerTicker from "@/components/HeroBannerTicker";
 
 type DropCta = {
   href: string;
@@ -183,7 +184,9 @@ export default async function Page() {
       : heroBannerDrop
         ? `${formatDropBadge(heroBannerDrop.scheduledAt)} • ${heroBannerDrop.statusLabel} • ${heroBannerDrop.title}`
         : "";
-  const heroBannerShouldMarquee = heroBannerText.length > 60;
+  const heroBannerShouldMarquee = heroBannerText.length > 80;
+  const heroBannerAction: "agenda" | "link" =
+    heroBannerDrop && (heroBannerDrop.bannerAction ?? "agenda") === "agenda" ? "agenda" : "link";
 
   const primaryCalendarDrop = (heroBannerDrop ?? drops[0]) ?? null;
   const secondaryCalendarDrops = primaryCalendarDrop
@@ -307,32 +310,12 @@ export default async function Page() {
         <div className="container relative grid gap-12 py-20 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
           <div className="space-y-7">
             {heroBannerDrop && heroBannerCta && heroBannerText.length > 0 && (
-              <a
-                href={heroBannerCta.href}
-                target={heroBannerCta.external ? "_blank" : undefined}
-                rel={heroBannerCta.external ? "noreferrer" : undefined}
-                className="group relative flex items-center gap-3 overflow-hidden rounded-full border border-accent/50 bg-black/55 px-4 py-3 text-white shadow-[0_12px_40px_rgba(255,215,0,0.15)] transition hover:border-accent/80 hover:shadow-[0_20px_60px_rgba(255,215,0,0.28)] focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
-              >
-                <span className="relative flex h-8 w-8 items-center justify-center rounded-full bg-accent/35 text-black shadow-inner">
-                  ✦
-                </span>
-                <div className="relative flex-1 overflow-hidden">
-                  <div
-                    className={`banner-marquee-content text-[11px] uppercase tracking-[0.35em] text-white/80 ${
-                      heroBannerShouldMarquee ? "animate-marquee" : ""
-                    }`}
-                  >
-                    <span>{heroBannerText}</span>
-                    {heroBannerShouldMarquee && <span aria-hidden>{heroBannerText}</span>}
-                  </div>
-                  <span className="pointer-events-none absolute left-0 top-0 h-full w-6 bg-gradient-to-r from-black via-black/60 to-transparent" />
-                  <span className="pointer-events-none absolute right-0 top-0 h-full w-6 bg-gradient-to-l from-black via-black/60 to-transparent" />
-                </div>
-                <span className="relative inline-flex items-center gap-2 rounded-full bg-white/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-black transition group-hover:bg-white">
-                  {heroBannerCta.label}
-                  <span aria-hidden>→</span>
-                </span>
-              </a>
+              <HeroBannerTicker
+                message={heroBannerText}
+                cta={heroBannerCta}
+                action={heroBannerAction}
+                marquee={heroBannerShouldMarquee}
+              />
             )}
             <span className="eyebrow">Vault curado • Ediciones limitadas</span>
             <h1 className="text-4xl font-heading font-semibold leading-tight text-white sm:text-5xl md:text-[56px]">
