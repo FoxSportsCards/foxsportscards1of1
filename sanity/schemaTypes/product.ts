@@ -79,7 +79,6 @@ export default defineType({
       type: "date",
       group: "market",
       description: "Visible cuando el estado es 'Próximo lanzamiento'. Usa una fecha estimada futura.",
-      options: { calendarTodayLabel: "Hoy" },
       validation: (Rule) =>
         Rule.custom((value, context) => {
           const status = (context as any)?.document?.status;
