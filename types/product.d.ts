@@ -28,4 +28,5 @@ export type Product = {
   heroVideoUrl?: string | null;
   category?: string | null;
   releaseDate?: string | null;
+  featured?: boolean;
 };

@@ -142,6 +142,7 @@ function mapSanityProduct(doc: SanityProductDocument): Product {
     heroVideoUrl: doc.heroVideoUrl ?? null,
     category: doc.productType ?? doc.sport ?? null,
     releaseDate: doc.releaseDate ?? null,
+    featured: Boolean(doc.featured),
   };
 }
 

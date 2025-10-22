@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { formatCurrency } from "@/lib/pricing";
 import { getAllProducts } from "@/lib/products";
+import type { Product } from "@/types/product";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -74,11 +75,156 @@ const testimonials = [
   },
 ];
 
+type SegmentDefinition = {
+  key: string;
+  title: string;
+  description: string;
+  tags?: string[];
+  includeFeatured?: boolean;
+  limit?: number;
+  statuses?: Array<NonNullable<Product["status"]>>;
+  preventDuplicates?: boolean;
+};
+
+type Segment = SegmentDefinition & {
+  items: Product[];
+};
+
+const SEGMENT_DEFINITIONS: SegmentDefinition[] = [
+  {
+    key: "top-drops",
+    title: "Top drops de la semana",
+    description: "Piezas marcadas en Sanity como destacadas o con lanzamiento cercano.",
+    tags: ["top-drop", "destacado", "featured"],
+    includeFeatured: true,
+    limit: 4,
+    statuses: ["available", "upcoming", "reserved"],
+  },
+  {
+    key: "vintage",
+    title: "Vintage & Legends",
+    description: "Clásicos slabbed, numerados y leyendas históricas para vitrinas selectas.",
+    tags: ["vintage", "legend", "retro"],
+    limit: 4,
+    statuses: ["available", "reserved"],
+  },
+  {
+    key: "modern",
+    title: "Modern Hits",
+    description: "Rookies, paralelos SSP y grails recientes listos para calificación.",
+    tags: ["modern", "rookie", "modern-grail"],
+    limit: 4,
+    statuses: ["available", "reserved", "upcoming"],
+  },
+];
+
 export default async function Page() {
   const products = await getAllProducts();
   const availableProducts = products.filter((product) => product.status !== "sold");
-  const spotlight = availableProducts[0] ?? products[0] ?? null;
-  const gallery = (spotlight ? availableProducts.slice(1) : availableProducts).slice(0, 8);
+  const featuredProducts = products.filter((product) => product.featured);
+
+  const spotlight =
+    featuredProducts.find((product) => product.status !== "sold") ??
+    availableProducts.find((product) => product.status !== "sold") ??
+    featuredProducts[0] ??
+    products[0] ??
+    null;
+
+  const normalizeTag = (value: string) => value.trim().toLowerCase();
+  const usedSlugs = new Set<string>();
+  if (spotlight) {
+    usedSlugs.add(spotlight.slug);
+  }
+
+  const segments: Segment[] = SEGMENT_DEFINITIONS.map((definition) => {
+    const allowedStatuses =
+      definition.statuses ?? (["available"] as Array<NonNullable<Product["status"]>>);
+    const normalizedTags = (definition.tags ?? []).map(normalizeTag);
+
+    const items = products
+      .filter((product) => {
+        const status = (product.status ?? "available") as NonNullable<Product["status"]>;
+        if (!allowedStatuses.includes(status)) return false;
+        if (definition.preventDuplicates !== false && usedSlugs.has(product.slug)) return false;
+
+        const tags = (product.tags ?? []).map(normalizeTag);
+        const matchesTags = normalizedTags.length ? normalizedTags.some((tag) => tags.includes(tag)) : false;
+        const matchesFeatured = definition.includeFeatured && product.featured;
+
+        return matchesTags || matchesFeatured;
+      })
+      .slice(0, definition.limit ?? 4);
+
+    if (!items.length) {
+      return null;
+    }
+
+    if (definition.preventDuplicates !== false) {
+      items.forEach((item) => usedSlugs.add(item.slug));
+    }
+
+    return { ...definition, items };
+  }).filter((segment): segment is Segment => segment !== null);
+
+  const gallery = availableProducts.filter((product) => !usedSlugs.has(product.slug)).slice(0, 8);
+
+  const heroStatusLabel =
+    spotlight?.status === "sold"
+      ? "No disponible"
+      : spotlight?.status === "reserved"
+        ? "Reservado"
+        : spotlight?.status === "upcoming"
+          ? "Próximo drop"
+          : "Disponible";
+
+  const heroReleaseLabel =
+    spotlight?.status === "upcoming" && spotlight.releaseDate
+      ? new Date(spotlight.releaseDate).toLocaleDateString("es-DO", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        })
+      : null;
+
+  const renderProductCard = (product: Product) => {
+    const cover = product.images[0]?.url ?? "/hero.jpg";
+    const alt = product.images[0]?.alt ?? product.title;
+    const status = product.status ?? "available";
+
+    return (
+      <Link
+        key={product.slug}
+        href={`/producto/${product.slug}`}
+        className="group relative overflow-hidden rounded-3xl border border-white/10 bg-surface shadow-soft transition hover:-translate-y-1 hover:border-white/20 hover:shadow-glow"
+      >
+        <div className="relative aspect-[4/5] overflow-hidden">
+          <Image
+            src={cover}
+            alt={alt}
+            fill
+            sizes="(min-width: 1280px) 20vw, (min-width: 1024px) 25vw, (min-width: 768px) 35vw, 80vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+          {status !== "available" && (
+            <span className="absolute left-4 top-4 rounded-full bg-black/70 px-3 py-1 text-xs uppercase tracking-[0.3em] text-white">
+              {status === "reserved" ? "Reservado" : status === "sold" ? "Vendido" : "Próximo"}
+            </span>
+          )}
+        </div>
+        <div className="space-y-3 p-5">
+          <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-muted">
+            <span>{product.sport ?? product.productType ?? "Coleccionable"}</span>
+            {product.year && <span>{product.year}</span>}
+          </div>
+          <h3 className="line-clamp-2 text-sm font-medium text-white/90">{product.title}</h3>
+          <div className="flex items-center justify-between text-sm font-semibold text-accent">
+            <span>{formatCurrency(product.price, product.currency)}</span>
+            {product.rarity && <span className="text-xs text-muted">{product.rarity}</span>}
+          </div>
+        </div>
+      </Link>
+    );
+  };
 
   return (
     <>
@@ -142,15 +288,29 @@ export default async function Page() {
             >
               <div className="absolute -left-16 top-10 hidden h-32 w-32 rounded-full bg-accent-secondary/30 blur-3xl md:block" />
               <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-surface">
-                <div className="relative aspect-[4/5]">
-                  <Image
-                    src={spotlight.images[0]?.url ?? "/hero.jpg"}
-                    alt={spotlight.images[0]?.alt ?? spotlight.title}
-                    fill
-                    sizes="(min-width: 1280px) 40vw, (min-width: 1024px) 45vw, 80vw"
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    priority
-                  />
+                <div className="relative aspect-[4/5] overflow-hidden">
+                  {spotlight.heroVideoUrl ? (
+                    <video
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      preload="metadata"
+                      poster={spotlight.images[0]?.url ?? "/hero.jpg"}
+                    >
+                      <source src={spotlight.heroVideoUrl} />
+                    </video>
+                  ) : (
+                    <Image
+                      src={spotlight.images[0]?.url ?? "/hero.jpg"}
+                      alt={spotlight.images[0]?.alt ?? spotlight.title}
+                      fill
+                      sizes="(min-width: 1280px) 40vw, (min-width: 1024px) 45vw, 80vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      priority
+                    />
+                  )}
                   <span className="absolute left-4 top-4 inline-flex items-center rounded-full bg-black/70 px-3 py-1 text-xs uppercase tracking-[0.3em] text-white">
                     Spotlight
                   </span>
@@ -167,13 +327,16 @@ export default async function Page() {
                   <h2 className="text-xl font-heading text-white">{spotlight.title}</h2>
                   <div className="flex items-center justify-between text-sm font-semibold text-accent">
                     <span>{formatCurrency(spotlight.price, spotlight.currency)}</span>
-                    <span className="text-xs uppercase tracking-[0.35em] text-muted">
-                      {spotlight.status === "upcoming" ? "Próximo drop" : "Disponible"}
-                    </span>
+                    <span className="text-xs uppercase tracking-[0.35em] text-muted">{heroStatusLabel}</span>
                   </div>
                   <p className="text-sm text-muted">
                     {spotlight.shortDescription ?? "Pieza verificada. Incluye concierge y envío asegurado."}
                   </p>
+                  {heroReleaseLabel && (
+                    <p className="text-xs uppercase tracking-[0.3em] text-white/60">
+                      Disponible desde {heroReleaseLabel}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="absolute bottom-6 left-1/2 hidden h-24 w-32 -translate-x-1/2 animate-shimmer rounded-full bg-gradient-to-r from-transparent via-white/20 to-transparent md:block" />
@@ -200,47 +363,54 @@ export default async function Page() {
               Ver calendario de drops
             </Link>
           </div>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {gallery.map((product) => {
-              const cover = product.images[0]?.url ?? "/hero.jpg";
-              const alt = product.images[0]?.alt ?? product.title;
-              const status = product.status ?? "available";
-
-              return (
-                <Link
-                  key={product.slug}
-                  href={`/producto/${product.slug}`}
-                  className="group relative overflow-hidden rounded-3xl border border-white/10 bg-surface shadow-soft transition hover:-translate-y-1 hover:border-white/20 hover:shadow-glow"
-                >
-                  <div className="relative aspect-[4/5] overflow-hidden">
-                    <Image
-                      src={cover}
-                      alt={alt}
-                      fill
-                      sizes="(min-width: 1280px) 20vw, (min-width: 1024px) 25vw, (min-width: 768px) 35vw, 80vw"
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    {status !== "available" && (
-                      <span className="absolute left-4 top-4 rounded-full bg-black/70 px-3 py-1 text-xs uppercase tracking-[0.3em] text-white">
-                        {status === "reserved" ? "Reservado" : status === "sold" ? "Vendido" : "Próximo"}
-                      </span>
-                    )}
-                  </div>
-                  <div className="space-y-3 p-5">
-                    <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-muted">
-                      <span>{product.sport ?? product.productType ?? "Coleccionable"}</span>
-                      {product.year && <span>{product.year}</span>}
+          {segments.length > 0 ? (
+            <div className="space-y-12">
+              {segments.map((segment) => (
+                <div key={segment.key} className="space-y-5">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                      <h3 className="text-xl font-heading font-semibold text-white">{segment.title}</h3>
+                      <p className="text-sm text-muted">{segment.description}</p>
                     </div>
-                    <h3 className="line-clamp-2 text-sm font-medium text-white/90">{product.title}</h3>
-                    <div className="flex items-center justify-between text-sm font-semibold text-accent">
-                      <span>{formatCurrency(product.price, product.currency)}</span>
-                      {product.rarity && <span className="text-xs text-muted">{product.rarity}</span>}
-                    </div>
+                    <Link
+                      href="/catalogo"
+                      className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-muted transition hover:text-white"
+                    >
+                      Ver en el catálogo
+                    </Link>
                   </div>
-                </Link>
-              );
-            })}
-          </div>
+                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {segment.items.map((product) => renderProductCard(product))}
+                  </div>
+                </div>
+              ))}
+              {gallery.length > 0 && (
+                <div className="space-y-5">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                      <h3 className="text-xl font-heading font-semibold text-white">Más piezas disponibles</h3>
+                      <p className="text-sm text-muted">
+                        Explora también estas incorporaciones recientes dentro del vault.
+                      </p>
+                    </div>
+                    <Link
+                      href="/catalogo"
+                      className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-muted transition hover:text-white"
+                    >
+                      Ver todo
+                    </Link>
+                  </div>
+                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {gallery.map((product) => renderProductCard(product))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {gallery.map((product) => renderProductCard(product))}
+            </div>
+          )}
         </div>
       </section>
 
