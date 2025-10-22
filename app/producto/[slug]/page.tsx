@@ -4,9 +4,9 @@ import { PortableText } from "@portabletext/react";
 import { formatCurrency } from "@/lib/pricing";
 import { notFound } from "next/navigation";
 import { getAllProducts, getProductBySlug } from "@/lib/products";
-import AddToCart from "@/components/AddToCart";
-import WhatsAppBuy from "@/components/WhatsAppBuy";
+import ProductActionButtons from "@/components/ProductActionButtons";
 import ProductGallery from "@/components/ProductGallery";
+import ProductStatusBadge from "@/components/ProductStatusBadge";
 import type { Product, ProductImage } from "@/types/product";
 
 export const dynamic = "force-dynamic";
@@ -64,15 +64,6 @@ export default async function ProductPage({ params }: { params: { slug: string }
   );
   const recommendations = deduped.slice(0, 3);
 
-  const statusLabel =
-    product.status === "sold"
-      ? "No disponible"
-      : product.status === "reserved"
-        ? "Reservado"
-        : product.status === "upcoming"
-          ? "Próximo lanzamiento"
-          : "Disponible";
-
   return (
     <div className="container py-16">
       <div className="grid gap-12 lg:grid-cols-[1.2fr_0.9fr]">
@@ -88,18 +79,13 @@ export default async function ProductPage({ params }: { params: { slug: string }
             </div>
 
             <div className="space-y-3">
-              <span className="inline-block rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] uppercase tracking-[0.35em] text-white/70">
-                {statusLabel}
-              </span>
+              <ProductStatusBadge status={product.status} releaseDate={product.releaseDate} />
               <h1 className="text-3xl font-heading font-semibold text-white lg:text-[34px]">{product.title}</h1>
               <p className="text-2xl font-heading text-accent">{formatCurrency(product.price, product.currency)}</p>
               {product.shortDescription && <p className="text-sm text-muted">{product.shortDescription}</p>}
             </div>
 
-            <div className="flex flex-wrap gap-3">
-              <AddToCart product={product} />
-              <WhatsAppBuy product={product} />
-            </div>
+            <ProductActionButtons product={product} />
 
             <div className="rounded-3xl border border-white/10 bg-background/70 p-6">
               <dl className="grid gap-5 text-left sm:grid-cols-3">

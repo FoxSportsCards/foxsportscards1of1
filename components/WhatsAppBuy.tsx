@@ -5,7 +5,20 @@ import type { Product } from "@/types/product";
 
 const WHATSAPP_NUMBER = "18492617328"; // Número de WhatsApp en formato internacional sin '+'
 
-export default function WhatsAppBuy({ product }: { product: Product }) {
+type WhatsAppMode = "buy" | "reserve";
+
+const DEFAULT_MESSAGES: Record<WhatsAppMode, string> = {
+  buy: "Hola, me interesa la siguiente pieza:",
+  reserve: "Hola, quiero reservar esta pieza antes del lanzamiento:",
+};
+
+type WhatsAppBuyProps = {
+  product: Product;
+  mode?: WhatsAppMode;
+};
+
+export default function WhatsAppBuy({ product, mode = "buy" }: WhatsAppBuyProps) {
+  const introMessage = product.whatsappMessage ?? DEFAULT_MESSAGES[mode];
   const href = buildWhatsAppUrl(
     WHATSAPP_NUMBER,
     [
@@ -18,7 +31,7 @@ export default function WhatsAppBuy({ product }: { product: Product }) {
       },
     ],
     {
-      introMessage: product.whatsappMessage ?? "Hola, me interesa la siguiente pieza:",
+      introMessage,
     },
   );
 
@@ -29,7 +42,7 @@ export default function WhatsAppBuy({ product }: { product: Product }) {
       rel="noreferrer"
       className="rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-black transition hover:opacity-90"
     >
-      Comprar por WhatsApp
+      {mode === "reserve" ? "Reservar por WhatsApp" : "Comprar por WhatsApp"}
     </a>
   );
 }
