@@ -5,6 +5,8 @@ import { getAllProducts } from "@/lib/products";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+export const runtime = "edge";
+export const preferredRegion = "auto";
 
 const stats = [
   { label: "Piezas certificadas", value: "120+" },

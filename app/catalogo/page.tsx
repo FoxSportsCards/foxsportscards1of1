@@ -3,6 +3,8 @@ import { CatalogClient } from "./CatalogClient";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+export const runtime = "edge";
+export const preferredRegion = "auto";
 
 export const metadata = {
   title: "Catálogo | foxsportscards1of1",
