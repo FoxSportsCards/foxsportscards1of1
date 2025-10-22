@@ -1,7 +1,8 @@
 import { getAllProducts } from "@/lib/products";
 import { CatalogClient } from "./CatalogClient";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export const metadata = {
   title: "Catálogo | foxsportscards1of1",

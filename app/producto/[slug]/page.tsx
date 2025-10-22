@@ -9,19 +9,10 @@ import WhatsAppBuy from "@/components/WhatsAppBuy";
 import ProductGallery from "@/components/ProductGallery";
 import type { Product, ProductImage } from "@/types/product";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 export const runtime = "edge";
 export const preferredRegion = "auto";
-
-export async function generateStaticParams() {
-  try {
-    const products = await getAllProducts();
-    return products.map((product) => ({ slug: product.slug }));
-  } catch (error) {
-    console.error("[producto] Failed to preload product slugs", error);
-    return [];
-  }
-}
 
 function ensureImages(product: Product): ProductImage[] {
   if (product.images.length > 0) {

@@ -3,7 +3,8 @@ import Link from "next/link";
 import { formatCurrency } from "@/lib/pricing";
 import { getAllProducts } from "@/lib/products";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 const stats = [
   { label: "Piezas certificadas", value: "120+" },
