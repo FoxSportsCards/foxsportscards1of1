@@ -8,6 +8,9 @@ type HomeDropDocument = {
   scheduledAt: string;
   statusLabel: string;
   description: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+  showInBanner?: boolean;
 };
 
 type TestimonialDocument = {
@@ -22,7 +25,10 @@ const HOME_DROPS_QUERY = groq`*[_type == "homeDrop"] | order(scheduledAt asc) {
   title,
   scheduledAt,
   statusLabel,
-  description
+  description,
+  ctaLabel,
+  ctaHref,
+  showInBanner
 }`;
 
 const TESTIMONIALS_QUERY = groq`*[_type == "testimonial"] | order(coalesce(order, 9999) asc, _createdAt desc) {
@@ -39,6 +45,9 @@ const FALLBACK_DROPS: HomeDrop[] = [
     description: "Selección de piezas slabbed de los 80s-90s más rarezas Dominican Legends.",
     statusLabel: "Preventa abierta",
     scheduledAt: "2025-10-22T00:00:00.000Z",
+    ctaLabel: "Apartar cupo",
+    ctaHref: "https://wa.me/18492617328",
+    showInBanner: true,
   },
   {
     id: "fallback-drop-2",
@@ -46,6 +55,9 @@ const FALLBACK_DROPS: HomeDrop[] = [
     description: "Box breaks privados con cupos limitados. Incluye guía de inversión y envío express.",
     statusLabel: "Reserva tu slot",
     scheduledAt: "2025-10-28T00:00:00.000Z",
+    ctaLabel: "Ver agenda",
+    ctaHref: "#agenda-drops",
+    showInBanner: false,
   },
   {
     id: "fallback-drop-3",
@@ -53,6 +65,9 @@ const FALLBACK_DROPS: HomeDrop[] = [
     description: "Singles gem mint y packs sellados. Bonus: live grading coaching durante el drop.",
     statusLabel: "Lista de espera",
     scheduledAt: "2025-11-04T00:00:00.000Z",
+    ctaLabel: "Únete a la lista",
+    ctaHref: "https://wa.me/18492617328",
+    showInBanner: false,
   },
 ];
 
@@ -95,6 +110,9 @@ function mapHomeDrop(doc: HomeDropDocument): HomeDrop {
     scheduledAt: doc.scheduledAt,
     statusLabel: doc.statusLabel,
     description: doc.description,
+    ctaLabel: doc.ctaLabel ?? null,
+    ctaHref: doc.ctaHref ?? null,
+    showInBanner: Boolean(doc.showInBanner),
   };
 }
 
@@ -129,4 +147,3 @@ export async function getHomepageContent(): Promise<{
     testimonials: testimonials.map(mapTestimonial),
   };
 }
-

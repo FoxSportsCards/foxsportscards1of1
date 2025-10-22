@@ -4,6 +4,9 @@ export type HomeDrop = {
   scheduledAt: string;
   statusLabel: string;
   description: string;
+  ctaLabel?: string | null;
+  ctaHref?: string | null;
+  showInBanner?: boolean;
 };
 
 export type Testimonial = {
@@ -12,4 +15,3 @@ export type Testimonial = {
   author: string;
   location?: string | null;
 };
-

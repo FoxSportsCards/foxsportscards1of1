@@ -4,6 +4,7 @@ import { formatCurrency } from "@/lib/pricing";
 import { getAllProducts } from "@/lib/products";
 import { getHomepageContent } from "@/lib/homeContent";
 import type { Product } from "@/types/product";
+import type { HomeDrop } from "@/types/home";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -83,6 +84,56 @@ const SEGMENT_DEFINITIONS: SegmentDefinition[] = [
 export default async function Page() {
   const [products, homepage] = await Promise.all([getAllProducts(), getHomepageContent()]);
   const { drops, testimonials } = homepage;
+  const formatDropBadge = (value?: string | null) => {
+    if (!value) return "POR DEFINIR";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "POR DEFINIR";
+    return date
+      .toLocaleDateString("es-DO", {
+        day: "2-digit",
+        month: "short",
+      })
+      .toUpperCase();
+  };
+
+  const formatDropFullDate = (value?: string | null) => {
+    if (!value) return "Fecha por confirmar";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "Fecha por confirmar";
+    return date.toLocaleDateString("es-DO", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  const resolveDropCta = (drop: HomeDrop | null) => {
+    if (!drop) return null;
+    const rawHref = drop.ctaHref?.trim();
+    const href = rawHref && rawHref.length > 0 ? rawHref : "https://wa.me/18492617328";
+    return {
+      href,
+      label: drop.ctaLabel ?? "Reservar cupo",
+      external: /^https?:\/\//i.test(href),
+    };
+  };
+
+  const heroBannerDrop = drops.find((drop) => drop.showInBanner) ?? null;
+  const heroBannerHref =
+    heroBannerDrop && heroBannerDrop.ctaHref && heroBannerDrop.ctaHref.trim().length > 0
+      ? heroBannerDrop.ctaHref.trim()
+      : "#agenda-drops";
+  const heroBannerIsExternal = heroBannerDrop ? /^https?:\/\//i.test(heroBannerHref) : false;
+  const heroBannerCtaLabel = heroBannerDrop?.ctaLabel ?? "Ver agenda";
+
+  const primaryCalendarDrop = (heroBannerDrop ?? drops[0]) ?? null;
+  const secondaryCalendarDrops = primaryCalendarDrop
+    ? drops.filter((drop) => drop.id !== primaryCalendarDrop.id)
+    : [];
+  const primaryCalendarCta = resolveDropCta(primaryCalendarDrop);
+
   const availableProducts = products.filter((product) => product.status !== "sold");
   const featuredProducts = products.filter((product) => product.featured);
 
@@ -196,6 +247,38 @@ export default async function Page() {
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
         <div className="container relative grid gap-12 py-20 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
           <div className="space-y-7">
+            {heroBannerDrop && (
+              <a
+                href={heroBannerHref}
+                target={heroBannerIsExternal ? "_blank" : undefined}
+                rel={heroBannerIsExternal ? "noreferrer" : undefined}
+                className="group relative overflow-hidden rounded-3xl border border-accent/35 bg-gradient-to-r from-accent/25 via-accent/10 to-transparent px-4 py-4 text-white shadow-[0_12px_40px_rgba(255,215,0,0.15)] transition hover:border-accent/60 hover:shadow-[0_20px_60px_rgba(255,215,0,0.28)] focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+              >
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="rounded-full bg-black/45 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-accent">
+                      {formatDropBadge(heroBannerDrop.scheduledAt)}
+                    </span>
+                    <div className="space-y-1">
+                      <p className="text-[11px] uppercase tracking-[0.35em] text-accent/80">
+                        {heroBannerDrop.statusLabel}
+                      </p>
+                      <p className="text-sm font-semibold uppercase tracking-[0.28em] text-white">
+                        {heroBannerDrop.title}
+                      </p>
+                      <p className="text-[10px] uppercase tracking-[0.3em] text-white/60">
+                        {formatDropFullDate(heroBannerDrop.scheduledAt)}
+                      </p>
+                    </div>
+                  </div>
+                  <span className="inline-flex items-center gap-2 self-start rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-black transition group-hover:bg-white/25 group-hover:text-black sm:self-auto">
+                    {heroBannerCtaLabel}
+                    <span aria-hidden>→</span>
+                  </span>
+                </div>
+                <span className="pointer-events-none absolute -right-10 top-1/2 hidden h-24 w-24 -translate-y-1/2 rounded-full bg-accent/40 blur-3xl sm:block" />
+              </a>
+            )}
             <span className="eyebrow">Vault curado • Ediciones limitadas</span>
             <h1 className="text-4xl font-heading font-semibold leading-tight text-white sm:text-5xl md:text-[56px]">
               Coleccionables premium, autenticidad garantizada.
@@ -308,6 +391,109 @@ export default async function Page() {
         </div>
       </section>
 
+      <section id="agenda-drops" className="relative border-b border-white/5 bg-surface/60 py-16 backdrop-blur">
+        <div className="container space-y-10">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div className="space-y-3">
+              <span className="eyebrow">Calendario de drops</span>
+              <h2 className="text-3xl font-heading font-semibold text-white">Agenda tus próximos movimientos</h2>
+              <p className="max-w-2xl text-sm text-muted">
+                Drops privados, breaks boutique y showcases virtuales. Los cupos son limitados y cada fecha incluye concierge en vivo.
+              </p>
+            </div>
+            {primaryCalendarCta && (
+              <a
+                href={primaryCalendarCta.href}
+                target={primaryCalendarCta.external ? "_blank" : undefined}
+                rel={primaryCalendarCta.external ? "noreferrer" : undefined}
+                className="inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-black shadow-glow transition hover:bg-accent-soft"
+              >
+                {primaryCalendarCta.label}
+              </a>
+            )}
+          </div>
+          {primaryCalendarDrop ? (
+            <div className="space-y-8">
+              <div className="relative overflow-hidden rounded-4xl border border-accent/35 bg-gradient-to-br from-accent/25 via-transparent to-black/30 p-6 shadow-[0_25px_80px_rgba(255,215,0,0.15)] sm:p-8">
+                <div className="absolute -left-20 top-1/2 hidden h-40 w-40 -translate-y-1/2 rounded-full bg-accent/40 blur-3xl lg:block" />
+                <div className="space-y-5">
+                  <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.35em] text-accent">
+                    <span className="rounded-full bg-black/50 px-4 py-1 text-accent">{formatDropBadge(primaryCalendarDrop.scheduledAt)}</span>
+                    <span className="text-white/70">{primaryCalendarDrop.statusLabel}</span>
+                  </div>
+                  <h3 className="text-2xl font-heading font-semibold uppercase tracking-[0.22em] text-white sm:text-3xl">
+                    {primaryCalendarDrop.title}
+                  </h3>
+                  <p className="max-w-2xl text-sm text-white/80">{primaryCalendarDrop.description}</p>
+                  <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.3em] text-white/70">
+                    <span>{formatDropFullDate(primaryCalendarDrop.scheduledAt)}</span>
+                  </div>
+                  {primaryCalendarCta && (
+                    <div className="flex flex-wrap gap-3">
+                      <a
+                        href={primaryCalendarCta.href}
+                        target={primaryCalendarCta.external ? "_blank" : undefined}
+                        rel={primaryCalendarCta.external ? "noreferrer" : undefined}
+                        className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-black transition hover:opacity-85"
+                      >
+                        {primaryCalendarCta.label}
+                        <span aria-hidden>→</span>
+                      </a>
+                      <a
+                        href="https://wa.me/18492617328"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-2 rounded-full border border-white/25 px-5 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-white transition hover:border-white/50 hover:text-white"
+                      >
+                        Concierge inmediato
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+              {secondaryCalendarDrops.length > 0 ? (
+                <div className="flex gap-4 overflow-x-auto pb-1 pt-1 lg:grid lg:grid-cols-3 lg:gap-6 lg:overflow-visible">
+                  {secondaryCalendarDrops.map((drop) => {
+                    const cta = resolveDropCta(drop);
+                    return (
+                      <div
+                        key={drop.id}
+                        className="min-w-[260px] flex-1 snap-start rounded-3xl border border-white/12 bg-white/5 p-5 text-sm text-muted shadow-soft transition hover:border-accent/40 hover:shadow-glow lg:min-w-0"
+                      >
+                        <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.35em] text-accent">
+                          <span>{formatDropBadge(drop.scheduledAt)}</span>
+                          <span className="text-white/60">{drop.statusLabel}</span>
+                        </div>
+                        <h4 className="mt-4 text-lg font-heading font-semibold text-white">{drop.title}</h4>
+                        <p className="mt-3 text-sm text-muted/90">{drop.description}</p>
+                        <p className="mt-4 text-[11px] uppercase tracking-[0.3em] text-white/50">
+                          {formatDropFullDate(drop.scheduledAt)}
+                        </p>
+                        {cta && (
+                          <a
+                            href={cta.href}
+                            target={cta.external ? "_blank" : undefined}
+                            rel={cta.external ? "noreferrer" : undefined}
+                            className="mt-5 inline-flex items-center gap-2 rounded-full bg-accent/20 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-accent transition hover:bg-accent/30"
+                          >
+                            {cta.label}
+                            <span aria-hidden>→</span>
+                          </a>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null}
+            </div>
+          ) : (
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-10 text-center text-sm text-muted">
+              Añade drops destacados desde Sanity en la colección “Drop destacado” para que aparezcan aquí automáticamente.
+            </div>
+          )}
+        </div>
+      </section>
+
       <section className="relative py-16">
         <div className="container space-y-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -408,69 +594,6 @@ export default async function Page() {
               </Link>
             ))}
           </div>
-        </div>
-      </section>
-
-      <section className="relative py-16">
-        <div className="container space-y-10">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div className="space-y-3">
-              <span className="eyebrow">Calendario de drops</span>
-              <h2 className="text-3xl font-heading font-semibold text-white">Agenda tus próximos movimientos</h2>
-              <p className="max-w-2xl text-sm text-muted">
-                Drops privados, breaks boutique y showcases virtuales. Los cupos son limitados y cada fecha incluye concierge en vivo.
-              </p>
-            </div>
-            <a
-              href="https://wa.me/18492617328"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-black shadow-glow transition hover:bg-accent-soft"
-            >
-              Reservar cupo
-            </a>
-          </div>
-          {drops.length > 0 ? (
-            <div className="grid gap-6 lg:grid-cols-3">
-              {drops.map((drop) => {
-                const date = drop.scheduledAt ? new Date(drop.scheduledAt) : null;
-                const badge = date
-                  ? date
-                      .toLocaleDateString("es-DO", {
-                        day: "2-digit",
-                        month: "short",
-                      })
-                      .toUpperCase()
-                  : "POR DEFINIR";
-                const fullDate = date
-                  ? date.toLocaleDateString("es-DO", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })
-                  : "Fecha por confirmar";
-
-                return (
-                  <div
-                    key={drop.id}
-                    className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-soft backdrop-blur"
-                  >
-                    <span className="text-xs uppercase tracking-[0.35em] text-muted">{badge}</span>
-                    <h3 className="mt-4 text-xl font-heading text-white">{drop.title}</h3>
-                    <p className="mt-3 text-sm text-muted">{drop.description}</p>
-                    <p className="mt-6 text-xs uppercase tracking-[0.3em] text-accent">{drop.statusLabel}</p>
-                    <p className="mt-2 text-[11px] uppercase tracking-[0.3em] text-white/50">{fullDate}</p>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-10 text-center text-sm text-muted">
-              Añade drops destacados desde Sanity en la colección “Drop destacado” para que aparezcan aquí automáticamente.
-            </div>
-          )}
         </div>
       </section>
 

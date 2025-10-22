@@ -32,6 +32,35 @@ export default defineType({
       rows: 3,
       validation: (Rule) => Rule.required().max(240),
     }),
+    defineField({
+      name: "ctaLabel",
+      title: "Texto del CTA",
+      type: "string",
+      description: "Ej. Reservar cupo, Ver detalles, Ir al live.",
+      validation: (Rule) => Rule.max(40),
+    }),
+    defineField({
+      name: "ctaHref",
+      title: "Enlace del CTA",
+      type: "string",
+      description: "URL completa o enlace interno (ej. https://..., /producto/slug, #agenda).",
+      validation: (Rule) =>
+        Rule.custom((value, context) => {
+          const hasLabel = Boolean((context as any)?.parent?.ctaLabel);
+          if (hasLabel && !value) {
+            return "Si defines un CTA, agrega también el enlace.";
+          }
+          return true;
+        }),
+    }),
+    defineField({
+      name: "showInBanner",
+      title: "Destacar en banner del hero",
+      type: "boolean",
+      description:
+        "Si está activo, aparece una alerta brillante en la parte superior del home. Activa como máximo en un drop a la vez.",
+      initialValue: false,
+    }),
   ],
   preview: {
     select: {
@@ -61,4 +90,3 @@ export default defineType({
     },
   ],
 });
-
