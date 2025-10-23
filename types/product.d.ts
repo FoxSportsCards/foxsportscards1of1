@@ -29,4 +29,9 @@ export type Product = {
   category?: string | null;
   releaseDate?: string | null;
   featured?: boolean;
+  alternatePricing?: {
+    enabled: boolean;
+    currency?: string | null;
+    amount?: number | null;
+  } | null;
 };

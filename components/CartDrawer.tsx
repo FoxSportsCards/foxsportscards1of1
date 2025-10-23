@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import Image from "next/image";
 import clsx from "clsx";
 import { useCart } from "@/store/cart";
-import { formatCurrency } from "@/lib/pricing";
+import { formatCurrency, getProductPrices } from "@/lib/pricing";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 
 const WHATSAPP_NUMBER = "18492617328";
@@ -23,6 +23,27 @@ export default function CartDrawer() {
     () => items.reduce((sum, item) => sum + item.product.price * item.qty, 0),
     [items],
   );
+  const alternateTotals = useMemo(() => {
+    if (!items.length) return null;
+    const entries = items.filter(
+      (item) =>
+        item.product.alternatePricing?.enabled &&
+        item.product.alternatePricing.amount &&
+        item.product.alternatePricing.currency,
+    );
+    if (!entries.length) return null;
+    if (entries.length !== items.length) return null;
+    const currency = entries[0].product.alternatePricing!.currency!;
+    const sameCurrency = entries.every(
+      (item) => item.product.alternatePricing!.currency === currency,
+    );
+    if (!sameCurrency) return null;
+    const total = entries.reduce(
+      (sum, item) => sum + (item.product.alternatePricing!.amount ?? 0) * item.qty,
+      0,
+    );
+    return { currency, total };
+  }, [items]);
 
   const whatsappLink = useMemo(() => {
     if (!items.length) return "#";
@@ -112,7 +133,7 @@ export default function CartDrawer() {
 
             <div className="flex-1 overflow-hidden">
               <div className="fade-top pointer-events-none absolute inset-x-0 top-[72px] h-6 bg-gradient-to-b from-background via-background/60 to-transparent" aria-hidden />
-              <div className="fade-bottom pointer-events-none absolute inset-x-0 bottom-[120px] h-8 bg-gradient-to-t from-background via-background/70 to-transparent" aria-hidden />
+              <div className="fade-bottom pointer-events-none absolute inset-x-0 bottom-[9.5rem] h-6 bg-gradient-to-t from-background via-background/70 to-transparent sm:bottom-[10rem] md:bottom-[11rem]" aria-hidden />
               <div className="h-full overflow-y-auto px-6 py-6 md:py-7">
                 {items.length === 0 ? (
                   <p className="text-sm text-muted">
@@ -122,6 +143,23 @@ export default function CartDrawer() {
                 <ul className="space-y-5">
                   {items.map(({ product, qty }) => {
                     const cover = product.images[0]?.url ?? "/hero.jpg";
+                    const prices = getProductPrices(product);
+                    const secondaryPerUnit =
+                      product.alternatePricing?.enabled &&
+                      product.alternatePricing.amount &&
+                      product.alternatePricing.currency
+                        ? formatCurrency(
+                            product.alternatePricing.amount,
+                            product.alternatePricing.currency,
+                          )
+                        : null;
+                    const secondarySubtotal =
+                      secondaryPerUnit && product.alternatePricing?.amount
+                        ? formatCurrency(
+                            (product.alternatePricing.amount ?? 0) * qty,
+                            product.alternatePricing.currency ?? "USD",
+                          )
+                        : null;
                     return (
                       <li key={product.slug} className="flex items-center gap-4 rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-3">
                         <div className="relative h-16 w-14 overflow-hidden rounded-xl border border-white/10 bg-white/5">
@@ -137,12 +175,20 @@ export default function CartDrawer() {
                           <p className="line-clamp-2 font-medium text-white/90">{product.title}</p>
                           <div className="flex items-center justify-between text-xs text-muted">
                             <span>
-                              {qty} x {formatCurrency(product.price, product.currency ?? "DOP")}
+                              {qty} x {prices.primary}
                             </span>
                             <span className="text-sm font-semibold text-accent">
                               {formatCurrency(product.price * qty, product.currency ?? "DOP")}
                             </span>
                           </div>
+                          {secondaryPerUnit && secondarySubtotal && (
+                            <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.3em] text-white/70">
+                              <span>
+                                {qty} x {secondaryPerUnit}
+                              </span>
+                              <span>{secondarySubtotal}</span>
+                            </div>
+                          )}
                           <div className="flex justify-end">
                             <button
                               type="button"
@@ -168,6 +214,12 @@ export default function CartDrawer() {
                   {formatCurrency(totalAmount, totalCurrency)}
                 </span>
               </div>
+              {alternateTotals && (
+                <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-white/70">
+                  <span>Total alterno</span>
+                  <span>{formatCurrency(alternateTotals.total, alternateTotals.currency)}</span>
+                </div>
+              )}
 
               <div className="flex flex-col gap-3">
                 <a

@@ -1,7 +1,7 @@
 ﻿import Image from "next/image";
 import Link from "next/link";
 import { PortableText } from "@portabletext/react";
-import { formatCurrency } from "@/lib/pricing";
+import { formatCurrency, getProductPrices } from "@/lib/pricing";
 import { notFound } from "next/navigation";
 import { getAllProducts, getProductBySlug } from "@/lib/products";
 import ProductActionButtons from "@/components/ProductActionButtons";
@@ -86,7 +86,17 @@ export default async function ProductPage({ params }: { params: { slug: string }
             <div className="space-y-3">
               <ProductStatusBadge status={product.status} releaseDate={product.releaseDate} />
               <h1 className="text-3xl font-heading font-semibold text-white lg:text-[34px]">{product.title}</h1>
-              <p className="text-2xl font-heading text-accent">{formatCurrency(product.price, product.currency)}</p>
+              {(() => {
+                const prices = getProductPrices(product);
+                return (
+                  <div className="space-y-1">
+                    <p className="text-2xl font-heading text-accent">{prices.primary}</p>
+                    {prices.secondary && (
+                      <p className="text-sm uppercase tracking-[0.3em] text-muted">{prices.secondary}</p>
+                    )}
+                  </div>
+                );
+              })()}
               {product.shortDescription && <p className="text-sm text-muted">{product.shortDescription}</p>}
             </div>
 
@@ -174,7 +184,9 @@ export default async function ProductPage({ params }: { params: { slug: string }
             </Link>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {recommendations.map((item) => (
+            {recommendations.map((item) => {
+              const prices = getProductPrices(item);
+              return (
               <Link
                 key={item.slug}
                 href={`/producto/${item.slug}`}
@@ -196,12 +208,20 @@ export default async function ProductPage({ params }: { params: { slug: string }
                   </div>
                   <h3 className="line-clamp-2 text-sm font-medium text-white/90">{item.title}</h3>
                   <div className="flex items-center justify-between text-sm font-semibold text-accent">
-                    <span>{formatCurrency(item.price, item.currency)}</span>
+                    <div className="space-y-1">
+                      <span className="block">{prices.primary}</span>
+                      {prices.secondary && (
+                        <span className="block text-[11px] font-normal uppercase tracking-[0.3em] text-white/70">
+                          {prices.secondary}
+                        </span>
+                      )}
+                    </div>
                     {item.rarity && <span className="text-xs text-muted">{item.rarity}</span>}
                   </div>
                 </div>
               </Link>
-            ))}
+            );
+            })}
           </div>
         </section>
       )}

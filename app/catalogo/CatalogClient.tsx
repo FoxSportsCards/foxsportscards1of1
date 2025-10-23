@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import clsx from "clsx";
-import { formatCurrency } from "@/lib/pricing";
+import { getProductPrices } from "@/lib/pricing";
 import type { Product } from "@/types/product";
 
 type Props = {
@@ -146,6 +146,7 @@ export function CatalogClient({ products }: Props) {
           const cover = product.images[0]?.url ?? "/hero.jpg";
           const alt = product.images[0]?.alt ?? product.title;
           const status = product.status ?? "available";
+          const prices = getProductPrices(product);
 
           return (
             <Link
@@ -174,7 +175,14 @@ export function CatalogClient({ products }: Props) {
                 </div>
                 <h3 className="line-clamp-2 text-sm font-medium text-white/90">{product.title}</h3>
                 <div className="flex items-center justify-between text-sm font-semibold text-accent">
-                  <span>{formatCurrency(product.price, product.currency)}</span>
+                  <div className="space-y-1">
+                    <span className="block">{prices.primary}</span>
+                    {prices.secondary && (
+                      <span className="block text-[11px] font-normal uppercase tracking-[0.3em] text-white/70">
+                        {prices.secondary}
+                      </span>
+                    )}
+                  </div>
                   {product.rarity && <span className="text-xs text-muted">{product.rarity}</span>}
                 </div>
               </div>

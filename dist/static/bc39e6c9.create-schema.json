@@ -1,0 +1,855 @@
+[
+  {
+    "fields": [
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              },
+              {
+                "flag": "min",
+                "constraint": 4
+              },
+              {
+                "flag": "max",
+                "constraint": 120
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "title",
+        "type": "string",
+        "title": "Título"
+      },
+      {
+        "options": {
+          "source": "title",
+          "maxLength": 96
+        },
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "custom"
+              },
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "slug",
+        "type": "slug"
+      },
+      {
+        "initialValue": "available",
+        "options": {
+          "list": [
+            {
+              "title": "Disponible",
+              "value": "available"
+            },
+            {
+              "title": "Reservado",
+              "value": "reserved"
+            },
+            {
+              "title": "Vendido",
+              "value": "sold"
+            },
+            {
+              "title": "Próximo lanzamiento",
+              "value": "upcoming"
+            }
+          ],
+          "layout": "radio"
+        },
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "valid",
+                "constraint": [
+                  "available",
+                  "reserved",
+                  "sold",
+                  "upcoming"
+                ]
+              },
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "status",
+        "type": "string",
+        "title": "Estado"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "custom"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "Visible cuando el estado es 'Próximo lanzamiento'. Usa una fecha estimada futura.",
+        "name": "releaseDate",
+        "type": "date",
+        "title": "Fecha de disponibilidad"
+      },
+      {
+        "initialValue": false,
+        "description": "Si está activo, se muestra primero en las secciones de destacados.",
+        "name": "featured",
+        "type": "boolean",
+        "title": "Destacado en home"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              },
+              {
+                "flag": "min",
+                "constraint": 0
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "price",
+        "type": "number",
+        "title": "Precio"
+      },
+      {
+        "initialValue": "DOP",
+        "options": {
+          "list": [
+            {
+              "title": "DOP",
+              "value": "DOP"
+            },
+            {
+              "title": "USD",
+              "value": "USD"
+            }
+          ],
+          "layout": "dropdown"
+        },
+        "name": "currency",
+        "type": "string",
+        "title": "Moneda"
+      },
+      {
+        "description": "Activa para mostrar un segundo precio (ej. USD).",
+        "fields": [
+          {
+            "initialValue": false,
+            "name": "enabled",
+            "type": "boolean",
+            "title": "Mostrar precio alterno"
+          },
+          {
+            "options": {
+              "list": [
+                {
+                  "title": "DOP",
+                  "value": "DOP"
+                },
+                {
+                  "title": "USD",
+                  "value": "USD"
+                }
+              ],
+              "layout": "dropdown"
+            },
+            "hidden": "conditional",
+            "name": "currency",
+            "type": "string",
+            "title": "Moneda alterna"
+          },
+          {
+            "validation": [
+              {
+                "rules": [
+                  {
+                    "flag": "min",
+                    "constraint": 0
+                  }
+                ],
+                "level": "error"
+              }
+            ],
+            "hidden": "conditional",
+            "name": "amount",
+            "type": "number",
+            "title": "Monto alterno"
+          }
+        ],
+        "name": "alternatePricing",
+        "type": "object",
+        "title": "Precio alterno"
+      },
+      {
+        "description": "Mensaje prellenado para el botón de WhatsApp. Si se deja vacío, se genera automáticamente.",
+        "name": "whatsappMessage",
+        "type": "string",
+        "title": "Mensaje WhatsApp personalizado"
+      },
+      {
+        "options": {
+          "list": [
+            {
+              "title": "Baloncesto",
+              "value": "nba"
+            },
+            {
+              "title": "Béisbol",
+              "value": "mlb"
+            },
+            {
+              "title": "Fútbol",
+              "value": "soccer"
+            },
+            {
+              "title": "TCG",
+              "value": "tcg"
+            },
+            {
+              "title": "F1",
+              "value": "f1"
+            },
+            {
+              "title": "Otros",
+              "value": "other"
+            }
+          ],
+          "layout": "dropdown"
+        },
+        "name": "sport",
+        "type": "string",
+        "title": "Deporte"
+      },
+      {
+        "options": {
+          "list": [
+            {
+              "title": "Single",
+              "value": "single"
+            },
+            {
+              "title": "Sealed Box",
+              "value": "sealed"
+            },
+            {
+              "title": "Memorabilia",
+              "value": "memorabilia"
+            },
+            {
+              "title": "Break",
+              "value": "break"
+            }
+          ],
+          "layout": "dropdown"
+        },
+        "name": "productType",
+        "type": "string",
+        "title": "Tipo de producto"
+      },
+      {
+        "options": {
+          "list": [
+            {
+              "title": "Common",
+              "value": "common"
+            },
+            {
+              "title": "Short Print",
+              "value": "short-print"
+            },
+            {
+              "title": "Serializada /99",
+              "value": "serial-99"
+            },
+            {
+              "title": "Serializada /25",
+              "value": "serial-25"
+            },
+            {
+              "title": "Serializada /10",
+              "value": "serial-10"
+            },
+            {
+              "title": "One of One",
+              "value": "one-of-one"
+            }
+          ],
+          "layout": "dropdown"
+        },
+        "name": "rarity",
+        "type": "string",
+        "title": "Rareza"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "min",
+                "constraint": 1900
+              },
+              {
+                "flag": "max",
+                "constraint": 2026
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "year",
+        "type": "number",
+        "title": "Año"
+      },
+      {
+        "description": "Ejemplo: PSA 10, BGS 9.5, Raw, Sealed.",
+        "name": "certification",
+        "type": "string",
+        "title": "Certificación / Grading"
+      },
+      {
+        "initialValue": 1,
+        "name": "inventory",
+        "type": "number",
+        "title": "Inventario disponible"
+      },
+      {
+        "of": [
+          {
+            "type": "string"
+          }
+        ],
+        "name": "tags",
+        "type": "array",
+        "title": "Etiquetas"
+      },
+      {
+        "rows": 3,
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "max",
+                "constraint": 180
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "shortDescription",
+        "type": "text",
+        "title": "Descripción corta"
+      },
+      {
+        "description": "Puntos clave para mostrar en bullets.",
+        "of": [
+          {
+            "type": "string"
+          }
+        ],
+        "name": "highlights",
+        "type": "array"
+      },
+      {
+        "of": [
+          {
+            "marks": {
+              "annotations": [
+                {
+                  "i18nTitleKey": "inputs.portable-text.annotation.link",
+                  "options": {
+                    "modal": {
+                      "type": "popover"
+                    }
+                  },
+                  "fields": [
+                    {
+                      "validation": [
+                        {
+                          "rules": [
+                            {
+                              "flag": "uri",
+                              "constraint": {
+                                "options": {
+                                  "scheme": [
+                                    "/^http$/",
+                                    "/^https$/",
+                                    "/^tel$/",
+                                    "/^mailto$/"
+                                  ],
+                                  "allowRelative": true,
+                                  "relativeOnly": false,
+                                  "allowCredentials": false
+                                }
+                              }
+                            }
+                          ],
+                          "level": "error"
+                        }
+                      ],
+                      "description": "A valid web, email, phone, or relative link.",
+                      "name": "href",
+                      "type": "url",
+                      "title": "Link"
+                    }
+                  ],
+                  "name": "link",
+                  "type": "object"
+                }
+              ],
+              "decorators": [
+                {
+                  "value": "strong",
+                  "title": "Strong"
+                },
+                {
+                  "value": "em",
+                  "title": "Italic"
+                },
+                {
+                  "value": "code",
+                  "title": "Code"
+                },
+                {
+                  "value": "underline",
+                  "title": "Underline"
+                },
+                {
+                  "value": "strike-through",
+                  "title": "Strike"
+                }
+              ]
+            },
+            "lists": [
+              {
+                "value": "bullet",
+                "title": "Bulleted list"
+              },
+              {
+                "value": "number",
+                "title": "Numbered list"
+              }
+            ],
+            "styles": [
+              {
+                "value": "normal",
+                "title": "Normal"
+              },
+              {
+                "value": "h1",
+                "title": "Heading 1"
+              },
+              {
+                "value": "h2",
+                "title": "Heading 2"
+              },
+              {
+                "value": "h3",
+                "title": "Heading 3"
+              },
+              {
+                "value": "h4",
+                "title": "Heading 4"
+              },
+              {
+                "value": "h5",
+                "title": "Heading 5"
+              },
+              {
+                "value": "h6",
+                "title": "Heading 6"
+              },
+              {
+                "value": "blockquote",
+                "title": "Quote"
+              }
+            ],
+            "of": [],
+            "type": "block"
+          }
+        ],
+        "name": "description",
+        "type": "array",
+        "title": "Descripción detallada"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "min",
+                "constraint": 1
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "of": [
+          {
+            "options": {
+              "hotspot": true
+            },
+            "fields": [
+              {
+                "name": "alt",
+                "type": "string",
+                "title": "Texto alternativo"
+              },
+              {
+                "description": "Ej. Front, Back, Detalle, etc.",
+                "name": "displayName",
+                "type": "string",
+                "title": "Etiqueta"
+              }
+            ],
+            "type": "image",
+            "title": "Imagen"
+          }
+        ],
+        "name": "gallery",
+        "type": "array",
+        "title": "Galería de imágenes"
+      },
+      {
+        "options": {
+          "accept": "video/mp4,video/quicktime"
+        },
+        "name": "heroVideo",
+        "type": "file",
+        "title": "Video Hero (opcional)"
+      }
+    ],
+    "name": "product",
+    "type": "document",
+    "title": "Producto"
+  },
+  {
+    "fields": [
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              },
+              {
+                "flag": "min",
+                "constraint": 8
+              },
+              {
+                "flag": "max",
+                "constraint": 120
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "title",
+        "type": "string",
+        "title": "Título"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "Usamos esta fecha para ordenar y generar la etiqueta.",
+        "name": "scheduledAt",
+        "type": "datetime",
+        "title": "Fecha y hora"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              },
+              {
+                "flag": "max",
+                "constraint": 60
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "Ej. Preventa abierta, Reserva tu slot, Lista de espera.",
+        "name": "statusLabel",
+        "type": "string",
+        "title": "Estado del drop"
+      },
+      {
+        "rows": 3,
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              },
+              {
+                "flag": "max",
+                "constraint": 240
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "description",
+        "type": "text",
+        "title": "Descripción breve"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "max",
+                "constraint": 40
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "Ej. Reservar cupo, Ver detalles, Ir al live.",
+        "name": "ctaLabel",
+        "type": "string",
+        "title": "Texto del CTA principal"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "custom"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "URL completa o enlace interno (ej. https://..., /producto/slug, #agenda).",
+        "name": "ctaHref",
+        "type": "string",
+        "title": "Enlace del CTA principal"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "max",
+                "constraint": 40
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "Opcional. Ej. Ver checklist, Lista de espera.",
+        "name": "secondaryCtaLabel",
+        "type": "string",
+        "title": "Texto del CTA secundario"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "custom"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "hidden": "conditional",
+        "name": "secondaryCtaHref",
+        "type": "string",
+        "title": "Enlace del CTA secundario"
+      },
+      {
+        "initialValue": false,
+        "description": "Si está activo, aparece una alerta brillante en la parte superior del home. Activa como máximo en un drop a la vez.",
+        "name": "showInBanner",
+        "type": "boolean",
+        "title": "Destacar en banner del hero"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "max",
+                "constraint": 70
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "Mantén el mensaje muy corto (máx. 70 caracteres). Si se deja vacío se genera automáticamente.",
+        "name": "bannerMessage",
+        "type": "string",
+        "title": "Mensaje corto para banner"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "max",
+                "constraint": 32
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "Ej. Ver agenda, Ir al live.",
+        "name": "bannerCtaLabel",
+        "type": "string",
+        "title": "Texto del CTA en el banner"
+      },
+      {
+        "initialValue": "agenda",
+        "options": {
+          "layout": "radio",
+          "list": [
+            {
+              "title": "Desplazar a la agenda en la home",
+              "value": "agenda"
+            },
+            {
+              "title": "Abrir el enlace del CTA principal",
+              "value": "cta"
+            },
+            {
+              "title": "Abrir un enlace personalizado",
+              "value": "custom"
+            }
+          ]
+        },
+        "name": "bannerAction",
+        "type": "string",
+        "title": "Acción del banner"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "custom"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "hidden": "conditional",
+        "name": "bannerHref",
+        "type": "string",
+        "title": "Enlace personalizado del banner"
+      }
+    ],
+    "name": "homeDrop",
+    "type": "document",
+    "title": "Drop destacado"
+  },
+  {
+    "fields": [
+      {
+        "rows": 3,
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              },
+              {
+                "flag": "min",
+                "constraint": 20
+              },
+              {
+                "flag": "max",
+                "constraint": 400
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "quote",
+        "type": "text",
+        "title": "Testimonio"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              },
+              {
+                "flag": "min",
+                "constraint": 4
+              },
+              {
+                "flag": "max",
+                "constraint": 80
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "author",
+        "type": "string",
+        "title": "Autor"
+      },
+      {
+        "description": "Ej. Santo Domingo, República Dominicana",
+        "name": "location",
+        "type": "string",
+        "title": "Ubicación / Nota"
+      },
+      {
+        "description": "Opcional. Úsalo para definir el orden del carrusel (números menores salen primero).",
+        "name": "order",
+        "type": "number",
+        "title": "Orden manual"
+      }
+    ],
+    "name": "testimonial",
+    "type": "document",
+    "title": "Testimonio"
+  }
+]

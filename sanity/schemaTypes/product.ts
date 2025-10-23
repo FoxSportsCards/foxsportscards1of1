@@ -123,6 +123,41 @@ export default defineType({
       },
     }),
     defineField({
+      name: "alternatePricing",
+      title: "Precio alterno",
+      type: "object",
+      group: "market",
+      description: "Activa para mostrar un segundo precio (ej. USD).",
+      fields: [
+        defineField({
+          name: "enabled",
+          title: "Mostrar precio alterno",
+          type: "boolean",
+          initialValue: false,
+        }),
+        defineField({
+          name: "currency",
+          title: "Moneda alterna",
+          type: "string",
+          options: {
+            list: [
+              { title: "DOP", value: "DOP" },
+              { title: "USD", value: "USD" },
+            ],
+            layout: "dropdown",
+          },
+          hidden: ({ parent }) => !(parent?.enabled ?? false),
+        }),
+        defineField({
+          name: "amount",
+          title: "Monto alterno",
+          type: "number",
+          validation: (Rule) => Rule.min(0),
+          hidden: ({ parent }) => !(parent?.enabled ?? false),
+        }),
+      ],
+    }),
+    defineField({
       name: "whatsappMessage",
       title: "Mensaje WhatsApp personalizado",
       type: "string",

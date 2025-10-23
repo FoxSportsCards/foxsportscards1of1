@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { formatCurrency } from "@/lib/pricing";
+import { getProductPrices } from "@/lib/pricing";
 import { getAllProducts } from "@/lib/products";
 
 export const dynamic = "force-dynamic";
@@ -62,6 +62,7 @@ export default async function LanzamientosPage() {
           {upcoming.map(({ product, releaseInfo }) => {
             const cover = product.images[0]?.url ?? "/hero.jpg";
             const alt = product.images[0]?.alt ?? product.title;
+            const prices = getProductPrices(product);
 
             return (
               <article
@@ -105,9 +106,16 @@ export default async function LanzamientosPage() {
                       <span>Reservas</span>
                       <span>{product.inventory ?? "Por confirmar"}</span>
                     </div>
-                    <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-muted">
-                      <span>Ticket estimado</span>
-                      <span>{formatCurrency(product.price, product.currency)}</span>
+                    <div className="flex flex-col items-start gap-1 text-xs uppercase tracking-[0.3em] text-muted">
+                      <div className="flex w-full items-center justify-between">
+                        <span>Ticket estimado</span>
+                        <span>{prices.primary}</span>
+                      </div>
+                      {prices.secondary && (
+                        <span className="w-full text-right text-[11px] font-normal text-white/70">
+                          {prices.secondary}
+                        </span>
+                      )}
                     </div>
                   </div>
 

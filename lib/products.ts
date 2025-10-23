@@ -35,6 +35,11 @@ type SanityProductDocument = {
   featured?: boolean;
   gallery?: GalleryImage[];
   releaseDate?: string;
+  alternatePricing?: {
+    enabled?: boolean;
+    currency?: string;
+    amount?: number;
+  };
 };
 
 function hasImageSource(image: unknown): image is GalleryImage {
@@ -143,6 +148,14 @@ function mapSanityProduct(doc: SanityProductDocument): Product {
     category: doc.productType ?? doc.sport ?? null,
     releaseDate: doc.releaseDate ?? null,
     featured: Boolean(doc.featured),
+    alternatePricing:
+      doc.alternatePricing?.enabled && doc.alternatePricing?.amount && doc.alternatePricing?.currency
+        ? {
+            enabled: true,
+            currency: doc.alternatePricing.currency,
+            amount: doc.alternatePricing.amount,
+          }
+        : null,
   };
 }
 

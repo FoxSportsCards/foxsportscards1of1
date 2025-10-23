@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { formatCurrency } from "@/lib/pricing";
+import { getProductPrices } from "@/lib/pricing";
 import { getAllProducts } from "@/lib/products";
 import { getHomepageContent } from "@/lib/homeContent";
 import type { Product } from "@/types/product";
@@ -11,6 +11,20 @@ type DropCta = {
   href: string;
   label: string;
   external: boolean;
+};
+
+const PriceStack = ({ product }: { product: Product }) => {
+  const prices = getProductPrices(product);
+  return (
+    <div className="space-y-1">
+      <span className="block">{prices.primary}</span>
+      {prices.secondary && (
+        <span className="block text-[11px] font-normal uppercase tracking-[0.3em] text-white/70">
+          {prices.secondary}
+        </span>
+      )}
+    </div>
+  );
 };
 
 export const dynamic = "force-dynamic";
@@ -300,7 +314,7 @@ export default async function Page() {
           </div>
           <h3 className="line-clamp-2 text-sm font-medium text-white/90">{product.title}</h3>
           <div className="flex items-center justify-between text-sm font-semibold text-accent">
-            <span>{formatCurrency(product.price, product.currency)}</span>
+            <PriceStack product={product} />
             {product.rarity && <span className="text-xs text-muted">{product.rarity}</span>}
           </div>
         </div>
@@ -411,7 +425,7 @@ export default async function Page() {
                   </div>
                   <h2 className="text-xl font-heading text-white">{spotlight.title}</h2>
                   <div className="flex items-center justify-between text-sm font-semibold text-accent">
-                    <span>{formatCurrency(spotlight.price, spotlight.currency)}</span>
+                    <PriceStack product={spotlight} />
                     <span className="text-xs uppercase tracking-[0.35em] text-muted">{heroStatusLabel}</span>
                   </div>
                   <p className="text-sm text-muted">
