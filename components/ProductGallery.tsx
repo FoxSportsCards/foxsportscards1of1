@@ -93,25 +93,30 @@ export default function ProductGallery({ title, images, status = "available" }: 
       )}
 
       {isZoomOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur">
-          <button
-            type="button"
-            aria-label="Cerrar"
-            onClick={() => setIsZoomOpen(false)}
-            className="absolute right-6 top-6 rounded-full border border-white/20 bg-black/70 px-3 py-2 text-xs uppercase tracking-[0.35em] text-white transition hover:border-white/40 hover:bg-black/90"
-          >
-            Cerrar
-          </button>
-          <div className="relative h-full w-full max-h-[90vh] max-w-5xl overflow-hidden rounded-4xl border border-white/20 bg-black/60 p-4 shadow-glow">
-            <div className="relative h-full w-full">
-              <Image
-                src={activeImage.url}
-                alt={activeImage.alt ?? title}
-                fill
-                sizes="(min-width: 1024px) 60vw, 90vw"
-                className="object-contain"
-                priority
-              />
+        <div className="fixed inset-0 z-[60] flex flex-col bg-black/85 backdrop-blur">
+          <div className="flex items-center justify-between px-4 pb-2 pt-4 sm:px-6">
+            <button
+              type="button"
+              aria-label="Cerrar"
+              onClick={() => setIsZoomOpen(false)}
+              className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-white transition hover:border-white/40 hover:bg-black/90"
+            >
+              <span className="inline-block rotate-180">➜</span>
+              <span>Cerrar</span>
+            </button>
+          </div>
+          <div className="relative flex-1 px-4 pb-6 sm:px-6">
+            <div className="relative h-full w-full max-h-full overflow-hidden rounded-4xl border border-white/20 bg-black/60 p-4 shadow-glow">
+              <div className="relative h-full w-full">
+                <Image
+                  src={activeImage.url}
+                  alt={activeImage.alt ?? title}
+                  fill
+                  sizes="(min-width: 1024px) 60vw, 90vw"
+                  className="object-contain"
+                  priority
+                />
+              </div>
             </div>
           </div>
         </div>

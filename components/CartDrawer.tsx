@@ -92,9 +92,9 @@ export default function CartDrawer() {
           <aside
             role="dialog"
             aria-modal="true"
-            className="relative z-10 flex w-full max-w-md flex-col overflow-hidden rounded-3xl border border-white/10 bg-background text-white shadow-[0_30px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl max-h-[calc(100vh-3rem)] sm:max-w-lg md:max-h-[85vh] md:max-w-4xl"
+            className="relative z-10 flex w-full max-w-md flex-col overflow-hidden rounded-3xl border border-white/10 bg-background text-white shadow-[0_30px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl max-h-[calc(100vh-2.5rem)] sm:max-w-xl md:max-h-[82vh] md:max-w-5xl"
           >
-            <header className="flex items-center justify-between border-b border-white/10 px-6 py-5">
+            <header className="flex items-center justify-between border-b border-white/10 px-6 py-4">
               <div>
                 <h2 className="text-lg font-semibold">Resumen de tu pedido</h2>
                 <p className="text-xs uppercase tracking-[0.35em] text-muted">
@@ -104,47 +104,50 @@ export default function CartDrawer() {
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="rounded-full border border-white/10 px-3 py-1 text-sm text-muted transition hover:border-white/30 hover:text-white"
+                className="rounded-full border border-white/10 px-3 py-1 text-xs uppercase tracking-[0.3em] text-muted transition hover:border-white/30 hover:text-white"
               >
                 Cerrar
               </button>
             </header>
 
-            <div className="flex-1 overflow-y-auto px-6 py-6 md:max-h-[55vh]">
-              {items.length === 0 ? (
-                <p className="text-sm text-muted">
-                  Tu carrito está vacío. Explora el catálogo para añadir piezas.
-                </p>
-              ) : (
-                <ul className="space-y-6">
+            <div className="flex-1 overflow-hidden">
+              <div className="fade-top pointer-events-none absolute inset-x-0 top-[72px] h-6 bg-gradient-to-b from-background via-background/60 to-transparent" aria-hidden />
+              <div className="fade-bottom pointer-events-none absolute inset-x-0 bottom-[120px] h-8 bg-gradient-to-t from-background via-background/70 to-transparent" aria-hidden />
+              <div className="h-full overflow-y-auto px-6 py-6 md:py-7">
+                {items.length === 0 ? (
+                  <p className="text-sm text-muted">
+                    Tu carrito está vacío. Explora el catálogo para añadir piezas.
+                  </p>
+                ) : (
+                <ul className="space-y-5">
                   {items.map(({ product, qty }) => {
                     const cover = product.images[0]?.url ?? "/hero.jpg";
                     return (
-                      <li key={product.slug} className="flex gap-4">
-                        <div className="relative h-20 w-16 overflow-hidden rounded-xl border border-white/10 bg-white/5">
+                      <li key={product.slug} className="flex items-center gap-4 rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-3">
+                        <div className="relative h-16 w-14 overflow-hidden rounded-xl border border-white/10 bg-white/5">
                           <Image
                             src={cover}
                             alt={product.images[0]?.alt ?? product.title}
                             fill
-                            sizes="64px"
+                            sizes="56px"
                             className="object-cover"
                           />
                         </div>
-                        <div className="flex flex-1 flex-col justify-between text-sm">
-                          <div>
-                            <p className="font-medium text-white/90">{product.title}</p>
-                            <p className="text-xs text-muted">
+                        <div className="flex flex-1 flex-col gap-1 text-sm">
+                          <p className="line-clamp-2 font-medium text-white/90">{product.title}</p>
+                          <div className="flex items-center justify-between text-xs text-muted">
+                            <span>
                               {qty} x {formatCurrency(product.price, product.currency ?? "DOP")}
-                            </p>
-                          </div>
-                          <div className="flex items-center justify-between">
+                            </span>
                             <span className="text-sm font-semibold text-accent">
                               {formatCurrency(product.price * qty, product.currency ?? "DOP")}
                             </span>
+                          </div>
+                          <div className="flex justify-end">
                             <button
                               type="button"
                               onClick={() => remove(product.slug)}
-                              className="text-xs text-muted transition hover:text-white"
+                              className="text-xs uppercase tracking-[0.3em] text-muted transition hover:text-white"
                             >
                               Quitar
                             </button>
@@ -155,9 +158,10 @@ export default function CartDrawer() {
                   })}
                 </ul>
               )}
+              </div>
             </div>
 
-            <footer className="space-y-4 border-t border-white/10 px-6 py-6">
+            <footer className="space-y-4 border-t border-white/10 px-6 py-5">
               <div className="flex items-center justify-between text-sm">
                 <span>Total estimado</span>
                 <span className="text-base font-semibold text-accent">

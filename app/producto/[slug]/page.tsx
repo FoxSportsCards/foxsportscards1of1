@@ -7,6 +7,7 @@ import { getAllProducts, getProductBySlug } from "@/lib/products";
 import ProductActionButtons from "@/components/ProductActionButtons";
 import ProductGallery from "@/components/ProductGallery";
 import ProductStatusBadge from "@/components/ProductStatusBadge";
+import ProductBackButton from "@/components/ProductBackButton";
 import type { Product, ProductImage } from "@/types/product";
 
 export const dynamic = "force-dynamic";
@@ -66,6 +67,10 @@ export default async function ProductPage({ params }: { params: { slug: string }
 
   return (
     <div className="container py-16">
+      <div className="mb-6 flex items-center justify-start">
+        <ProductBackButton fallbackHref="/catalogo" />
+      </div>
+
       <div className="grid gap-12 lg:grid-cols-[1.2fr_0.9fr]">
         <ProductGallery title={product.title} images={productImages} status={product.status ?? "available"} />
 
