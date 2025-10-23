@@ -86,8 +86,8 @@ export default defineType({
       name: "bannerMessage",
       title: "Mensaje corto para banner",
       type: "string",
-      description: "Máximo 90 caracteres. Si se deja vacío se genera automáticamente con la fecha y el título.",
-      validation: (Rule) => Rule.max(90),
+      description: "Mantén el mensaje muy corto (máx. 70 caracteres). Si se deja vacío se genera automáticamente.",
+      validation: (Rule) => Rule.max(70),
     }),
     defineField({
       name: "bannerCtaLabel",

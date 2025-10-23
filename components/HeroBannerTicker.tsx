@@ -1,26 +1,52 @@
 "use client";
 
-import { MouseEvent, useCallback } from "react";
+import { MouseEvent, useCallback, useEffect, useMemo, useState } from "react";
 
 type BannerAction = "agenda" | "link";
 
-type BannerCta = {
+export type BannerCta = {
   href: string;
   label: string;
   external: boolean;
 };
 
-type HeroBannerTickerProps = {
+export type BannerItem = {
+  id: string;
   message: string;
   cta: BannerCta;
   action: BannerAction;
-  marquee?: boolean;
 };
 
-export default function HeroBannerTicker({ message, cta, action, marquee = false }: HeroBannerTickerProps) {
+type HeroBannerTickerProps = {
+  items: BannerItem[];
+  durationMs?: number;
+};
+
+export default function HeroBannerTicker({ items, durationMs = 6000 }: HeroBannerTickerProps) {
+  const sanitized = useMemo(() => items.filter((item) => item.message.trim().length > 0), [items]);
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    setIndex(0);
+  }, [sanitized.length]);
+
+  useEffect(() => {
+    if (sanitized.length <= 1) return undefined;
+    const interval = setInterval(() => {
+      setIndex((prev) => (prev + 1) % sanitized.length);
+    }, durationMs);
+    return () => clearInterval(interval);
+  }, [sanitized.length, durationMs]);
+
+  if (!sanitized.length) {
+    return null;
+  }
+
+  const item = sanitized[Math.min(index, sanitized.length - 1)];
+
   const handleClick = useCallback(
     (event: MouseEvent<HTMLAnchorElement>) => {
-      if (action === "agenda") {
+      if (item.action === "agenda") {
         event.preventDefault();
         const target = document.querySelector("#agenda-drops");
         if (target) {
@@ -28,35 +54,24 @@ export default function HeroBannerTicker({ message, cta, action, marquee = false
         }
       }
     },
-    [action],
+    [item.action],
   );
 
   return (
     <a
-      href={cta.href}
+      key={item.id}
+      href={item.cta.href}
       onClick={handleClick}
-      target={action === "link" && cta.external ? "_blank" : undefined}
-      rel={action === "link" && cta.external ? "noreferrer" : undefined}
-      className="group relative mx-auto flex max-w-[640px] items-center gap-2 overflow-hidden rounded-full border border-accent/30 bg-white/5 px-3 py-2 text-white shadow-[0_12px_35px_rgba(255,215,0,0.12)] backdrop-blur transition hover:border-accent/60 hover:shadow-[0_18px_45px_rgba(255,215,0,0.18)] focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 sm:px-4 sm:py-2.5"
+      target={item.action === "link" && item.cta.external ? "_blank" : undefined}
+      rel={item.action === "link" && item.cta.external ? "noreferrer" : undefined}
+      className="group relative flex max-w-[320px] items-center gap-2 overflow-hidden rounded-full border border-accent/30 bg-white/[0.08] px-3 py-1.5 text-white shadow-[0_10px_30px_rgba(255,215,0,0.12)] backdrop-blur sm:max-w-[420px] sm:px-4"
     >
-      <span className="relative flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-accent/70 via-accent to-[#f7d87a] text-black shadow-[0_0_12px_rgba(255,215,0,0.5)]">
+      <span className="relative flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-accent/70 via-accent to-[#f7d87a] text-[12px] font-semibold text-black shadow-[0_0_10px_rgba(255,215,0,0.45)]">
         ✦
       </span>
-      <div className="relative flex-1 overflow-hidden">
-        <div
-          className={`banner-marquee-content text-[10px] uppercase tracking-[0.28em] text-white/85 sm:text-[11px] ${
-            marquee ? "animate-marquee" : ""
-          }`}
-          style={marquee ? { animationDuration: `${Math.min(Math.max(message.length / 6, 12), 22)}s` } : undefined}
-        >
-          <span>{message}</span>
-          {marquee && <span aria-hidden>{message}</span>}
-        </div>
-        <span className="pointer-events-none absolute left-0 top-0 h-full w-5 bg-gradient-to-r from-[#05070b] via-[#05070b]/60 to-transparent" />
-        <span className="pointer-events-none absolute right-0 top-0 h-full w-5 bg-gradient-to-l from-[#05070b] via-[#05070b]/60 to-transparent" />
-      </div>
-      <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] text-black transition group-hover:bg-white/90 sm:px-4 sm:text-[11px]">
-        {cta.label}
+      <span className="flex-1 truncate text-[10px] uppercase tracking-[0.22em] text-white/85 sm:text-[11px]">{item.message}</span>
+      <span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-black transition group-hover:bg-white/90">
+        {item.cta.label}
         <span aria-hidden>→</span>
       </span>
     </a>

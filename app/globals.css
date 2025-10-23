@@ -41,27 +41,3 @@ h4 {
 .container {
   @apply mx-auto px-4 sm:px-6 lg:px-8;
 }
-
-.banner-marquee-content {
-  display: inline-flex;
-  align-items: center;
-  gap: 2rem;
-  white-space: nowrap;
-}
-
-.banner-marquee-content span {
-  white-space: nowrap;
-}
-
-.animate-marquee {
-  animation: banner-marquee 16s linear infinite;
-}
-
-@keyframes banner-marquee {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}

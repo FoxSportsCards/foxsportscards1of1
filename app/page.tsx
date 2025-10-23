@@ -5,7 +5,7 @@ import { getAllProducts } from "@/lib/products";
 import { getHomepageContent } from "@/lib/homeContent";
 import type { Product } from "@/types/product";
 import type { HomeDrop } from "@/types/home";
-import HeroBannerTicker from "@/components/HeroBannerTicker";
+import HeroBannerTicker, { type BannerItem } from "@/components/HeroBannerTicker";
 
 type DropCta = {
   href: string;
@@ -140,58 +140,64 @@ export default async function Page() {
     return { primary, secondary };
   };
 
-  const resolveBannerDestination = (drop: HomeDrop | null, primaryCta: DropCta | null): DropCta | null => {
-    if (!drop) return null;
+  const resolveBannerDestination = (drop: HomeDrop, primaryCta: DropCta | null): { action: "agenda" | "link"; cta: DropCta } => {
     const defaultCta: DropCta = {
       href: "#agenda-drops",
       label: drop.bannerCtaLabel ?? "Ver agenda",
       external: false,
     };
     const action = drop.bannerAction ?? "agenda";
-    if (action === "agenda") {
-      return defaultCta;
-    }
-    if (action === "cta") {
-      if (primaryCta) {
-        return {
+    if (action === "cta" && primaryCta) {
+      const isAnchor = primaryCta.href.startsWith("#");
+      return {
+        action: isAnchor ? "agenda" : "link",
+        cta: {
           ...primaryCta,
           label: drop.bannerCtaLabel ?? primaryCta.label,
-        };
-      }
-      return defaultCta;
+        },
+      };
     }
     if (action === "custom") {
       const raw = drop.bannerHref?.trim();
       if (raw && raw.length > 0) {
+        const isAnchor = raw.startsWith("#");
         return {
-          href: raw,
-          label: drop.bannerCtaLabel ?? "Ver detalle",
-          external: /^https?:\/\//i.test(raw),
+          action: isAnchor ? "agenda" : "link",
+          cta: {
+            href: raw,
+            label: drop.bannerCtaLabel ?? "Ver detalle",
+            external: /^https?:\/\//i.test(raw),
+          },
         };
       }
-      return defaultCta;
     }
-    return defaultCta;
+    return {
+      action: "agenda",
+      cta: defaultCta,
+    };
   };
 
-  const heroBannerDrop = drops.find((drop) => drop.showInBanner) ?? null;
-  const heroBannerCtas = resolveDropCtas(heroBannerDrop);
-  const heroBannerCta = resolveBannerDestination(heroBannerDrop, heroBannerCtas?.primary ?? null);
-  const heroBannerTextRaw = heroBannerDrop?.bannerMessage?.trim();
-  const heroBannerText =
-    heroBannerTextRaw && heroBannerTextRaw.length > 0
-      ? heroBannerTextRaw
-      : heroBannerDrop
-        ? `${formatDropBadge(heroBannerDrop.scheduledAt)} • ${heroBannerDrop.statusLabel} • ${heroBannerDrop.title}`
-        : "";
-  const heroBannerShouldMarquee = heroBannerText.length > 80;
-  const heroBannerAction: "agenda" | "link" =
-    heroBannerDrop && (heroBannerDrop.bannerAction ?? "agenda") === "agenda" ? "agenda" : "link";
+  const formatBannerMessage = (drop: HomeDrop) => {
+    const fallback = `${formatDropBadge(drop.scheduledAt)} • ${drop.statusLabel} • ${drop.title}`;
+    const base = (drop.bannerMessage ?? fallback).replace(/\s+/g, " ").trim();
+    if (base.length <= 68) return base;
+    return `${base.slice(0, 65).trimEnd()}…`;
+  };
 
-  const primaryCalendarDrop = (heroBannerDrop ?? drops[0]) ?? null;
-  const secondaryCalendarDrops = primaryCalendarDrop
-    ? drops.filter((drop) => drop.id !== primaryCalendarDrop.id)
-    : [];
+  const bannerDrops = drops.filter((drop) => drop.showInBanner);
+  const bannerItems: BannerItem[] = bannerDrops.map((drop) => {
+    const ctas = resolveDropCtas(drop);
+    const banner = resolveBannerDestination(drop, ctas?.primary ?? null);
+    return {
+      id: drop.id,
+      message: formatBannerMessage(drop),
+      cta: banner.cta,
+      action: banner.action,
+    };
+  });
+
+  const primaryCalendarDrop = (bannerDrops[0] ?? drops[0]) ?? null;
+  const secondaryCalendarDrops = primaryCalendarDrop ? drops.filter((drop) => drop.id !== primaryCalendarDrop.id) : [];
   const primaryCalendarCtas = resolveDropCtas(primaryCalendarDrop);
   const primaryCalendarCta = primaryCalendarCtas?.primary ?? null;
   const secondaryCalendarCta = primaryCalendarCtas?.secondary ?? null;
@@ -309,13 +315,8 @@ export default async function Page() {
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
         <div className="container relative grid gap-12 py-20 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
           <div className="space-y-7">
-            {heroBannerDrop && heroBannerCta && heroBannerText.length > 0 && (
-              <HeroBannerTicker
-                message={heroBannerText}
-                cta={heroBannerCta}
-                action={heroBannerAction}
-                marquee={heroBannerShouldMarquee}
-              />
+            {bannerItems.length > 0 && (
+              <HeroBannerTicker key={bannerItems[0].id} items={bannerItems} />
             )}
             <span className="eyebrow">Vault curado • Ediciones limitadas</span>
             <h1 className="text-4xl font-heading font-semibold leading-tight text-white sm:text-5xl md:text-[56px]">
