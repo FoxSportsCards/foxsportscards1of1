@@ -313,8 +313,8 @@ export default async function Page() {
       <section className="relative overflow-hidden border-b border-white/10">
         <div className="absolute inset-0 bg-hero-gradient opacity-90" />
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-        <div className="container relative grid gap-12 py-20 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
-          <div className="space-y-7">
+        <div className="container relative grid gap-12 pb-20 pt-14 sm:pt-16 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:pt-16">
+          <div className="space-y-6">
             {bannerItems.length > 0 && (
               <HeroBannerTicker key={bannerItems[0].id} items={bannerItems} />
             )}
