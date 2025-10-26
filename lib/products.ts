@@ -70,6 +70,11 @@ const PRODUCT_FIELDS = groq`
   releaseDate,
   featured,
   "heroVideoUrl": heroVideo.asset->url,
+  "alternatePricing": alternatePricing {
+    enabled,
+    currency,
+    amount
+  },
   gallery[]{
     _key,
     alt,
