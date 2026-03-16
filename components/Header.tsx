@@ -1,185 +1,215 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import clsx from "clsx";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import CartDrawer from "./CartDrawer";
+import { LOCALE_COOKIE_NAME, type Locale } from "@/lib/locale";
+
+type HeaderProps = {
+  locale: Locale;
+};
 
 const NAV_ITEMS = [
-  { label: "Catálogo", href: "/catalogo" },
-  { label: "Lanzamientos", href: "/lanzamientos" },
-  { label: "Historias", href: "/sobre" },
-  { label: "Preguntas", href: "/preguntas" },
+  { href: "/", label: { es: "Inicio", en: "Home" } },
+  { href: "/catalogo", label: { es: "Catalogo", en: "Catalog" } },
+  { href: "/lanzamientos", label: { es: "Lanzamientos", en: "Releases" } },
+  { href: "/sobre", label: { es: "Nosotros", en: "About" } },
+  { href: "/preguntas", label: { es: "FAQ", en: "FAQ" } },
+  { href: "/contacto", label: { es: "Contacto", en: "Contact" } },
 ];
 
-const QUICK_LINKS = [
-  {
-    label: "Concierge VIP",
-    description: "Agenda asesoría personalizada",
-    href: "/contacto",
-  },
-  {
-    label: "Vitrina diaria",
-    description: "Explora las piezas activas",
-    href: "/catalogo",
-  },
-  {
-    label: "Drops programados",
-    description: "Revisa próximos lanzamientos",
-    href: "/lanzamientos",
-  },
-  {
-    label: "Preguntas clave",
-    description: "Todo sobre envíos y garantías",
-    href: "/preguntas",
-  },
-];
-
-export default function Header() {
+export default function Header({ locale }: HeaderProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
+  const [activeLocale, setActiveLocale] = useState<Locale>(locale);
+
+  const copy = useMemo(
+    () =>
+      activeLocale === "en"
+        ? {
+            whatsapp: "WhatsApp",
+            menu: "Menu",
+            closeMenu: "Close",
+            openMenu: "Open menu",
+            closeLabel: "Close menu",
+          }
+        : {
+            whatsapp: "WhatsApp",
+            menu: "Menu",
+            closeMenu: "Cerrar",
+            openMenu: "Abrir menu",
+            closeLabel: "Cerrar menu",
+          },
+    [activeLocale],
+  );
 
   useEffect(() => {
     setMenuOpen(false);
   }, [pathname]);
 
   useEffect(() => {
-    if (!menuOpen) return;
-    const handleClick = (event: MouseEvent) => {
-      if (!menuRef.current?.contains(event.target as Node)) {
-        setMenuOpen(false);
-      }
-    };
-    const handleKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setMenuOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClick);
-    document.addEventListener("keydown", handleKey);
-    return () => {
-      document.removeEventListener("mousedown", handleClick);
-      document.removeEventListener("keydown", handleKey);
-    };
-  }, [menuOpen]);
+    setActiveLocale(locale);
+  }, [locale]);
+
+  const switchLocale = (nextLocale: Locale) => {
+    if (nextLocale === activeLocale) return;
+    setActiveLocale(nextLocale);
+    document.cookie = `${LOCALE_COOKIE_NAME}=${nextLocale}; path=/; max-age=31536000; samesite=lax`;
+    router.refresh();
+  };
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-background/85 backdrop-blur-xl">
-      <div className="container flex flex-col gap-3 py-3 md:grid md:h-20 md:grid-cols-[auto_minmax(0,1fr)_auto] md:items-center md:gap-6">
-        <div className="flex min-w-0 items-center gap-3">
-          <Link href="/" className="flex items-center gap-3 text-white transition hover:text-accent">
-            <span className="relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border border-white/20 bg-black/60">
+    <header className="sticky top-0 z-50 border-b border-line/90 bg-white/80 backdrop-blur-xl">
+      <div className="container">
+        <div className="flex min-h-[84px] items-center justify-between gap-3 py-3">
+          <Link href="/" className="flex min-w-0 items-center gap-3 lg:shrink-0">
+            <span className="relative flex h-12 w-12 shrink-0 items-center justify-center">
               <Image
                 src="/zorro-logo-final.png"
-                alt="Foxsportscards1of1"
+                alt="Fox Sports Cards 1of1"
                 fill
-                sizes="44px"
+                sizes="48px"
                 className="object-contain"
                 priority
               />
             </span>
-            <span className="text-2xl font-heading font-semibold tracking-tight">
-              <span className="text-accent">fox</span>sportscards<span className="text-accent">1of1</span>
+            <span className="min-w-0 leading-tight">
+              <span className="block whitespace-nowrap text-base font-heading font-bold tracking-[0.02em] text-ink sm:text-xl">
+                foxsportscards1of1
+              </span>
+              <span className="block whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.2em] text-blue sm:text-[11px]">
+                SPORTS CARD BOUTIQUE
+              </span>
             </span>
           </Link>
-          <span className="hidden shrink-0 border-l border-white/10 pl-3 text-[11px] uppercase tracking-[0.35em] text-muted xl:inline">
-            Vault curado premium
-          </span>
-        </div>
 
-        <nav className="order-3 hidden items-center justify-center gap-1 rounded-full border border-white/10 bg-white/5 px-2 py-1 text-sm shadow-soft md:order-2 md:flex">
-          {NAV_ITEMS.map(({ label, href }) => {
-            const isActive = pathname === href;
-            return (
-              <Link
-                key={href}
-                href={href}
-                className={clsx(
-                  "whitespace-nowrap rounded-full px-4 py-1.5 transition",
-                  isActive
-                    ? "bg-white/15 text-white shadow-glow"
-                    : "text-muted hover:bg-white/10 hover:text-white",
-                )}
-              >
-                {label}
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="order-2 flex flex-wrap items-center gap-2 md:order-3 md:flex-nowrap md:justify-end">
-          <CartDrawer />
-          <a
-            href="https://www.instagram.com/foxsportscards1of1"
-            target="_blank"
-            rel="noreferrer"
-            className="hidden rounded-full border border-white/10 px-4 py-2 text-sm text-muted transition hover:border-white/30 hover:text-white lg:inline-flex"
-          >
-            Instagram
-          </a>
+          <nav className="hidden items-center gap-1 rounded-full border border-line bg-white px-2 py-1 shadow-soft lg:flex">
+            {NAV_ITEMS.map((item) => {
+              const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={clsx(
+                    "rounded-full px-3 py-2 text-xs font-semibold uppercase tracking-[0.13em]",
+                    isActive
+                      ? "bg-blue text-white shadow-glow"
+                      : "text-muted hover:bg-surface-elevated hover:text-ink",
+                  )}
+                >
+                  {item.label[activeLocale]}
+                </Link>
+              );
+            })}
+          </nav>
 
           <div className="flex items-center gap-2">
+            <div className="hidden items-center rounded-full border border-line bg-white p-1 sm:flex">
+              <button
+                type="button"
+                onClick={() => switchLocale("es")}
+                className={clsx(
+                  "focus-ring rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]",
+                  activeLocale === "es" ? "bg-blue text-white" : "text-muted hover:text-blue",
+                )}
+                aria-label="Cambiar idioma a espanol"
+              >
+                ES
+              </button>
+              <button
+                type="button"
+                onClick={() => switchLocale("en")}
+                className={clsx(
+                  "focus-ring rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]",
+                  activeLocale === "en" ? "bg-blue text-white" : "text-muted hover:text-blue",
+                )}
+                aria-label="Switch language to English"
+              >
+                EN
+              </button>
+            </div>
+
             <a
               href="https://wa.me/18492617328"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-accent to-[#f9d16f] px-5 py-2 text-sm font-semibold text-black shadow-glow transition hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+              className="hidden rounded-full border border-green/30 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-green shadow-soft hover:border-green/55 sm:inline-flex"
             >
-              WhatsApp
+              {copy.whatsapp}
             </a>
 
-            <div ref={menuRef} className="relative">
-              <button
-                type="button"
-                aria-haspopup="menu"
-                aria-expanded={menuOpen}
-                onClick={() => setMenuOpen((value) => !value)}
-                className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/5 px-4 py-2 text-sm text-muted transition hover:border-white/35 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
-              >
-                Menú
-                <ChevronDownIcon className={clsx("h-3 w-3 transition-transform", menuOpen && "rotate-180")} />
-              </button>
+            <CartDrawer locale={activeLocale} />
 
-              {menuOpen && (
-                <div className="absolute right-0 top-full z-50 mt-3 w-64 rounded-2xl border border-white/10 bg-background/95 p-3 shadow-[0_20px_60px_rgba(0,0,0,0.45)] backdrop-blur-xl">
-                  <ul className="space-y-1">
-                    {QUICK_LINKS.map(({ label, description, href }) => (
-                      <li key={href}>
-                        <Link
-                          href={href}
-                          className="block rounded-2xl px-4 py-3 transition hover:bg-white/8 hover:text-white"
-                        >
-                          <span className="block text-sm font-semibold text-white">{label}</span>
-                          <span className="block text-xs text-muted">{description}</span>
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
+            <button
+              type="button"
+              onClick={() => setMenuOpen((value) => !value)}
+              className="focus-ring inline-flex h-10 items-center justify-center rounded-full border border-line bg-white px-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink hover:border-blue/35 lg:hidden"
+              aria-label={menuOpen ? copy.closeLabel : copy.openMenu}
+              aria-expanded={menuOpen}
+            >
+              {menuOpen ? copy.closeMenu : copy.menu}
+            </button>
           </div>
         </div>
       </div>
-    </header>
-  );
-}
 
-function ChevronDownIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 12 8"
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.4"
-      className={className}
-      aria-hidden="true"
-    >
-      <path d="M1 1.5 6 6.5 11 1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
+      {menuOpen ? (
+        <div className="border-t border-line bg-white/95 px-4 pb-4 pt-3 lg:hidden">
+          <nav className="container grid gap-1">
+            {NAV_ITEMS.map((item) => {
+              const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={clsx(
+                    "rounded-2xl px-4 py-3 text-sm font-semibold uppercase tracking-[0.13em]",
+                    isActive ? "bg-blue text-white" : "text-muted hover:bg-surface-elevated hover:text-ink",
+                  )}
+                >
+                  {item.label[activeLocale]}
+                </Link>
+              );
+            })}
+
+            <div className="mt-2 flex items-center justify-center gap-2 rounded-2xl border border-line bg-white p-2">
+              <button
+                type="button"
+                onClick={() => switchLocale("es")}
+                className={clsx(
+                  "focus-ring rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em]",
+                  activeLocale === "es" ? "bg-blue text-white" : "text-muted",
+                )}
+              >
+                ES
+              </button>
+              <button
+                type="button"
+                onClick={() => switchLocale("en")}
+                className={clsx(
+                  "focus-ring rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em]",
+                  activeLocale === "en" ? "bg-blue text-white" : "text-muted",
+                )}
+              >
+                EN
+              </button>
+            </div>
+
+            <a
+              href="https://wa.me/18492617328"
+              target="_blank"
+              rel="noreferrer"
+              className="mt-2 inline-flex items-center justify-center rounded-2xl border border-green/30 bg-green/10 px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-green"
+            >
+              {copy.whatsapp}
+            </a>
+          </nav>
+        </div>
+      ) : null}
+    </header>
   );
 }

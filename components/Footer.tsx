@@ -1,89 +1,137 @@
 import Link from "next/link";
+import type { Locale } from "@/lib/locale";
 
-const quickLinks = [
-  { label: "Catálogo", href: "/catalogo" },
-  { label: "Lanzamientos", href: "/lanzamientos" },
-  { label: "Historias", href: "/sobre" },
-  { label: "Preguntas frecuentes", href: "/preguntas" },
-];
+type FooterProps = {
+  locale: Locale;
+};
 
-const policyLinks = [
-  { label: "Condiciones de compra", href: "/condiciones" },
-  { label: "Política de privacidad", href: "/privacidad" },
-  { label: "Contacto", href: "/contacto" },
-];
-
-export default function Footer() {
+export default function Footer({ locale }: FooterProps) {
   const currentYear = new Date().getFullYear();
 
+  const copy =
+    locale === "en"
+      ? {
+          eyebrow: "Online boutique",
+          title: "Collect real pieces with confidence.",
+          text: "Premium cards, signed jerseys and authenticated memorabilia for serious collectors.",
+          buy: "Buy via WhatsApp",
+          shop: "Shop",
+          brand: "Brand",
+          contact: "Direct contact",
+          catalog: "Catalog",
+          releases: "Releases",
+          faq: "FAQ",
+          about: "About",
+          contactLink: "Contact",
+          instagram: "Instagram",
+          shipping: "Insured shipping in Dominican Republic.",
+          signatureTitle: "Crafted by Planos Web",
+          signatureText: "Web design & development",
+        }
+      : {
+          eyebrow: "Boutique digital",
+          title: "Colecciona piezas reales con confianza.",
+          text: "Cartas premium, jerseys firmados y memorabilia autenticada para coleccionistas exigentes.",
+          buy: "Comprar por WhatsApp",
+          shop: "Tienda",
+          brand: "Marca",
+          contact: "Contacto directo",
+          catalog: "Catalogo",
+          releases: "Lanzamientos",
+          faq: "FAQ",
+          about: "Nosotros",
+          contactLink: "Contacto",
+          instagram: "Instagram",
+          shipping: "Envios asegurados en Republica Dominicana.",
+          signatureTitle: "Sitio creado por Planos Web",
+          signatureText: "Diseno y desarrollo web",
+        };
+
+  const shopLinks = [
+    { label: copy.catalog, href: "/catalogo" },
+    { label: copy.releases, href: "/lanzamientos" },
+    { label: copy.faq, href: "/preguntas" },
+  ];
+
+  const brandLinks = [
+    { label: copy.about, href: "/sobre" },
+    { label: copy.contactLink, href: "/contacto" },
+  ];
+
   return (
-    <footer className="mt-24 border-t border-white/10 bg-background/80">
+    <footer className="mt-20 border-t border-line/90 bg-white/70">
       <div className="container py-14">
-        <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-xl space-y-4">
-            <h2 className="text-3xl font-heading font-semibold">Colecciona con confianza.</h2>
-            <p className="text-sm text-muted">
-              Vault curado, piezas verificadas y asesoría personalizada para cada adquisición. Construyamos juntos la vitrina
-              que represente tu historia.
-            </p>
+        <div className="grid gap-12 lg:grid-cols-[1.2fr_0.8fr_0.8fr_1fr]">
+          <div className="space-y-4">
+            <p className="eyebrow">{copy.eyebrow}</p>
+            <h2 className="max-w-lg text-3xl font-heading font-bold text-ink">{copy.title}</h2>
+            <p className="max-w-md text-sm text-muted">{copy.text}</p>
+            <a href="https://wa.me/18492617328" target="_blank" rel="noreferrer" className="btn-primary">
+              {copy.buy}
+            </a>
           </div>
+
+          <div className="space-y-3">
+            <h3 className="text-xs font-semibold uppercase tracking-[0.24em] text-muted">{copy.shop}</h3>
+            <ul className="space-y-2 text-sm text-muted">
+              {shopLinks.map((item) => (
+                <li key={item.href}>
+                  <Link href={item.href} className="hover:text-blue">
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="space-y-3">
+            <h3 className="text-xs font-semibold uppercase tracking-[0.24em] text-muted">{copy.brand}</h3>
+            <ul className="space-y-2 text-sm text-muted">
+              {brandLinks.map((item) => (
+                <li key={item.href}>
+                  <Link href={item.href} className="hover:text-blue">
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="space-y-3">
+            <h3 className="text-xs font-semibold uppercase tracking-[0.24em] text-muted">{copy.contact}</h3>
+            <a href="mailto:hola@foxsportscards1of1.com" className="block text-sm text-muted hover:text-blue">
+              hola@foxsportscards1of1.com
+            </a>
+            <p className="text-sm text-muted">+1 (849) 261-7328</p>
+            <a
+              href="https://www.instagram.com/foxsportscards1of1"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex rounded-full border border-line px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-muted hover:border-blue/35 hover:text-blue"
+            >
+              {copy.instagram}
+            </a>
+          </div>
+        </div>
+
+        <div className="mt-10 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-line bg-white/85 px-4 py-3">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
+            {copy.signatureTitle} | {copy.signatureText}
+          </p>
           <a
-            href="https://wa.me/18492617328"
+            href="https://www.planosweb.com"
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-black shadow-glow transition hover:bg-accent-soft"
+            className="text-sm font-semibold text-blue hover:underline"
           >
-            Contáctanos por WhatsApp
+            www.planosweb.com
           </a>
         </div>
 
-        <div className="mt-12 grid gap-10 border-t border-white/5 pt-12 lg:grid-cols-4">
-          <div className="space-y-4">
-            <Link href="/" className="text-2xl font-heading font-semibold">
-              <span className="text-accent">fox</span>sportscards1of1
-            </Link>
-            <p className="text-sm text-muted">
-              Curamos colecciones premium de deportes, TCG y memorabilia certificada para coleccionistas que exigen lo mejor.
-            </p>
-          </div>
-          <div className="space-y-3">
-            <h3 className="text-xs uppercase tracking-[0.25em] text-muted">Explora</h3>
-            <ul className="space-y-2 text-sm text-muted">
-              {quickLinks.map(({ href, label }) => (
-                <li key={href}>
-                  <Link href={href} className="transition hover:text-white">
-                    {label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="space-y-3">
-            <h3 className="text-xs uppercase tracking-[0.25em] text-muted">Soporte</h3>
-            <ul className="space-y-2 text-sm text-muted">
-              {policyLinks.map(({ href, label }) => (
-                <li key={href}>
-                  <Link href={href} className="transition hover:text-white">
-                    {label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="space-y-4">
-            <h3 className="text-xs uppercase tracking-[0.25em] text-muted">Contacto directo</h3>
-            <div className="space-y-2 text-sm text-muted">
-              <a href="mailto:hola@foxsportscards1of1.com" className="transition hover:text-white">
-                hola@foxsportscards1of1.com
-              </a>
-              <p>WhatsApp: +1 (849) 261-7328</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-12 flex flex-col gap-4 border-t border-white/5 pt-6 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
-          <p>Copyright {currentYear} foxsportscards1of1. Todos los derechos reservados.</p>
-          <p>Operamos desde República Dominicana con envíos asegurados a todo el país.</p>
+        <div className="mt-8 border-t border-line pt-6 text-xs uppercase tracking-[0.16em] text-muted">
+          <p>
+            Fox Sports Cards 1of1 | {currentYear} | {copy.shipping}
+          </p>
         </div>
       </div>
     </footer>

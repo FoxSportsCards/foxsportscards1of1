@@ -1,74 +1,111 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 import clsx from "clsx";
-import { getProductPrices } from "@/lib/pricing";
+import ProductCard from "@/components/ProductCard";
+import type { Locale } from "@/lib/locale";
 import type { Product } from "@/types/product";
 
 type Props = {
   products: Product[];
+  locale?: Locale;
+  initialFilter?: string;
 };
 
-const STATUS_FILTERS = ["Disponibles", "Reservados", "Próximos", "Vendidos"];
+const STATUS_FILTERS: Record<
+  Locale,
+  { all: string; available: string; reserved: string; upcoming: string; sold: string }
+> = {
+  es: {
+    all: "Todos",
+    available: "Disponibles",
+    reserved: "Reservados",
+    upcoming: "Proximos",
+    sold: "Vendidos",
+  },
+  en: {
+    all: "All",
+    available: "Available",
+    reserved: "Reserved",
+    upcoming: "Upcoming",
+    sold: "Sold",
+  },
+};
+
+const FILTER_ALIASES = {
+  all: ["todos", "all"],
+  available: ["disponibles", "available"],
+  reserved: ["reservados", "reserved"],
+  upcoming: ["proximos", "upcoming"],
+  sold: ["vendidos", "sold"],
+};
 
 function normalize(value: string) {
   return value
     .normalize("NFD")
     .replace(/\p{Diacritic}/gu, "")
-    .toLowerCase();
+    .toLowerCase()
+    .trim();
 }
 
-export function CatalogClient({ products }: Props) {
+function isStatusAlias(activeFilter: string, statusKey: keyof typeof FILTER_ALIASES) {
+  const active = normalize(activeFilter);
+  return FILTER_ALIASES[statusKey].includes(active);
+}
+
+export function CatalogClient({ products, locale = "es", initialFilter = "Todos" }: Props) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeFilter, setActiveFilter] = useState("Todos");
+  const [activeFilter, setActiveFilter] = useState(initialFilter);
+  const filters = STATUS_FILTERS[locale];
 
   const filterOptions = useMemo(() => {
     const collected = new Map<string, string>();
     products.forEach((product) => {
-      if (product.sport) {
-        collected.set(normalize(product.sport), product.sport);
-      }
-      if (product.productType) {
-        collected.set(normalize(product.productType), product.productType);
-      }
+      if (product.sport) collected.set(normalize(product.sport), product.sport);
+      if (product.productType) collected.set(normalize(product.productType), product.productType);
       (product.tags ?? []).forEach((tag) => {
-        if (tag) {
-          collected.set(normalize(tag), tag);
-        }
+        if (tag) collected.set(normalize(tag), tag);
       });
     });
 
-    const dynamic = Array.from(collected.values()).sort((a, b) => a.localeCompare(b));
-    const merged = ["Todos", ...STATUS_FILTERS, ...dynamic];
+    const dynamicFilters = Array.from(collected.values()).sort((a, b) => a.localeCompare(b));
+    const merged = [filters.all, filters.available, filters.reserved, filters.upcoming, filters.sold, ...dynamicFilters];
     return merged.filter(
       (option, index) => merged.findIndex((value) => normalize(value) === normalize(option)) === index,
     );
-  }, [products]);
+  }, [products, filters]);
+
+  useEffect(() => {
+    const found = filterOptions.some((option) => normalize(option) === normalize(activeFilter));
+    if (!found) setActiveFilter(filters.all);
+  }, [activeFilter, filterOptions, filters.all]);
+
+  useEffect(() => {
+    if (isStatusAlias(activeFilter, "all")) setActiveFilter(filters.all);
+    else if (isStatusAlias(activeFilter, "available")) setActiveFilter(filters.available);
+    else if (isStatusAlias(activeFilter, "reserved")) setActiveFilter(filters.reserved);
+    else if (isStatusAlias(activeFilter, "upcoming")) setActiveFilter(filters.upcoming);
+    else if (isStatusAlias(activeFilter, "sold")) setActiveFilter(filters.sold);
+  }, [activeFilter, filters]);
 
   const visibleProducts = useMemo(() => {
-    const normalizedSearch = normalize(searchTerm.trim());
     const active = normalize(activeFilter);
+    const normalizedSearch = normalize(searchTerm);
 
     return products.filter((product) => {
       const status = product.status ?? "available";
       const statusMatch =
-        active === "todos"
+        isStatusAlias(active, "all")
           ? true
-          : active === "disponibles"
+          : isStatusAlias(active, "available")
             ? status === "available"
-            : active === "reservados"
+            : isStatusAlias(active, "reserved")
               ? status === "reserved"
-              : active === "proximos"
+              : isStatusAlias(active, "upcoming")
                 ? status === "upcoming"
-                : active === "vendidos"
+                : isStatusAlias(active, "sold")
                   ? status === "sold"
-                  : [
-                      product.sport,
-                      product.productType,
-                      ...(product.tags ?? []),
-                    ]
+                  : [product.sport, product.productType, ...(product.tags ?? [])]
                       .filter(Boolean)
                       .map((value) => normalize(value as string))
                       .includes(active);
@@ -85,54 +122,85 @@ export function CatalogClient({ products }: Props) {
     });
   }, [products, activeFilter, searchTerm]);
 
-  return (
-    <>
-      <div className="space-y-3">
-        <span className="eyebrow">Catálogo curado</span>
-        <h1 className="text-4xl font-heading font-semibold text-white">Encuentra tu próxima pieza estrella</h1>
-        <p className="max-w-2xl text-sm text-muted">
-          Singles premium, cajas selladas y memorabilia certificada. Ordenamos primero las piezas disponibles y destacadas
-          para que hagas movimientos rápidos.
-        </p>
-      </div>
+  const availableCount = products.filter((product) => (product.status ?? "available") === "available").length;
 
-      <div className="mt-10 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="relative w-full max-w-md">
+  const copy =
+    locale === "en"
+      ? {
+          eyebrow: "Shop catalog",
+          title: "Find collectibles by status, category and price",
+          text: "Storefront view with practical filters and clear stock so every product is easy to find.",
+          searchLabel: "Search products",
+          searchPlaceholder: "Search player, team, set or collectible type",
+          clear: "Clear",
+          available: "available",
+          visible: "visible",
+          empty:
+            "No results for the current filters. Change filters or contact us on WhatsApp to locate your exact item.",
+        }
+      : {
+          eyebrow: "Catalogo de tienda",
+          title: "Compra coleccionables por estado, categoria y precio",
+          text: "Vista de tienda con filtros utiles y stock claro para encontrar cada pieza sin perder tiempo.",
+          searchLabel: "Buscar productos",
+          searchPlaceholder: "Buscar jugador, equipo, card set o tipo de pieza",
+          clear: "Limpiar",
+          available: "disponibles",
+          visible: "visibles",
+          empty:
+            "No encontramos resultados con los filtros actuales. Cambia el filtro o escribe por WhatsApp para localizar la pieza exacta.",
+        };
+
+  return (
+    <section className="space-y-8">
+      <header className="space-y-4">
+        <span className="eyebrow">{copy.eyebrow}</span>
+        <h1 className="text-4xl font-heading font-bold text-ink sm:text-5xl">{copy.title}</h1>
+        <p className="max-w-3xl text-sm text-muted">{copy.text}</p>
+      </header>
+
+      <div className="glass-card grid gap-4 p-4 md:grid-cols-[1fr_auto] md:items-center">
+        <label className="relative block">
+          <span className="sr-only">{copy.searchLabel}</span>
           <input
             type="search"
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
-            placeholder="Buscar por jugador, equipo o categoría"
-            className="w-full rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm text-white placeholder:text-muted shadow-soft focus:border-accent/60 focus:outline-none focus:ring-0"
+            placeholder={copy.searchPlaceholder}
+            className="focus-ring w-full rounded-full border border-line bg-white px-5 py-3 text-sm text-ink placeholder:text-muted"
           />
-          {searchTerm && (
+          {searchTerm ? (
             <button
               type="button"
               onClick={() => setSearchTerm("")}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-muted hover:text-white"
+              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full border border-line bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted hover:border-blue/35 hover:text-blue"
             >
-              Limpiar
+              {copy.clear}
             </button>
-          )}
+          ) : null}
+        </label>
+
+        <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-muted">
+          <span className="rounded-full border border-green/25 bg-green/10 px-3 py-1 text-green">
+            {availableCount} {copy.available}
+          </span>
+          <span className="rounded-full border border-line bg-white px-3 py-1">
+            {visibleProducts.length} {copy.visible}
+          </span>
         </div>
-        <span className="text-xs uppercase tracking-[0.3em] text-muted">
-          {visibleProducts.length} {visibleProducts.length === 1 ? "pieza" : "piezas"}
-        </span>
       </div>
 
-      <div className="mt-8 flex flex-wrap gap-3">
+      <div className="flex flex-wrap gap-2">
         {filterOptions.map((option) => {
-          const isActive = option === activeFilter;
+          const active = normalize(option) === normalize(activeFilter);
           return (
             <button
               key={option}
               type="button"
               onClick={() => setActiveFilter(option)}
               className={clsx(
-                "rounded-full border px-4 py-2 text-xs uppercase tracking-[0.3em] transition",
-                isActive
-                  ? "border-white/40 bg-white/20 text-white shadow-glow"
-                  : "border-white/10 bg-white/5 text-muted hover:border-white/25 hover:text-white",
+                "focus-ring rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.15em]",
+                active ? "border-blue bg-blue text-white shadow-glow" : "border-line bg-white text-muted hover:border-blue/35 hover:text-blue",
               )}
             >
               {option}
@@ -141,61 +209,18 @@ export function CatalogClient({ products }: Props) {
         })}
       </div>
 
-      <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {visibleProducts.map((product) => {
-          const cover = product.images[0]?.url ?? "/hero.jpg";
-          const alt = product.images[0]?.alt ?? product.title;
-          const status = product.status ?? "available";
-          const prices = getProductPrices(product);
-
-          return (
-            <Link
-              key={product.slug}
-              href={`/producto/${product.slug}`}
-              className="group relative overflow-hidden rounded-3xl border border-white/10 bg-surface shadow-soft transition hover:-translate-y-1 hover:border-white/25 hover:shadow-glow"
-            >
-              <div className="relative aspect-[4/5]">
-                <Image
-                  src={cover}
-                  alt={alt}
-                  fill
-                  sizes="(min-width: 1280px) 20vw, (min-width: 1024px) 25vw, (min-width: 768px) 35vw, 80vw"
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                {status !== "available" && (
-                  <span className="absolute left-3 top-3 rounded-full bg-black/70 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white">
-                    {status === "sold" ? "Vendido" : status === "reserved" ? "Reservado" : "Próximo"}
-                  </span>
-                )}
-              </div>
-              <div className="space-y-3 p-5">
-                <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-muted">
-                  <span>{product.sport ?? product.productType ?? "Coleccionable"}</span>
-                  {product.year && <span>{product.year}</span>}
-                </div>
-                <h3 className="line-clamp-2 text-sm font-medium text-white/90">{product.title}</h3>
-                <div className="flex items-center justify-between text-sm font-semibold text-accent">
-                  <div className="space-y-1">
-                    <span className="block">{prices.primary}</span>
-                    {prices.secondary && (
-                      <span className="block text-[11px] font-normal uppercase tracking-[0.3em] text-white/70">
-                        {prices.secondary}
-                      </span>
-                    )}
-                  </div>
-                  {product.rarity && <span className="text-xs text-muted">{product.rarity}</span>}
-                </div>
-              </div>
-            </Link>
-          );
-        })}
-      </div>
-
-      {visibleProducts.length === 0 && (
-        <div className="mt-16 rounded-3xl border border-white/5 bg-white/5 p-10 text-center text-sm text-muted">
-          No encontramos piezas para esta búsqueda. Ajusta los filtros o escríbenos por WhatsApp y te ayudamos a localizarla.
+      {visibleProducts.length > 0 ? (
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-5">
+          {visibleProducts.map((product, index) => (
+            <ProductCard key={product.slug} product={product} locale={locale} priority={index < 2} />
+          ))}
+        </div>
+      ) : (
+        <div className="glass-card p-10 text-center">
+          <p className="text-sm text-muted">{copy.empty}</p>
         </div>
       )}
-    </>
+    </section>
   );
 }
+

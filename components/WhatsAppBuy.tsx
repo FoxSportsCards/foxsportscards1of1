@@ -1,24 +1,32 @@
 "use client";
 
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
+import type { Locale } from "@/lib/locale";
 import type { Product } from "@/types/product";
 
-const WHATSAPP_NUMBER = "18492617328"; // Número de WhatsApp en formato internacional sin '+'
+const WHATSAPP_NUMBER = "18492617328";
 
 type WhatsAppMode = "buy" | "reserve";
 
-const DEFAULT_MESSAGES: Record<WhatsAppMode, string> = {
-  buy: "Hola, me interesa la siguiente pieza:",
-  reserve: "Hola, quiero reservar esta pieza antes del lanzamiento:",
+const DEFAULT_MESSAGES: Record<Locale, Record<WhatsAppMode, string>> = {
+  es: {
+    buy: "Hola, me interesa esta pieza:",
+    reserve: "Hola, quiero reservar esta pieza antes del lanzamiento:",
+  },
+  en: {
+    buy: "Hi, I am interested in this item:",
+    reserve: "Hi, I want to reserve this item before release:",
+  },
 };
 
 type WhatsAppBuyProps = {
   product: Product;
   mode?: WhatsAppMode;
+  locale?: Locale;
 };
 
-export default function WhatsAppBuy({ product, mode = "buy" }: WhatsAppBuyProps) {
-  const introMessage = product.whatsappMessage ?? DEFAULT_MESSAGES[mode];
+export default function WhatsAppBuy({ product, mode = "buy", locale = "es" }: WhatsAppBuyProps) {
+  const introMessage = product.whatsappMessage ?? DEFAULT_MESSAGES[locale][mode];
   const href = buildWhatsAppUrl(
     WHATSAPP_NUMBER,
     [
@@ -30,9 +38,7 @@ export default function WhatsAppBuy({ product, mode = "buy" }: WhatsAppBuyProps)
         slug: product.slug,
       },
     ],
-    {
-      introMessage,
-    },
+    { introMessage, locale },
   );
 
   return (
@@ -40,9 +46,16 @@ export default function WhatsAppBuy({ product, mode = "buy" }: WhatsAppBuyProps)
       href={href}
       target="_blank"
       rel="noreferrer"
-      className="rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-black transition hover:opacity-90"
+      className="focus-ring inline-flex items-center justify-center rounded-full border border-green/30 bg-white px-5 py-3 text-sm font-semibold text-green shadow-soft hover:border-green/50"
     >
-      {mode === "reserve" ? "Reservar por WhatsApp" : "Comprar por WhatsApp"}
+      {mode === "reserve"
+        ? locale === "en"
+          ? "Reserve on WhatsApp"
+          : "Reservar por WhatsApp"
+        : locale === "en"
+          ? "Buy on WhatsApp"
+          : "Comprar por WhatsApp"}
     </a>
   );
 }
+

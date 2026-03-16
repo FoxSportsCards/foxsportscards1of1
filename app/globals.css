@@ -3,15 +3,15 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
-  @apply bg-background text-white antialiased font-sans relative overflow-x-hidden;
-  background-image: linear-gradient(160deg, rgba(8, 10, 16, 0.85), rgba(5, 6, 10, 0.95)),
-    radial-gradient(120% 120% at 10% -10%, rgba(78, 197, 241, 0.12), transparent 65%),
-    radial-gradient(160% 160% at 80% 20%, rgba(229, 187, 74, 0.12), transparent 70%);
-  background-blend-mode: screen, normal;
+  @apply relative min-h-screen overflow-x-hidden bg-background font-sans text-ink antialiased;
+  background-image: linear-gradient(160deg, rgba(255, 255, 255, 0.96), rgba(244, 248, 255, 0.96)),
+    radial-gradient(140% 140% at 0% -10%, rgba(0, 117, 255, 0.16), transparent 52%),
+    radial-gradient(120% 130% at 100% 0%, rgba(0, 199, 134, 0.13), transparent 55%),
+    radial-gradient(130% 160% at 50% 120%, rgba(255, 56, 92, 0.1), transparent 58%);
   min-height: 100vh;
 }
 
@@ -19,9 +19,24 @@ body::before {
   content: "";
   position: fixed;
   inset: 0;
-  background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.05) 1px, transparent 0);
-  background-size: 40px 40px;
-  opacity: 0.35;
+  background-image: radial-gradient(circle at 1px 1px, rgba(0, 117, 255, 0.08) 1px, transparent 0);
+  background-size: 26px 26px;
+  opacity: 0.45;
+  pointer-events: none;
+  z-index: -1;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: linear-gradient(
+    180deg,
+    rgba(0, 117, 255, 0.06) 0%,
+    transparent 40%,
+    rgba(0, 199, 134, 0.06) 100%
+  );
+  mix-blend-mode: soft-light;
   pointer-events: none;
   z-index: -1;
 }
@@ -30,14 +45,55 @@ h1,
 h2,
 h3,
 h4 {
-  @apply font-heading text-white;
-  letter-spacing: -0.01em;
+  @apply font-heading text-ink;
+  letter-spacing: -0.02em;
+}
+
+p {
+  @apply text-muted;
+}
+
+a,
+button {
+  @apply transition;
 }
 
 .eyebrow {
-  @apply inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs uppercase tracking-[0.3em] text-muted;
+  @apply inline-flex items-center gap-2 rounded-full border border-blue/20 bg-white/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.26em] text-blue shadow-[0_6px_24px_rgba(0,117,255,0.15)];
 }
 
 .container {
-  @apply mx-auto px-4 sm:px-6 lg:px-8;
+  @apply mx-auto w-full max-w-[1220px] px-4 sm:px-6 lg:px-8;
+}
+
+.glass-card {
+  @apply rounded-4xl border border-line/80 bg-white/90 shadow-soft backdrop-blur;
+}
+
+.btn-primary {
+  @apply inline-flex items-center justify-center gap-2 rounded-full border border-blue/20 bg-gradient-to-r from-blue to-accent-soft px-6 py-3 text-sm font-semibold text-white shadow-glow hover:-translate-y-[1px] hover:opacity-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue/40;
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center gap-2 rounded-full border border-green/25 bg-white px-6 py-3 text-sm font-semibold text-ink shadow-[0_10px_28px_rgba(0,199,134,0.18)] hover:-translate-y-[1px] hover:border-green/45 focus:outline-none focus-visible:ring-2 focus-visible:ring-green/35;
+}
+
+.btn-ghost {
+  @apply inline-flex items-center justify-center gap-2 rounded-full border border-line bg-white/70 px-5 py-2.5 text-sm font-semibold text-muted hover:border-blue/40 hover:text-blue;
+}
+
+.status-dot-blue {
+  @apply h-2.5 w-2.5 rounded-full bg-blue shadow-[0_0_0_4px_rgba(0,117,255,0.15)];
+}
+
+.status-dot-green {
+  @apply h-2.5 w-2.5 rounded-full bg-green shadow-[0_0_0_4px_rgba(0,199,134,0.14)];
+}
+
+.status-dot-red {
+  @apply h-2.5 w-2.5 rounded-full bg-red shadow-[0_0_0_4px_rgba(255,56,92,0.16)];
+}
+
+.focus-ring {
+  @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-blue/45 focus-visible:ring-offset-2 focus-visible:ring-offset-background;
 }

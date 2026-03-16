@@ -2,19 +2,29 @@
 
 import Image from "next/image";
 import { useMemo, useState } from "react";
+import clsx from "clsx";
+import type { Locale } from "@/lib/locale";
 import type { Product, ProductImage } from "@/types/product";
 
 type ProductGalleryProps = {
   title: string;
   images: ProductImage[];
   status?: Product["status"];
+  locale?: Locale;
 };
 
-const STATUS_LABEL: Record<NonNullable<Product["status"]>, string> = {
-  available: "Disponible",
-  reserved: "Reservado",
-  sold: "Vendido",
-  upcoming: "Próximo lanzamiento",
+const STATUS_TEXT: Record<NonNullable<Product["status"]>, Record<Locale, string>> = {
+  available: { es: "Disponible", en: "Available" },
+  reserved: { es: "Reservado", en: "Reserved" },
+  sold: { es: "Vendido", en: "Sold" },
+  upcoming: { es: "Proximo lanzamiento", en: "Upcoming release" },
+};
+
+const STATUS_STYLE: Record<NonNullable<Product["status"]>, string> = {
+  available: "border-green/30 bg-green/10 text-green",
+  reserved: "border-blue/35 bg-blue/10 text-blue",
+  sold: "border-red/35 bg-red/10 text-red",
+  upcoming: "border-blue/35 bg-blue/10 text-blue",
 };
 
 const FALLBACK_IMAGE: ProductImage = {
@@ -23,104 +33,98 @@ const FALLBACK_IMAGE: ProductImage = {
   label: "placeholder",
 };
 
-export default function ProductGallery({ title, images, status = "available" }: ProductGalleryProps) {
-  const sanitizedImages = useMemo(
-    () => (images && images.length > 0 ? images : [FALLBACK_IMAGE]),
-    [images],
-  );
+export default function ProductGallery({
+  title,
+  images,
+  status = "available",
+  locale = "es",
+}: ProductGalleryProps) {
+  const safeImages = useMemo(() => (images.length > 0 ? images : [FALLBACK_IMAGE]), [images]);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isZoomOpen, setIsZoomOpen] = useState(false);
-  const activeImage = sanitizedImages[Math.min(activeIndex, sanitizedImages.length - 1)];
-  const hasStatusBadge = status !== "available";
+  const [zoomOpen, setZoomOpen] = useState(false);
+  const activeImage = safeImages[Math.min(activeIndex, safeImages.length - 1)];
 
   return (
-    <div className="space-y-5">
-      <div className="relative overflow-hidden rounded-4xl border border-white/10 bg-surface shadow-soft">
-        <div className="relative aspect-[4/5] md:aspect-square">
+    <div className="space-y-4">
+      <div className="relative overflow-hidden rounded-3xl border border-line bg-white shadow-soft">
+        <div className="relative aspect-[4/5] md:aspect-[4/4.5]">
           <Image
             key={activeImage.url}
             src={activeImage.url}
             alt={activeImage.alt ?? title}
             fill
-            sizes="(min-width: 1280px) 32vw, (min-width: 1024px) 45vw, 90vw"
+            sizes="(min-width: 1280px) 34vw, (min-width: 1024px) 44vw, 92vw"
             className="object-cover"
             priority
           />
         </div>
-        {hasStatusBadge && (
-          <span className="absolute left-5 top-5 rounded-full bg-black/70 px-4 py-1 text-sm uppercase tracking-[0.3em] text-white">
-            {STATUS_LABEL[status]}
-          </span>
-        )}
+        <span
+          className={clsx(
+            "absolute left-4 top-4 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]",
+            STATUS_STYLE[status],
+          )}
+        >
+          {STATUS_TEXT[status][locale]}
+        </span>
         <button
           type="button"
-          onClick={() => setIsZoomOpen(true)}
-          className="absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-full bg-black/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-white backdrop-blur transition hover:bg-black/80"
+          onClick={() => setZoomOpen(true)}
+          className="focus-ring absolute bottom-4 right-4 rounded-full border border-line bg-white/95 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-muted hover:border-blue/35 hover:text-blue"
         >
-          Ver grande
+          {locale === "en" ? "Zoom" : "Ampliar"}
         </button>
       </div>
 
-      {sanitizedImages.length > 1 && (
-        <div className="grid grid-cols-4 gap-3 sm:grid-cols-6 md:grid-cols-4 lg:grid-cols-5">
-          {sanitizedImages.map((image, index) => {
-            const isActive = index === activeIndex;
+      {safeImages.length > 1 ? (
+        <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-5">
+          {safeImages.map((image, index) => {
+            const active = index === activeIndex;
             return (
               <button
                 key={`${image.url}-${image.label ?? index}`}
                 type="button"
                 onClick={() => setActiveIndex(index)}
-                className={`group relative aspect-square overflow-hidden rounded-2xl border transition ${
-                  isActive ? "border-accent shadow-glow" : "border-white/10 hover:border-white/30"
-                }`}
+                className={clsx(
+                  "focus-ring group relative aspect-square overflow-hidden rounded-2xl border bg-white",
+                  active ? "border-blue shadow-glow" : "border-line hover:border-blue/35",
+                )}
               >
                 <Image
                   src={image.url}
                   alt={image.alt ?? title}
                   fill
                   sizes="120px"
-                  className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  className="object-cover transition-transform duration-300 group-hover:scale-[1.04]"
                 />
-                {image.label && (
-                  <span className="absolute bottom-2 left-2 rounded-full bg-black/70 px-2 py-1 text-[10px] uppercase tracking-[0.3em] text-white">
-                    {image.label}
-                  </span>
-                )}
               </button>
             );
           })}
         </div>
-      )}
+      ) : null}
 
-      {isZoomOpen && (
-        <div className="fixed inset-0 z-[60] flex flex-col bg-black/85 backdrop-blur">
-          <div className="flex items-center justify-between px-4 pb-2 pt-4 sm:px-6">
+      {zoomOpen ? (
+        <div className="fixed inset-0 z-[60] flex flex-col bg-[#081126]/75 p-4 backdrop-blur-sm">
+          <div className="flex justify-end pb-3">
             <button
               type="button"
-              aria-label="Cerrar"
-              onClick={() => setIsZoomOpen(false)}
-              className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-white transition hover:border-white/40 hover:bg-black/90"
+              onClick={() => setZoomOpen(false)}
+              className="focus-ring rounded-full border border-white/30 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-white hover:bg-white/20"
             >
-              <span className="inline-block rotate-180">➜</span>
-              <span>Cerrar</span>
+              {locale === "en" ? "Close" : "Cerrar"}
             </button>
           </div>
-          <div className="relative flex-1 px-4 pb-6 sm:px-6">
-            <div className="relative h-full w-full max-h-full overflow-hidden rounded-4xl border border-white/20 bg-black/60 p-4 shadow-glow">
-              <div className="relative h-full w-full">
-                <Image
-                  src={activeImage.url}
-                  alt={activeImage.alt ?? title}
-                  fill
-                  sizes="(min-width: 1024px) 60vw, 90vw"
-                  className="object-contain"
-                  priority
-                />
-              </div>
-            </div>
+          <div className="relative flex-1 overflow-hidden rounded-3xl border border-white/20 bg-black/30">
+            <Image
+              src={activeImage.url}
+              alt={activeImage.alt ?? title}
+              fill
+              sizes="92vw"
+              className="object-contain"
+              priority
+            />
           </div>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

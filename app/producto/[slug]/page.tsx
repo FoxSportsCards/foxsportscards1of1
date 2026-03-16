@@ -1,40 +1,48 @@
-﻿import Image from "next/image";
-import Link from "next/link";
-import { PortableText } from "@portabletext/react";
-import { formatCurrency, getProductPrices } from "@/lib/pricing";
 import { notFound } from "next/navigation";
+import { PortableText } from "@portabletext/react";
+import Link from "next/link";
+import { getServerLocale } from "@/lib/getServerLocale";
+import { getProductPrices } from "@/lib/pricing";
 import { getAllProducts, getProductBySlug } from "@/lib/products";
 import ProductActionButtons from "@/components/ProductActionButtons";
+import ProductBackButton from "@/components/ProductBackButton";
 import ProductGallery from "@/components/ProductGallery";
 import ProductStatusBadge from "@/components/ProductStatusBadge";
-import ProductBackButton from "@/components/ProductBackButton";
+import ProductCard from "@/components/ProductCard";
+import type { Locale } from "@/lib/locale";
 import type { Product, ProductImage } from "@/types/product";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
-export const runtime = "edge";
-export const preferredRegion = "auto";
+export const revalidate = 180;
 
 function ensureImages(product: Product): ProductImage[] {
-  if (product.images.length > 0) {
-    return product.images;
+  if (product.images.length > 0) return product.images;
+  return [{ url: "/hero.jpg", alt: product.title, label: "placeholder" }];
+}
+
+function getServiceNotes(locale: Locale) {
+  if (locale === "en") {
+    return [
+      "Verified authenticity backed by the seller.",
+      "Direct checkout by cart or WhatsApp.",
+      "Insured shipping with follow-up until delivery.",
+    ];
   }
   return [
-    {
-      url: "/hero.jpg",
-      alt: product.title,
-      label: "placeholder",
-    },
+    "Autenticidad verificada con respaldo del vendedor.",
+    "Compra directa por carrito o WhatsApp.",
+    "Envios asegurados y seguimiento hasta entrega.",
   ];
 }
 
-const SERVICE_NOTES = [
-  "Autenticidad verificada con documentación disponible.",
-  "Asesoría personalizada para inversionistas y coleccionistas.",
-  "Envíos asegurados en República Dominicana y coordinación internacional.",
-];
+type ProductPageProps = {
+  params: {
+    slug: string;
+  };
+};
 
-export default async function ProductPage({ params }: { params: { slug: string } }) {
+export default async function ProductPage({ params }: ProductPageProps) {
+  const locale = getServerLocale();
+  const isEn = locale === "en";
   let product: Product | null = null;
   let allProducts: Product[] = [];
 
@@ -44,200 +52,194 @@ export default async function ProductPage({ params }: { params: { slug: string }
       getAllProducts(),
     ]);
     product = productResult;
-    allProducts = Array.isArray(allProductsResult) ? allProductsResult : [];
+    allProducts = allProductsResult;
   } catch (error) {
-    console.error(`[producto] Failed to load product ${params.slug}`, error);
+    console.error(`[producto] error loading ${params.slug}`, error);
     notFound();
   }
 
-  if (!product) {
-    notFound();
-  }
+  if (!product) notFound();
 
   const productImages = ensureImages(product);
-
-  const relatedPool = allProducts.filter((item) => item.slug !== product!.slug);
-  const prioritized = relatedPool.filter(
-    (item) => item.sport === product!.sport || item.productType === product!.productType,
-  );
-  const deduped = [...prioritized, ...relatedPool].filter(
-    (item, index, array) => array.findIndex((entry) => entry.slug === item.slug) === index,
-  );
-  const recommendations = deduped.slice(0, 3);
+  const prices = getProductPrices(product, locale);
+  const serviceNotes = getServiceNotes(locale);
+  const recommendations = allProducts
+    .filter((item) => item.slug !== product.slug)
+    .sort((a, b) => {
+      const relationA =
+        (a.sport && a.sport === product!.sport ? 1 : 0) + (a.productType === product!.productType ? 1 : 0);
+      const relationB =
+        (b.sport && b.sport === product!.sport ? 1 : 0) + (b.productType === product!.productType ? 1 : 0);
+      return relationB - relationA;
+    })
+    .slice(0, 4);
 
   return (
-    <div className="container py-16">
-      <div className="mb-6 flex items-center justify-start">
-        <ProductBackButton fallbackHref="/catalogo" />
+    <section className="container py-12 sm:py-16">
+      <div className="mb-5">
+        <ProductBackButton fallbackHref="/catalogo" locale={locale} />
       </div>
 
-      <div className="grid gap-12 lg:grid-cols-[1.2fr_0.9fr]">
-        <ProductGallery title={product.title} images={productImages} status={product.status ?? "available"} />
+      <div className="grid gap-10 lg:grid-cols-[1.08fr_0.92fr]">
+        <ProductGallery
+          title={product.title}
+          images={productImages}
+          status={product.status ?? "available"}
+          locale={locale}
+        />
 
-        <div className="space-y-8">
-          <div className="space-y-5 rounded-4xl border border-white/10 bg-white/5 p-6 shadow-soft backdrop-blur">
-            <div className="flex flex-wrap gap-2 text-xs uppercase tracking-[0.3em] text-muted">
-              <span>{product.sport ?? product.productType ?? "Coleccionable"}</span>
-              {product.year && <span>Edición {product.year}</span>}
-              {product.certification && <span>Grading {product.certification}</span>}
-              {product.rarity && <span>{product.rarity}</span>}
+        <aside className="space-y-6">
+          <div className="glass-card space-y-5 p-6">
+            <div className="flex flex-wrap gap-2">
+              <span className="rounded-full border border-line bg-surface-elevated px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">
+                {product.sport ?? product.productType ?? (isEn ? "Collectible" : "Coleccionable")}
+              </span>
+              {product.year ? (
+                <span className="rounded-full border border-line bg-surface-elevated px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">
+                  {isEn ? `Edition ${product.year}` : `Edicion ${product.year}`}
+                </span>
+              ) : null}
+              {product.certification ? (
+                <span className="rounded-full border border-green/30 bg-green/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-green">
+                  {product.certification}
+                </span>
+              ) : null}
             </div>
 
             <div className="space-y-3">
-              <ProductStatusBadge status={product.status} releaseDate={product.releaseDate} />
-              <h1 className="text-3xl font-heading font-semibold text-white lg:text-[34px]">{product.title}</h1>
-              {(() => {
-                const prices = getProductPrices(product);
-                return (
-                  <div className="space-y-1">
-                    <p className="text-2xl font-heading text-accent">{prices.primary}</p>
-                    {prices.secondary && (
-                      <p className="text-sm uppercase tracking-[0.3em] text-muted">{prices.secondary}</p>
-                    )}
-                  </div>
-                );
-              })()}
-              {product.shortDescription && <p className="text-sm text-muted">{product.shortDescription}</p>}
+              <ProductStatusBadge status={product.status} releaseDate={product.releaseDate} locale={locale} />
+              <h1 className="text-3xl font-heading font-bold text-ink sm:text-4xl">{product.title}</h1>
+              <div>
+                <p className="text-2xl font-heading font-bold text-ink">{prices.primary}</p>
+                {prices.secondary ? (
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted">{prices.secondary}</p>
+                ) : null}
+              </div>
+              <p className="text-sm text-muted">
+                {product.shortDescription ??
+                  (isEn
+                    ? "Premium item curated for collectors looking for authenticity and fast checkout."
+                    : "Pieza premium curada para compradores que buscan autenticidad y salida rapida.")}
+              </p>
             </div>
 
-            <ProductActionButtons product={product} />
+            <ProductActionButtons product={product} locale={locale} />
 
-            <div className="rounded-3xl border border-white/10 bg-background/70 p-6">
-              <dl className="grid gap-5 text-left sm:grid-cols-3">
-                <div>
-                  <dt className="text-[11px] uppercase tracking-[0.35em] text-muted">Inventario</dt>
-                  <dd className="mt-2 text-sm font-semibold text-white">
-                    {typeof product.inventory === "number"
-                      ? `${product.inventory} ${product.inventory === 1 ? "pieza" : "piezas"}`
+            <dl className="grid gap-4 rounded-3xl border border-line bg-surface-elevated p-4 sm:grid-cols-3">
+              <div>
+                <dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">
+                  {isEn ? "Inventory" : "Inventario"}
+                </dt>
+                <dd className="mt-1 text-sm font-semibold text-ink">
+                  {typeof product.inventory === "number"
+                    ? `${product.inventory} ${
+                        product.inventory === 1
+                          ? isEn
+                            ? "item"
+                            : "pieza"
+                          : isEn
+                            ? "items"
+                            : "piezas"
+                      }`
+                    : isEn
+                      ? "By request"
                       : "Bajo pedido"}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-[11px] uppercase tracking-[0.35em] text-muted">Respuesta</dt>
-                  <dd className="mt-2 text-sm font-semibold text-white">Menos de 15 min</dd>
-                </div>
-                <div>
-                  <dt className="text-[11px] uppercase tracking-[0.35em] text-muted">Envío</dt>
-                  <dd className="mt-2 text-sm font-semibold text-white">Seguro 24-48h RD</dd>
-                </div>
-              </dl>
-            </div>
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">
+                  {isEn ? "Response" : "Respuesta"}
+                </dt>
+                <dd className="mt-1 text-sm font-semibold text-ink">{isEn ? "Under 15 min" : "Menos de 15 min"}</dd>
+              </div>
+              <div>
+                <dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">
+                  {isEn ? "Shipping" : "Envio"}
+                </dt>
+                <dd className="mt-1 text-sm font-semibold text-ink">
+                  {isEn ? "24-48h in DR" : "24-48h en RD"}
+                </dd>
+              </div>
+            </dl>
 
-            <ul className="space-y-2 text-sm text-muted">
-              {SERVICE_NOTES.map((note) => (
+            <ul className="space-y-2">
+              {serviceNotes.map((note, index) => (
                 <li key={note} className="flex items-start gap-2">
-                  <span className="mt-2 block h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent" aria-hidden />
-                  <span>{note}</span>
+                  <span
+                    className={
+                      index % 3 === 0
+                        ? "status-dot-blue mt-1"
+                        : index % 3 === 1
+                          ? "status-dot-green mt-1"
+                          : "status-dot-red mt-1"
+                    }
+                  />
+                  <span className="text-sm text-muted">{note}</span>
                 </li>
               ))}
             </ul>
           </div>
 
-          {product.highlights && product.highlights.length > 0 && (
-            <div className="space-y-3 rounded-3xl border border-white/10 bg-white/5 p-6 shadow-soft">
-              <h2 className="text-sm uppercase tracking-[0.3em] text-muted">Por qué destaca</h2>
-              <ul className="space-y-2 text-sm text-muted">
+          {product.highlights && product.highlights.length > 0 ? (
+            <div className="glass-card p-6">
+              <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-muted">
+                {isEn ? "Highlights" : "Puntos clave"}
+              </h2>
+              <ul className="mt-3 space-y-2">
                 {product.highlights.map((highlight, index) => (
-                  <li key={index} className="flex items-start gap-2">
-                    <span className="mt-1 block h-1.5 w-1.5 rounded-full bg-accent" />
-                    <span>{highlight}</span>
+                  <li key={`${highlight}-${index}`} className="text-sm text-muted">
+                    - {highlight}
                   </li>
                 ))}
               </ul>
             </div>
-          )}
+          ) : null}
 
-          {product.description && (
-            <div className="space-y-3 rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-muted shadow-soft">
-              <h2 className="text-sm uppercase tracking-[0.3em] text-muted">Descripción detallada</h2>
-              <PortableText value={product.description} />
-            </div>
-          )}
-
-          {product.tags && product.tags.length > 0 && (
+          {product.tags && product.tags.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {product.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs uppercase tracking-[0.3em] text-muted"
+                  className="rounded-full border border-line bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted"
                 >
                   #{tag}
                 </span>
               ))}
             </div>
-          )}
-        </div>
+          ) : null}
+        </aside>
       </div>
 
-      {recommendations.length > 0 && (
-        <section className="mt-20 space-y-6">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      {product.description ? (
+        <article className="glass-card mt-10 p-6">
+          <h2 className="text-lg font-heading font-bold text-ink">{isEn ? "Description" : "Descripcion"}</h2>
+          <div className="mt-3 space-y-3 text-sm text-muted">
+            <PortableText value={product.description} />
+          </div>
+        </article>
+      ) : null}
+
+      {recommendations.length > 0 ? (
+        <section className="mt-14">
+          <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <span className="eyebrow">También te puede interesar</span>
-              <h2 className="mt-3 text-2xl font-heading font-semibold text-white">Más piezas seleccionadas para ti</h2>
+              <span className="eyebrow">{isEn ? "Related items" : "Relacionados"}</span>
+              <h2 className="mt-2 text-3xl font-heading font-bold text-ink">
+                {isEn ? "More pieces for your collection" : "Mas piezas para tu coleccion"}
+              </h2>
             </div>
-            <Link
-              href="/catalogo"
-              className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-muted transition hover:border-white/40 hover:text-white"
-            >
-              Ver catálogo →
+            <Link href="/catalogo" className="btn-ghost">
+              {isEn ? "Back to catalog" : "Volver al catalogo"}
             </Link>
           </div>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {recommendations.map((item) => {
-              const prices = getProductPrices(item);
-              return (
-              <Link
-                key={item.slug}
-                href={`/producto/${item.slug}`}
-                className="group overflow-hidden rounded-3xl border border-white/10 bg-surface shadow-soft transition hover:-translate-y-1 hover:border-white/25 hover:shadow-glow"
-              >
-                <div className="relative aspect-[4/5]">
-                  <Image
-                    src={item.images[0]?.url ?? "/hero.jpg"}
-                    alt={item.images[0]?.alt ?? item.title}
-                    fill
-                    sizes="(min-width: 1024px) 25vw, (min-width: 768px) 35vw, 80vw"
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                </div>
-                <div className="space-y-3 p-5">
-                  <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-muted">
-                    <span>{item.sport ?? item.productType ?? "Coleccionable"}</span>
-                    {item.year && <span>{item.year}</span>}
-                  </div>
-                  <h3 className="line-clamp-2 text-sm font-medium text-white/90">{item.title}</h3>
-                  <div className="flex items-center justify-between text-sm font-semibold text-accent">
-                    <div className="space-y-1">
-                      <span className="block">{prices.primary}</span>
-                      {prices.secondary && (
-                        <span className="block text-[11px] font-normal uppercase tracking-[0.3em] text-white/70">
-                          {prices.secondary}
-                        </span>
-                      )}
-                    </div>
-                    {item.rarity && <span className="text-xs text-muted">{item.rarity}</span>}
-                  </div>
-                </div>
-              </Link>
-            );
-            })}
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-5">
+            {recommendations.map((item, index) => (
+              <ProductCard key={item.slug} product={item} locale={locale} priority={index === 0} />
+            ))}
           </div>
         </section>
-      )}
-    </div>
+      ) : null}
+    </section>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
 

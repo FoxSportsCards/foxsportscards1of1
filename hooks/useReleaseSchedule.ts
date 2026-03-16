@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import type { Locale } from "@/lib/locale";
+import { formatLocaleTag } from "@/lib/locale";
 import type { Product } from "@/types/product";
 
 type CountdownParts = {
@@ -11,7 +13,10 @@ type CountdownParts = {
   seconds: number;
 };
 
+type StatusKey = "available" | "reserved" | "sold" | "upcoming";
+
 type ReleaseScheduleResult = {
+  statusKey: StatusKey;
   statusLabel: string;
   countdown?: CountdownParts;
   releaseDateLabel?: string;
@@ -19,12 +24,19 @@ type ReleaseScheduleResult = {
   isPurchaseLocked: boolean;
 };
 
-const STATUS_LABELS: Record<NonNullable<Product["status"]> | "default", string> = {
-  sold: "No disponible",
-  reserved: "Reservado",
-  upcoming: "Próximo lanzamiento",
-  available: "Disponible",
-  default: "Disponible",
+const STATUS_LABELS: Record<Locale, Record<StatusKey, string>> = {
+  es: {
+    sold: "No disponible",
+    reserved: "Reservado",
+    upcoming: "Proximo lanzamiento",
+    available: "Disponible",
+  },
+  en: {
+    sold: "Unavailable",
+    reserved: "Reserved",
+    upcoming: "Upcoming release",
+    available: "Available",
+  },
 };
 
 function parseReleaseDate(value?: string | null): number | null {
@@ -33,90 +45,61 @@ function parseReleaseDate(value?: string | null): number | null {
   return Number.isNaN(parsed) ? null : parsed;
 }
 
-function buildCountdown(diffMs: number): CountdownParts {
+function buildCountdown(diffMs: number, locale: Locale): CountdownParts {
   const totalSeconds = Math.max(Math.ceil(diffMs / 1000), 0);
   const days = Math.floor(totalSeconds / 86400);
   const hours = Math.floor((totalSeconds % 86400) / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
 
-  let label: string;
-  if (days > 1) {
-    label = `Disponible en ${days} días`;
-  } else if (days === 1) {
-    label = hours > 0 ? `Disponible en 1 día y ${hours} h` : "Disponible en 1 día";
-  } else if (hours > 0) {
-    label = minutes > 0 ? `Disponible en ${hours} h ${minutes} min` : `Disponible en ${hours} h`;
-  } else if (minutes > 1) {
-    label = `Disponible en ${minutes} min`;
-  } else if (minutes === 1) {
-    label = `Disponible en 1 min y ${seconds.toString().padStart(2, "0")} s`;
-  } else if (seconds > 0) {
-    label = `Disponible en ${seconds} s`;
+  let label = locale === "en" ? "Available now" : "Disponible ahora";
+
+  if (locale === "en") {
+    if (days > 1) label = `Available in ${days} days`;
+    else if (days === 1) label = hours > 0 ? "Available in 1 day and a few hours" : "Available in 1 day";
+    else if (hours > 0) label = minutes > 0 ? `Available in ${hours}h ${minutes}m` : `Available in ${hours}h`;
+    else if (minutes > 0) label = `Available in ${minutes}m`;
+    else if (seconds > 0) label = `Available in ${seconds}s`;
   } else {
-    label = "Disponible";
+    if (days > 1) label = `Disponible en ${days} dias`;
+    else if (days === 1) label = hours > 0 ? "Disponible en 1 dia y unas horas" : "Disponible en 1 dia";
+    else if (hours > 0) label = minutes > 0 ? `Disponible en ${hours} h ${minutes} min` : `Disponible en ${hours} h`;
+    else if (minutes > 0) label = `Disponible en ${minutes} min`;
+    else if (seconds > 0) label = `Disponible en ${seconds} s`;
   }
 
-  return {
-    label,
-    days,
-    hours,
-    minutes,
-    seconds,
-  };
+  return { label, days, hours, minutes, seconds };
 }
 
 export function useReleaseSchedule(
   status: Product["status"],
   releaseDate: string | null | undefined,
+  locale: Locale = "es",
 ): ReleaseScheduleResult {
   const targetTimestamp = useMemo(() => parseReleaseDate(releaseDate), [releaseDate]);
   const [currentTime, setCurrentTime] = useState(() => Date.now());
 
   useEffect(() => {
-    if (!targetTimestamp) return undefined;
-    if (status !== "upcoming") return undefined;
-
-    let intervalId: ReturnType<typeof setInterval> | undefined;
-    const tick = () => {
-      const now = Date.now();
-      setCurrentTime(now);
-      if (intervalId && now >= targetTimestamp) {
-        clearInterval(intervalId);
-      }
-    };
-
-    // Ejecutamos un primer tick inmediato para sincronizar.
+    if (!targetTimestamp || status !== "upcoming") return;
+    const tick = () => setCurrentTime(Date.now());
     tick();
-    intervalId = setInterval(tick, 1000);
-    return () => {
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
-    };
+    const intervalId = setInterval(tick, 1000);
+    return () => clearInterval(intervalId);
   }, [status, targetTimestamp]);
 
-  const purchaseLocked =
+  const isPurchaseLocked =
     status === "upcoming" && targetTimestamp !== null && currentTime < targetTimestamp;
 
-  const statusLabel =
-    status === "sold"
-      ? STATUS_LABELS.sold
-      : status === "reserved"
-        ? STATUS_LABELS.reserved
-        : purchaseLocked
-          ? STATUS_LABELS.upcoming
-          : STATUS_LABELS.available;
+  const statusKey: StatusKey =
+    status === "sold" ? "sold" : status === "reserved" ? "reserved" : isPurchaseLocked ? "upcoming" : "available";
 
-  let countdown: CountdownParts | undefined;
-  if (purchaseLocked && targetTimestamp !== null) {
-    countdown = buildCountdown(targetTimestamp - currentTime);
-  }
+  const countdown =
+    isPurchaseLocked && targetTimestamp !== null ? buildCountdown(targetTimestamp - currentTime, locale) : undefined;
 
   const releaseDateInstance = targetTimestamp !== null ? new Date(targetTimestamp) : undefined;
   const releaseDateLabel =
-    releaseDateInstance && purchaseLocked
-      ? releaseDateInstance.toLocaleString("es-DO", {
+    releaseDateInstance && isPurchaseLocked
+      ? releaseDateInstance.toLocaleString(formatLocaleTag(locale), {
           day: "numeric",
           month: "long",
           year: "numeric",
@@ -126,10 +109,12 @@ export function useReleaseSchedule(
       : undefined;
 
   return {
-    statusLabel,
+    statusKey,
+    statusLabel: STATUS_LABELS[locale][statusKey],
     countdown,
     releaseDateLabel,
     releaseDate: releaseDateInstance,
-    isPurchaseLocked: purchaseLocked,
+    isPurchaseLocked,
   };
 }
+

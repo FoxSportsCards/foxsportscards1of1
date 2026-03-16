@@ -1,24 +1,24 @@
 import Image from "next/image";
 import Link from "next/link";
+import { getServerLocale } from "@/lib/getServerLocale";
+import { formatLocaleTag, type Locale } from "@/lib/locale";
 import { getProductPrices } from "@/lib/pricing";
 import { getAllProducts } from "@/lib/products";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
-export const runtime = "edge";
-export const preferredRegion = "auto";
+export const revalidate = 180;
 
-function formatReleaseDate(dateString: string) {
+function formatReleaseDate(dateString: string | null | undefined, locale: Locale) {
+  if (!dateString) return null;
   const date = new Date(dateString);
   if (Number.isNaN(date.getTime())) return null;
   return {
-    full: date.toLocaleDateString("es-DO", {
+    full: date.toLocaleDateString(formatLocaleTag(locale), {
       day: "numeric",
       month: "long",
       year: "numeric",
     }),
     badge: date
-      .toLocaleDateString("es-DO", {
+      .toLocaleDateString(formatLocaleTag(locale), {
         day: "2-digit",
         month: "short",
       })
@@ -28,119 +28,114 @@ function formatReleaseDate(dateString: string) {
 }
 
 export default async function LanzamientosPage() {
+  const locale = getServerLocale();
+  const isEn = locale === "en";
   const products = await getAllProducts();
   const upcoming = products
     .filter((product) => product.status === "upcoming")
-    .map((product) => {
-      const releaseInfo = product.releaseDate ? formatReleaseDate(product.releaseDate) : null;
-      return { product, releaseInfo };
-    })
-    .sort((a, b) => {
-      const aTime = a.releaseInfo?.timestamp ?? Number.POSITIVE_INFINITY;
-      const bTime = b.releaseInfo?.timestamp ?? Number.POSITIVE_INFINITY;
-      return aTime - bTime;
-    });
+    .map((product) => ({
+      product,
+      releaseInfo: formatReleaseDate(product.releaseDate, locale),
+    }))
+    .sort(
+      (a, b) =>
+        (a.releaseInfo?.timestamp ?? Number.POSITIVE_INFINITY) -
+        (b.releaseInfo?.timestamp ?? Number.POSITIVE_INFINITY),
+    );
 
   return (
-    <div className="container py-16">
+    <section className="container py-14 sm:py-16">
       <header className="max-w-3xl space-y-4">
-        <span className="eyebrow">Calendario oficial</span>
-        <h1 className="text-4xl font-heading font-semibold text-white">Próximos lanzamientos</h1>
+        <span className="eyebrow">{isEn ? "Drop calendar" : "Calendario de drops"}</span>
+        <h1 className="text-4xl font-heading font-bold text-ink sm:text-5xl">
+          {isEn ? "Upcoming releases" : "Proximos lanzamientos"}
+        </h1>
         <p className="text-sm text-muted">
-          Presentamos drops exclusivos, breaks privados y memorabilia que está por llegar al vault. Cada pieza se anuncia con
-          anticipación para que puedas reservarla con tu concierge.
+          {isEn
+            ? "Reserve future pieces from this page. Every release includes date, product page and direct WhatsApp access."
+            : "Reserva piezas futuras desde esta pagina. Cada lanzamiento incluye fecha, ficha y acceso directo a WhatsApp."}
         </p>
       </header>
 
       {upcoming.length === 0 ? (
-        <div className="mt-14 rounded-3xl border border-white/10 bg-white/5 p-10 text-center text-sm text-muted">
-          Aún no tenemos lanzamientos programados. Vuelve pronto o escríbenos por WhatsApp para recibir alertas
-          personalizadas.
+        <div className="glass-card mt-12 p-10 text-center text-sm text-muted">
+          {isEn
+            ? "No upcoming releases published yet. Message us on WhatsApp to join the alerts list."
+            : "No hay lanzamientos publicados por ahora. Escribe por WhatsApp para unirte a la lista de alertas."}
         </div>
       ) : (
-        <div className="mt-12 grid gap-8 md:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {upcoming.map(({ product, releaseInfo }) => {
             const cover = product.images[0]?.url ?? "/hero.jpg";
             const alt = product.images[0]?.alt ?? product.title;
-            const prices = getProductPrices(product);
+            const prices = getProductPrices(product, locale);
 
             return (
               <article
                 key={product.slug}
-                className="group flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-surface shadow-soft transition hover:-translate-y-1 hover:border-white/25 hover:shadow-glow"
+                className="group overflow-hidden rounded-3xl border border-line bg-white shadow-soft"
               >
-                <div className="relative aspect-[4/5]">
+                <div className="relative aspect-[4/5] overflow-hidden">
                   <Image
                     src={cover}
                     alt={alt}
                     fill
-                    sizes="(min-width: 1280px) 25vw, (min-width: 768px) 33vw, 100vw"
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    sizes="(min-width: 1280px) 27vw, (min-width: 768px) 43vw, 90vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                   />
-                  <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full bg-black/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-white">
-                    Próximo drop
-                    {releaseInfo?.badge && (
-                      <span className="rounded-full bg-white/15 px-2 py-0.5 text-[10px] tracking-[0.35em] text-white">
-                        {releaseInfo.badge}
-                      </span>
-                    )}
-                  </div>
+                  <span className="absolute left-4 top-4 rounded-full border border-blue/30 bg-blue/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-blue">
+                    {isEn ? "Upcoming drop" : "Proximo drop"}
+                  </span>
+                  {releaseInfo?.badge ? (
+                    <span className="absolute right-4 top-4 rounded-full border border-green/30 bg-green/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-green">
+                      {releaseInfo.badge}
+                    </span>
+                  ) : null}
                 </div>
 
-                <div className="flex flex-1 flex-col gap-5 p-6">
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-muted">
-                      <span>{product.sport ?? product.productType ?? "Coleccionable"}</span>
-                      {product.year && <span>{product.year}</span>}
-                    </div>
-                    <h2 className="text-lg font-heading font-semibold text-white">{product.title}</h2>
-                    {product.shortDescription && <p className="text-sm text-muted">{product.shortDescription}</p>}
+                <div className="space-y-4 p-5">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted">
+                      {product.sport ?? product.productType ?? (isEn ? "Collectible" : "Coleccionable")}
+                    </p>
+                    <h2 className="mt-2 text-xl font-heading font-bold text-ink">{product.title}</h2>
+                    <p className="mt-2 text-sm text-muted">
+                      {product.shortDescription ??
+                        (isEn
+                          ? "Limited launch for registered buyers."
+                          : "Lanzamiento limitado para compradores registrados.")}
+                    </p>
                   </div>
 
-                  <div className="space-y-3 text-sm">
-                    <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-muted">
-                      <span>Rarity</span>
-                      <span>{product.rarity ?? "Limitado"}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-muted">
-                      <span>Reservas</span>
-                      <span>{product.inventory ?? "Por confirmar"}</span>
-                    </div>
-                    <div className="flex flex-col items-start gap-1 text-xs uppercase tracking-[0.3em] text-muted">
-                      <div className="flex w-full items-center justify-between">
-                        <span>Ticket estimado</span>
-                        <span>{prices.primary}</span>
-                      </div>
-                      {prices.secondary && (
-                        <span className="w-full text-right text-[11px] font-normal text-white/70">
-                          {prices.secondary}
-                        </span>
-                      )}
-                    </div>
+                  <div className="rounded-2xl border border-line bg-surface-elevated px-4 py-3">
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted">
+                      {isEn ? "Estimated price" : "Ticket estimado"}
+                    </p>
+                    <p className="mt-1 text-lg font-heading font-bold text-ink">{prices.primary}</p>
+                    {prices.secondary ? (
+                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted">{prices.secondary}</p>
+                    ) : null}
+                    <p className="mt-2 text-xs text-muted">
+                      {isEn ? "Date" : "Fecha"}:{" "}
+                      {releaseInfo?.full ?? (isEn ? "To be confirmed" : "Por confirmar")}
+                    </p>
                   </div>
 
-                  {releaseInfo?.full && (
-                    <div className="rounded-2xl border border-accent/40 bg-accent/15 px-3 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-accent">
-                      Disponible desde {releaseInfo.full}
-                    </div>
-                  )}
-
-                  <div className="mt-auto flex flex-col gap-3 text-sm">
-                    <Link
-                      href={`/producto/${product.slug}`}
-                      className="inline-flex items-center justify-center rounded-full border border-white/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-muted transition hover:border-white/40 hover:text-white"
-                    >
-                      Ver ficha
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    <Link href={`/producto/${product.slug}`} className="btn-ghost">
+                      {isEn ? "View item" : "Ver ficha"}
                     </Link>
                     <a
                       href={`https://wa.me/18492617328?text=${encodeURIComponent(
-                        `Hola, quiero reservar el drop ${product.title}. ¿Me puedes apoyar?`,
+                        isEn
+                          ? `Hi, I want to reserve ${product.title}.`
+                          : `Hola, quiero reservar ${product.title}.`,
                       )}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center justify-center rounded-full bg-accent px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-black transition hover:opacity-90"
+                      className="btn-secondary"
                     >
-                      Reservar por WhatsApp
+                      {isEn ? "Reserve" : "Reservar"}
                     </a>
                   </div>
                 </div>
@@ -149,6 +144,7 @@ export default async function LanzamientosPage() {
           })}
         </div>
       )}
-    </div>
+    </section>
   );
 }
+

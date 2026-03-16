@@ -1,39 +1,50 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import clsx from "clsx";
+import { Chakra_Petch, Space_Grotesk } from "next/font/google";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { getServerLocale } from "@/lib/getServerLocale";
 
-const sans = Inter({
+const sans = Space_Grotesk({
   subsets: ["latin"],
   variable: "--font-sans",
   display: "swap",
   weight: ["400", "500", "600", "700"],
 });
 
-const heading = Inter({
+const heading = Chakra_Petch({
   subsets: ["latin"],
   variable: "--font-heading",
   display: "swap",
-  weight: ["500", "600", "700", "800"],
+  weight: ["500", "600", "700"],
 });
 
 export const metadata: Metadata = {
-  title: "foxsportscards1of1 - Premium Collectibles",
+  title: "Fox Sports Cards 1of1 | Boutique de Coleccionables",
   description:
-    "Coleccionables premium: cartas deportivas, TCG y memorabilia curada. Compra directa y asesoría personalizada.",
+    "Cartas, memorabilia y coleccionables premium en una tienda online creada para compradores reales.",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-16.png", sizes: "16x16", type: "image/png" },
+      { url: "/icon.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+    shortcut: ["/favicon.ico"],
+  },
   openGraph: {
-    title: "foxsportscards1of1 - Premium Collectibles",
-    description: "Cartas deportivas, TCG y memorabilia curada para coleccionistas exigentes.",
+    title: "Fox Sports Cards 1of1 | Boutique de Coleccionables",
+    description: "Compra coleccionables deportivos autenticados y piezas de alta demanda.",
     url: "https://foxsportscards1of1.com",
-    siteName: "foxsportscards1of1",
+    siteName: "Fox Sports Cards 1of1",
     images: [
       {
         url: "/og.jpg",
         width: 1200,
         height: 630,
-        alt: "foxsportscards1of1 - Premium Collectibles",
+        alt: "Fox Sports Cards 1of1",
       },
     ],
     locale: "es_DO",
@@ -41,31 +52,22 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    site: "@foxsportscards1of1",
-    creator: "@foxsportscards1of1",
-    title: "foxsportscards1of1 - Premium Collectibles",
-    description: "Cartas deportivas, TCG y memorabilia curada para coleccionistas exigentes.",
+    title: "Fox Sports Cards 1of1",
+    description: "Boutique digital de coleccionables deportivos premium.",
     images: ["/og.jpg"],
-  },
-  icons: {
-    icon: [
-      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
-      { url: "/favicon-16.png", sizes: "16x16", type: "image/png" },
-    ],
-    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
-    shortcut: ["/favicon-32.png"],
   },
   metadataBase: new URL("https://foxsportscards1of1.com"),
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = getServerLocale();
+
   return (
-    <html lang="es" className="scroll-smooth">
+    <html lang={locale} className="scroll-smooth">
       <body className={clsx(sans.variable, heading.variable, "min-h-screen")}>
-        <div className="pointer-events-none fixed inset-0 -z-10 bg-hero-gradient" />
-        <Header />
+        <Header locale={locale} />
         <main className="relative min-h-[70vh]">{children}</main>
-        <Footer />
+        <Footer locale={locale} />
       </body>
     </html>
   );
