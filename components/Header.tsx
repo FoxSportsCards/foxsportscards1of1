@@ -65,8 +65,8 @@ export default function Header({ locale }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 border-b border-line/90 bg-white/80 backdrop-blur-xl">
       <div className="container">
-        <div className="flex min-h-[84px] items-center justify-between gap-3 py-3">
-          <Link href="/" className="flex min-w-0 items-center gap-3 lg:shrink-0">
+        <div className="flex min-h-[84px] items-center justify-between gap-2 py-3">
+          <Link href="/" className="flex min-w-0 flex-1 items-center gap-2.5 lg:shrink-0 lg:flex-none lg:gap-3">
             <span className="relative flex h-12 w-12 shrink-0 items-center justify-center">
               <Image
                 src="/zorro-logo-final.png"
@@ -78,10 +78,10 @@ export default function Header({ locale }: HeaderProps) {
               />
             </span>
             <span className="min-w-0 leading-tight">
-              <span className="block whitespace-nowrap text-base font-heading font-bold tracking-[0.02em] text-ink sm:text-xl">
+              <span className="block truncate text-base font-heading font-bold tracking-[0.02em] text-ink sm:text-xl">
                 foxsportscards1of1
               </span>
-              <span className="block whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.2em] text-blue sm:text-[11px]">
+              <span className="hidden whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.2em] text-blue sm:block sm:text-[11px]">
                 SPORTS CARD BOUTIQUE
               </span>
             </span>
@@ -107,7 +107,7 @@ export default function Header({ locale }: HeaderProps) {
             })}
           </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             <div className="hidden items-center rounded-full border border-line bg-white p-1 sm:flex">
               <button
                 type="button"
