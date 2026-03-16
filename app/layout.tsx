@@ -6,6 +6,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { getServerLocale } from "@/lib/getServerLocale";
 
+export const runtime = "edge";
+
 const sans = Space_Grotesk({
   subsets: ["latin"],
   variable: "--font-sans",
