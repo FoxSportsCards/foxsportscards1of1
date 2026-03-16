@@ -28,7 +28,7 @@ const STATUS_LABELS: Record<Locale, Record<StatusKey, string>> = {
   es: {
     sold: "No disponible",
     reserved: "Reservado",
-    upcoming: "Proximo lanzamiento",
+    upcoming: "Próximo lanzamiento",
     available: "Disponible",
   },
   en: {
@@ -61,8 +61,8 @@ function buildCountdown(diffMs: number, locale: Locale): CountdownParts {
     else if (minutes > 0) label = `Available in ${minutes}m`;
     else if (seconds > 0) label = `Available in ${seconds}s`;
   } else {
-    if (days > 1) label = `Disponible en ${days} dias`;
-    else if (days === 1) label = hours > 0 ? "Disponible en 1 dia y unas horas" : "Disponible en 1 dia";
+    if (days > 1) label = `Disponible en ${days} días`;
+    else if (days === 1) label = hours > 0 ? "Disponible en 1 día y unas horas" : "Disponible en 1 día";
     else if (hours > 0) label = minutes > 0 ? `Disponible en ${hours} h ${minutes} min` : `Disponible en ${hours} h`;
     else if (minutes > 0) label = `Disponible en ${minutes} min`;
     else if (seconds > 0) label = `Disponible en ${seconds} s`;

@@ -17,7 +17,7 @@ const STATUS_TEXT: Record<NonNullable<Product["status"]>, Record<Locale, string>
   available: { es: "Disponible", en: "Available" },
   reserved: { es: "Reservado", en: "Reserved" },
   sold: { es: "Vendido", en: "Sold" },
-  upcoming: { es: "Proximo lanzamiento", en: "Upcoming release" },
+  upcoming: { es: "Próximo lanzamiento", en: "Upcoming release" },
 };
 
 const STATUS_STYLE: Record<NonNullable<Product["status"]>, string> = {

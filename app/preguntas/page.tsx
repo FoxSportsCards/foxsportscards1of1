@@ -27,22 +27,22 @@ export default function FaqPage() {
       ]
     : [
         {
-          question: "Como confirmo una compra?",
+          question: "¿Cómo confirmo una compra?",
           answer:
             "Puedes cerrar por carrito o por WhatsApp. En ambos casos confirmamos stock y te enviamos los pasos de pago.",
         },
         {
-          question: "Hacen envios en Republica Dominicana?",
-          answer: "Si. Trabajamos con envio asegurado y coordinacion directa hasta entrega.",
+          question: "¿Hacen envíos en República Dominicana?",
+          answer: "Sí. Trabajamos con envío asegurado y coordinación directa hasta la entrega.",
         },
         {
-          question: "Puedo reservar un lanzamiento?",
-          answer: "Si. Los productos marcados como proximos se pueden apartar por WhatsApp.",
+          question: "¿Puedo reservar un lanzamiento?",
+          answer: "Sí. Los productos marcados como próximos se pueden apartar por WhatsApp.",
         },
         {
-          question: "Las piezas son autenticas?",
+          question: "¿Las piezas son auténticas?",
           answer:
-            "Solo trabajamos con piezas verificadas y mostramos detalles de estado, certificacion y fotos reales del producto.",
+            "Solo trabajamos con piezas verificadas y mostramos detalles de estado, certificación y fotos reales del producto.",
         },
       ];
 
@@ -56,7 +56,7 @@ export default function FaqPage() {
         <p className="text-sm text-muted">
           {isEn
             ? "If your question is not listed here, open WhatsApp and we answer quickly."
-            : "Si no encuentras tu respuesta aqui, abre WhatsApp y te respondemos rapido."}
+            : "Si no encuentras tu respuesta aquí, abre WhatsApp y te respondemos rápido."}
         </p>
       </div>
 

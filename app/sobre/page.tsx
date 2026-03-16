@@ -21,7 +21,7 @@ export default function AboutPage() {
       ]
     : [
         {
-          title: "Curacion real",
+          title: "Curación real",
           text: "No subimos volumen por subir. Seleccionamos piezas con demanda y trazabilidad clara.",
         },
         {
@@ -30,7 +30,7 @@ export default function AboutPage() {
         },
         {
           title: "Servicio boutique",
-          text: "Acompanamiento uno a uno para compras puntuales o construccion de coleccion.",
+          text: "Acompañamiento uno a uno para compras puntuales o construcción de colección.",
         },
       ];
 
@@ -46,7 +46,7 @@ export default function AboutPage() {
         <p className="text-sm text-muted">
           {isEn
             ? "We are a digital boutique focused on sports cards, memorabilia and signed pieces. This storefront prioritizes product visibility, speed and direct checkout."
-            : "Somos una boutique digital enfocada en cartas deportivas, memorabilia y piezas firmadas. Este rediseno prioriza visibilidad de producto, velocidad y compra directa."}
+            : "Somos una boutique digital enfocada en cartas deportivas, memorabilia y piezas firmadas. Este rediseño prioriza visibilidad de producto, velocidad y compra directa."}
         </p>
       </div>
 

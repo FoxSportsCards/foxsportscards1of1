@@ -48,12 +48,12 @@ export default async function LanzamientosPage() {
       <header className="max-w-3xl space-y-4">
         <span className="eyebrow">{isEn ? "Drop calendar" : "Calendario de drops"}</span>
         <h1 className="text-4xl font-heading font-bold text-ink sm:text-5xl">
-          {isEn ? "Upcoming releases" : "Proximos lanzamientos"}
+          {isEn ? "Upcoming releases" : "Próximos lanzamientos"}
         </h1>
         <p className="text-sm text-muted">
           {isEn
             ? "Reserve future pieces from this page. Every release includes date, product page and direct WhatsApp access."
-            : "Reserva piezas futuras desde esta pagina. Cada lanzamiento incluye fecha, ficha y acceso directo a WhatsApp."}
+            : "Reserva piezas futuras desde esta página. Cada lanzamiento incluye fecha, ficha y acceso directo a WhatsApp."}
         </p>
       </header>
 
@@ -84,7 +84,7 @@ export default async function LanzamientosPage() {
                     className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                   />
                   <span className="absolute left-4 top-4 rounded-full border border-blue/30 bg-blue/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-blue">
-                    {isEn ? "Upcoming drop" : "Proximo drop"}
+                    {isEn ? "Upcoming drop" : "Próximo drop"}
                   </span>
                   {releaseInfo?.badge ? (
                     <span className="absolute right-4 top-4 rounded-full border border-green/30 bg-green/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-green">

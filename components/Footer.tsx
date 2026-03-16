@@ -36,15 +36,15 @@ export default function Footer({ locale }: FooterProps) {
           shop: "Tienda",
           brand: "Marca",
           contact: "Contacto directo",
-          catalog: "Catalogo",
+          catalog: "Catálogo",
           releases: "Lanzamientos",
           faq: "FAQ",
           about: "Nosotros",
           contactLink: "Contacto",
           instagram: "Instagram",
-          shipping: "Envios asegurados en Republica Dominicana.",
+          shipping: "Envíos asegurados en República Dominicana.",
           signatureTitle: "Sitio creado por Planos Web",
-          signatureText: "Diseno y desarrollo web",
+          signatureText: "Diseño y desarrollo web",
         };
 
   const shopLinks = [

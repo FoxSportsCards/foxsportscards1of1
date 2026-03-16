@@ -20,7 +20,7 @@ const STATUS_FILTERS: Record<
     all: "Todos",
     available: "Disponibles",
     reserved: "Reservados",
-    upcoming: "Proximos",
+    upcoming: "Próximos",
     sold: "Vendidos",
   },
   en: {
@@ -139,9 +139,9 @@ export function CatalogClient({ products, locale = "es", initialFilter = "Todos"
             "No results for the current filters. Change filters or contact us on WhatsApp to locate your exact item.",
         }
       : {
-          eyebrow: "Catalogo de tienda",
-          title: "Compra coleccionables por estado, categoria y precio",
-          text: "Vista de tienda con filtros utiles y stock claro para encontrar cada pieza sin perder tiempo.",
+          eyebrow: "Catálogo de tienda",
+          title: "Compra coleccionables por estado, categoría y precio",
+          text: "Vista de tienda con filtros útiles y stock claro para encontrar cada pieza sin perder tiempo.",
           searchLabel: "Buscar productos",
           searchPlaceholder: "Buscar jugador, equipo, card set o tipo de pieza",
           clear: "Limpiar",

@@ -30,7 +30,7 @@ function getServiceNotes(locale: Locale) {
   return [
     "Autenticidad verificada con respaldo del vendedor.",
     "Compra directa por carrito o WhatsApp.",
-    "Envios asegurados y seguimiento hasta entrega.",
+    "Envíos asegurados y seguimiento hasta la entrega.",
   ];
 }
 
@@ -96,7 +96,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               </span>
               {product.year ? (
                 <span className="rounded-full border border-line bg-surface-elevated px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">
-                  {isEn ? `Edition ${product.year}` : `Edicion ${product.year}`}
+                  {isEn ? `Edition ${product.year}` : `Edición ${product.year}`}
                 </span>
               ) : null}
               {product.certification ? (
@@ -119,7 +119,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 {product.shortDescription ??
                   (isEn
                     ? "Premium item curated for collectors looking for authenticity and fast checkout."
-                    : "Pieza premium curada para compradores que buscan autenticidad y salida rapida.")}
+                    : "Pieza premium curada para compradores que buscan autenticidad y salida rápida.")}
               </p>
             </div>
 
@@ -154,7 +154,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               </div>
               <div>
                 <dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">
-                  {isEn ? "Shipping" : "Envio"}
+                  {isEn ? "Shipping" : "Envío"}
                 </dt>
                 <dd className="mt-1 text-sm font-semibold text-ink">
                   {isEn ? "24-48h in DR" : "24-48h en RD"}
@@ -212,7 +212,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
       {product.description ? (
         <article className="glass-card mt-10 p-6">
-          <h2 className="text-lg font-heading font-bold text-ink">{isEn ? "Description" : "Descripcion"}</h2>
+          <h2 className="text-lg font-heading font-bold text-ink">{isEn ? "Description" : "Descripción"}</h2>
           <div className="mt-3 space-y-3 text-sm text-muted">
             <PortableText value={product.description} />
           </div>
@@ -225,11 +225,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <div>
               <span className="eyebrow">{isEn ? "Related items" : "Relacionados"}</span>
               <h2 className="mt-2 text-3xl font-heading font-bold text-ink">
-                {isEn ? "More pieces for your collection" : "Mas piezas para tu coleccion"}
+                {isEn ? "More pieces for your collection" : "Más piezas para tu colección"}
               </h2>
             </div>
             <Link href="/catalogo" className="btn-ghost">
-              {isEn ? "Back to catalog" : "Volver al catalogo"}
+              {isEn ? "Back to catalog" : "Volver al catálogo"}
             </Link>
           </div>
           <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-5">

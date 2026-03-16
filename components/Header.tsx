@@ -14,7 +14,7 @@ type HeaderProps = {
 
 const NAV_ITEMS = [
   { href: "/", label: { es: "Inicio", en: "Home" } },
-  { href: "/catalogo", label: { es: "Catalogo", en: "Catalog" } },
+  { href: "/catalogo", label: { es: "Catálogo", en: "Catalog" } },
   { href: "/lanzamientos", label: { es: "Lanzamientos", en: "Releases" } },
   { href: "/sobre", label: { es: "Nosotros", en: "About" } },
   { href: "/preguntas", label: { es: "FAQ", en: "FAQ" } },
@@ -32,17 +32,17 @@ export default function Header({ locale }: HeaderProps) {
       activeLocale === "en"
         ? {
             whatsapp: "WhatsApp",
-            menu: "Menu",
+            menu: "Menú",
             closeMenu: "Close",
             openMenu: "Open menu",
             closeLabel: "Close menu",
           }
         : {
             whatsapp: "WhatsApp",
-            menu: "Menu",
+            menu: "Menú",
             closeMenu: "Cerrar",
-            openMenu: "Abrir menu",
-            closeLabel: "Cerrar menu",
+            openMenu: "Abrir menú",
+            closeLabel: "Cerrar menú",
           },
     [activeLocale],
   );
@@ -63,7 +63,7 @@ export default function Header({ locale }: HeaderProps) {
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b border-line/90 bg-white/80 backdrop-blur-xl">
+    <header className="relative sticky top-0 z-50 border-b border-line/90 bg-white/80 backdrop-blur-xl">
       <div className="container">
         <div className="flex min-h-[84px] items-center justify-between gap-2 py-3">
           <Link href="/" className="flex min-w-0 flex-1 items-center gap-2.5 lg:shrink-0 lg:flex-none lg:gap-3">
@@ -116,7 +116,7 @@ export default function Header({ locale }: HeaderProps) {
                   "focus-ring rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]",
                   activeLocale === "es" ? "bg-blue text-white" : "text-muted hover:text-blue",
                 )}
-                aria-label="Cambiar idioma a espanol"
+                aria-label="Cambiar idioma a español"
               >
                 ES
               </button>
@@ -158,7 +158,7 @@ export default function Header({ locale }: HeaderProps) {
       </div>
 
       {menuOpen ? (
-        <div className="border-t border-line bg-white/95 px-4 pb-4 pt-3 lg:hidden">
+        <div className="absolute inset-x-0 top-full z-50 border-t border-line bg-white/95 px-4 pb-4 pt-3 shadow-soft backdrop-blur-xl lg:hidden">
           <nav className="container grid gap-1">
             {NAV_ITEMS.map((item) => {
               const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);

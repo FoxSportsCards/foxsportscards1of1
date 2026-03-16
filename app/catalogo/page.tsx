@@ -5,7 +5,7 @@ import { CatalogClient } from "./CatalogClient";
 export const revalidate = 180;
 
 export const metadata = {
-  title: "Catalogo | Fox Sports Cards 1of1",
+  title: "Catálogo | Fox Sports Cards 1of1",
 };
 
 type CatalogPageProps = {

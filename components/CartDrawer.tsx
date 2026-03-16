@@ -45,7 +45,7 @@ export default function CartDrawer({ locale = "es" }: CartDrawerProps) {
           piece: "pieza",
           pieces: "piezas",
           close: "Cerrar",
-          empty: "Aun no hay productos en el carrito. Ve al catalogo y agrega tus piezas favoritas.",
+          empty: "Aún no hay productos en el carrito. Ve al catálogo y agrega tus piezas favoritas.",
           alternate: "Alterno",
           remove: "Quitar",
           total: "Total",

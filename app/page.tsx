@@ -33,7 +33,7 @@ function getStatusText(status: string | null | undefined, locale: Locale) {
     return "Available";
   }
   if (status === "reserved") return "Reservado";
-  if (status === "upcoming") return "Proximo";
+  if (status === "upcoming") return "Próximo";
   if (status === "sold") return "Vendido";
   return "Disponible";
 }
@@ -100,38 +100,38 @@ export default async function HomePage() {
         heroEyebrow: "Tienda confiable de sports cards",
         heroTitle: "Coleccionables premium, autenticidad garantizada.",
         heroText:
-          "Compra cartas, autos y memorabilia en formato de tienda real: fotos claras, precio directo y cierre rapido por carrito o WhatsApp.",
-        ctaPrimary: "Ver catalogo",
-        ctaSecondary: "Ver proximos drops",
+          "Compra cartas, autos y memorabilia en formato de tienda real: fotos claras, precio directo y cierre rápido por carrito o WhatsApp.",
+        ctaPrimary: "Ver catálogo",
+        ctaSecondary: "Ver próximos drops",
         trustPoints: [
           "Autenticidad verificada",
           "Precios claros y directos",
-          "Envios asegurados en RD",
-          "Atencion personalizada",
+          "Envíos asegurados en RD",
+          "Atención personalizada",
         ],
         spotlightBadge: "Pieza destacada",
-        spotlightFallback: "Seleccion premium lista para compra inmediata.",
-        categoriesEyebrow: "Categorias activas",
-        categoriesTitle: "Compra por estilo de coleccion",
-        categoriesCta: "Ver catalogo completo",
+        spotlightFallback: "Selección premium lista para compra inmediata.",
+        categoriesEyebrow: "Categorías activas",
+        categoriesTitle: "Compra por estilo de colección",
+        categoriesCta: "Ver catálogo completo",
         piecesLabel: "piezas",
-        categoryCardText: "Entrar a la categoria y ver stock en vivo.",
-        noCategories: "No hay categorias disponibles por ahora.",
+        categoryCardText: "Entrar a la categoría y ver stock en vivo.",
+        noCategories: "No hay categorías disponibles por ahora.",
         topEyebrow: "Top de venta",
         topTitle: "Piezas listas para comprar hoy",
-        topCta: "Abrir catalogo completo",
+        topCta: "Abrir catálogo completo",
         noTop: "No hay productos destacados disponibles en este momento.",
         releasesEyebrow: "Calendario de drops",
-        releasesTitle: "Proximos lanzamientos",
+        releasesTitle: "Próximos lanzamientos",
         releasesCta: "Ver calendario completo",
         reserve: "Reservar",
         releaseFallback: "Drop limitado para coleccionistas activos.",
         releaseDateFallback: "Fecha por definir",
         noReleases: "No hay lanzamientos programados. Solicita alertas personalizadas por WhatsApp.",
         processEyebrow: "Proceso simple",
-        processTitle: "Disenada como tienda real, no como plantilla generica",
+        processTitle: "Diseñada como tienda real, no como plantilla genérica",
         processText:
-          "Cada bloque se ajusto para que el producto sea protagonista y para comprar rapido en desktop y movil.",
+          "Cada bloque se ajustó para que el producto sea protagonista y para comprar rápido en desktop y móvil.",
         steps: [
           {
             title: "Explora",
@@ -143,10 +143,10 @@ export default async function HomePage() {
           },
           {
             title: "Recibe",
-            text: "Coordinamos pago y envio asegurado hasta entregar tu compra.",
+            text: "Coordinamos pago y envío asegurado hasta entregar tu compra.",
           },
         ],
-        upcomingDrop: "Proximo drop",
+        upcomingDrop: "Próximo drop",
         productCardCta: "Ver pieza",
       };
 
@@ -298,7 +298,7 @@ export default async function HomePage() {
               <p className="text-sm text-muted">
                 {isEn
                   ? "There are no products yet. Add products in Sanity to show your storefront."
-                  : "Aun no hay productos cargados. Agrega productos en Sanity para mostrar la vitrina."}
+                  : "Aún no hay productos cargados. Agrega productos en Sanity para mostrar la vitrina."}
               </p>
             </div>
           )}

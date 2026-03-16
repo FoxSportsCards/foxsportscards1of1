@@ -9,12 +9,12 @@ export default function ContactPage() {
       <div className="max-w-3xl space-y-4">
         <span className="eyebrow">{isEn ? "Sales contact" : "Contacto de ventas"}</span>
         <h1 className="text-4xl font-heading font-bold text-ink sm:text-5xl">
-          {isEn ? "Let us help with your next pickup" : "Hablemos de tu proxima compra"}
+          {isEn ? "Let us help with your next pickup" : "Hablemos de tu próxima compra"}
         </h1>
         <p className="text-sm text-muted">
           {isEn
             ? "We answer stock questions, reserves and special orders quickly during the day."
-            : "Atendemos consultas de stock, reservas y compras especiales con respuesta rapida durante el dia."}
+            : "Atendemos consultas de stock, reservas y compras especiales con respuesta rápida durante el día."}
         </p>
       </div>
 
