@@ -193,7 +193,7 @@ export default async function HomePage() {
             className="object-cover"
           />
           <video
-            className="absolute inset-0 h-full w-full object-cover opacity-72 motion-reduce:hidden"
+            className="absolute inset-0 h-full w-full object-cover opacity-72 motion-reduce:hidden md:hidden"
             autoPlay
             loop
             muted
@@ -202,8 +202,19 @@ export default async function HomePage() {
             poster="/videos/hero-poster.jpg"
             aria-hidden="true"
           >
-            <source src="/videos/hero-mobile.mp4" media="(max-width: 767px)" type="video/mp4" />
-            <source src="/videos/hero-desktop.mp4" media="(min-width: 768px)" type="video/mp4" />
+            <source src="/videos/hero-mobile.mp4" type="video/mp4" />
+          </video>
+          <video
+            className="absolute inset-0 hidden h-full w-full object-cover opacity-72 motion-reduce:hidden md:block"
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="metadata"
+            poster="/videos/hero-poster.jpg"
+            aria-hidden="true"
+          >
+            <source src="/videos/hero-desktop.mp4" type="video/mp4" />
           </video>
         </div>
         <div className="pointer-events-none absolute inset-0 bg-black/24" />
