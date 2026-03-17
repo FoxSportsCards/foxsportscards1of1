@@ -1,5 +1,5 @@
 import groq from "groq";
-import { unstable_cache } from "next/cache";
+import { cache } from "react";
 import type { PortableTextBlock } from "sanity";
 import { FALLBACK_PRODUCTS } from "@/data/fallback-products";
 import { getSanityClient, isSanityConfigured, urlForImage } from "@/lib/sanity.client";
@@ -204,15 +204,9 @@ async function fetchProductBySlugUncached(slug: string): Promise<Product> {
   return mapSanityProduct(doc);
 }
 
-const getAllProductsCached = unstable_cache(fetchAllProductsUncached, ["products-all"], {
-  revalidate: 180,
-  tags: ["products"],
-});
+const getAllProductsCached = cache(fetchAllProductsUncached);
 
-const getProductBySlugCached = unstable_cache(fetchProductBySlugUncached, ["products-by-slug"], {
-  revalidate: 180,
-  tags: ["products"],
-});
+const getProductBySlugCached = cache(fetchProductBySlugUncached);
 
 export async function getAllProducts(): Promise<Product[]> {
   return getAllProductsCached();
