@@ -14,7 +14,7 @@ type HeaderProps = {
 
 const NAV_ITEMS = [
   { href: "/", label: { es: "Inicio", en: "Home" } },
-  { href: "/catalogo", label: { es: "Catálogo", en: "Catalog" } },
+  { href: "/catalogo", label: { es: "Cat\u00e1logo", en: "Catalog" } },
   { href: "/lanzamientos", label: { es: "Lanzamientos", en: "Releases" } },
   { href: "/sobre", label: { es: "Nosotros", en: "About" } },
   { href: "/preguntas", label: { es: "FAQ", en: "FAQ" } },
@@ -32,17 +32,17 @@ export default function Header({ locale }: HeaderProps) {
       activeLocale === "en"
         ? {
             whatsapp: "WhatsApp",
-            menu: "Menú",
+            menu: "Menu",
             closeMenu: "Close",
             openMenu: "Open menu",
             closeLabel: "Close menu",
           }
         : {
             whatsapp: "WhatsApp",
-            menu: "Menú",
+            menu: "Men\u00fa",
             closeMenu: "Cerrar",
-            openMenu: "Abrir menú",
-            closeLabel: "Cerrar menú",
+            openMenu: "Abrir men\u00fa",
+            closeLabel: "Cerrar men\u00fa",
           },
     [activeLocale],
   );
@@ -65,8 +65,8 @@ export default function Header({ locale }: HeaderProps) {
   return (
     <header className="relative sticky top-0 z-50 border-b border-line/90 bg-white/80 backdrop-blur-xl">
       <div className="container">
-        <div className="flex min-h-[84px] items-center justify-between gap-2 py-3">
-          <Link href="/" className="flex min-w-0 flex-1 items-center gap-2.5 lg:shrink-0 lg:flex-none lg:gap-3">
+        <div className="flex min-h-[80px] items-center justify-between gap-2 py-3">
+          <Link href="/" className="flex min-w-0 flex-1 items-center gap-2 pr-1 md:pr-2 lg:shrink-0 lg:flex-none lg:gap-3">
             <span className="relative flex h-12 w-12 shrink-0 items-center justify-center">
               <Image
                 src="/zorro-logo-final.png"
@@ -78,10 +78,10 @@ export default function Header({ locale }: HeaderProps) {
               />
             </span>
             <span className="min-w-0 leading-tight">
-              <span className="block truncate text-base font-heading font-bold tracking-[0.02em] text-ink sm:text-xl">
+              <span className="block truncate text-base font-heading font-bold tracking-[0.02em] text-ink sm:text-lg md:text-xl">
                 foxsportscards1of1
               </span>
-              <span className="hidden whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.2em] text-blue sm:block sm:text-[11px]">
+              <span className="hidden whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.2em] text-blue lg:block lg:text-[11px]">
                 SPORTS CARD BOUTIQUE
               </span>
             </span>
@@ -107,8 +107,8 @@ export default function Header({ locale }: HeaderProps) {
             })}
           </nav>
 
-          <div className="flex shrink-0 items-center gap-2">
-            <div className="hidden items-center rounded-full border border-line bg-white p-1 sm:flex">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+            <div className="hidden items-center rounded-full border border-line bg-white p-1 md:flex">
               <button
                 type="button"
                 onClick={() => switchLocale("es")}
@@ -116,7 +116,7 @@ export default function Header({ locale }: HeaderProps) {
                   "focus-ring rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]",
                   activeLocale === "es" ? "bg-blue text-white" : "text-muted hover:text-blue",
                 )}
-                aria-label="Cambiar idioma a español"
+                aria-label="Cambiar idioma a espa\u00f1ol"
               >
                 ES
               </button>
@@ -137,7 +137,7 @@ export default function Header({ locale }: HeaderProps) {
               href="https://wa.me/18492617328"
               target="_blank"
               rel="noreferrer"
-              className="hidden rounded-full border border-green/30 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-green shadow-soft hover:border-green/55 sm:inline-flex"
+              className="hidden rounded-full border border-green/30 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-green shadow-soft hover:border-green/55 lg:inline-flex"
             >
               {copy.whatsapp}
             </a>
@@ -147,7 +147,7 @@ export default function Header({ locale }: HeaderProps) {
             <button
               type="button"
               onClick={() => setMenuOpen((value) => !value)}
-              className="focus-ring inline-flex h-10 items-center justify-center rounded-full border border-line bg-white px-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink hover:border-blue/35 lg:hidden"
+              className="focus-ring inline-flex h-9 items-center justify-center rounded-full border border-line bg-white px-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink hover:border-blue/35 lg:hidden"
               aria-label={menuOpen ? copy.closeLabel : copy.openMenu}
               aria-expanded={menuOpen}
             >

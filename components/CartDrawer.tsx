@@ -120,10 +120,10 @@ export default function CartDrawer({ locale = "es" }: CartDrawerProps) {
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
         aria-expanded={open}
-        className="focus-ring group relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-line bg-white px-0 text-xs font-semibold uppercase tracking-[0.14em] text-muted shadow-soft hover:border-blue/30 hover:text-blue sm:h-auto sm:w-auto sm:gap-2 sm:px-4 sm:py-2"
+        className="focus-ring group relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-line bg-white px-0 text-xs font-semibold uppercase tracking-[0.14em] text-muted shadow-soft hover:border-blue/30 hover:text-blue md:h-auto md:w-auto md:gap-2 md:px-4 md:py-2"
       >
         <CartIcon className="h-4 w-4" />
-        <span className="hidden sm:inline">{copy.cart}</span>
+        <span className="hidden md:inline">{copy.cart}</span>
         {itemCount > 0 ? (
           <span className="absolute -right-2 -top-2 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red px-1 text-[11px] font-semibold text-white shadow-glow-red">
             {itemCount}

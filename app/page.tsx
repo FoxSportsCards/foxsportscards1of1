@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import ProductCard from "@/components/ProductCard";
+import HeroMedia from "@/components/HeroMedia";
 import { getServerLocale } from "@/lib/getServerLocale";
 import { formatLocaleTag, type Locale } from "@/lib/locale";
 import { getProductPrices } from "@/lib/pricing";
@@ -184,42 +185,15 @@ export default async function HomePage() {
     <>
       <section className="relative flex min-h-[calc(100dvh-4.75rem)] items-center overflow-hidden border-b border-line/80 py-8 sm:min-h-[calc(100dvh-5.4rem)] sm:py-10 lg:min-h-[calc(100dvh-6rem)] lg:py-12">
         <div className="pointer-events-none absolute inset-0">
-          <Image
-            src="/videos/hero-poster.jpg"
-            alt=""
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover"
+          <HeroMedia
+            poster="/videos/hero-poster.jpg"
+            desktopSrc="/videos/hero-desktop.mp4"
+            mobileSrc="/videos/hero-mobile.mp4"
           />
-          <video
-            className="absolute inset-0 h-full w-full object-cover opacity-72 motion-reduce:hidden md:hidden"
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="metadata"
-            poster="/videos/hero-poster.jpg"
-            aria-hidden="true"
-          >
-            <source src="/videos/hero-mobile.mp4" type="video/mp4" />
-          </video>
-          <video
-            className="absolute inset-0 hidden h-full w-full object-cover opacity-72 motion-reduce:hidden md:block"
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="metadata"
-            poster="/videos/hero-poster.jpg"
-            aria-hidden="true"
-          >
-            <source src="/videos/hero-desktop.mp4" type="video/mp4" />
-          </video>
         </div>
-        <div className="pointer-events-none absolute inset-0 bg-black/24" />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/78 via-black/52 to-black/16 md:from-black/72 md:via-black/42 md:to-black/10" />
-        <div className="pointer-events-none absolute inset-0 bg-hero-gradient opacity-34" />
+        <div className="pointer-events-none absolute inset-0 bg-black/30" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/84 via-black/58 to-black/24 md:from-black/78 md:via-black/48 md:to-black/14" />
+        <div className="pointer-events-none absolute inset-0 bg-hero-gradient opacity-30" />
         <div className="container relative grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(260px,330px)] lg:items-center">
           <div className="max-w-2xl space-y-6">
             <span className="eyebrow">{copy.heroEyebrow}</span>

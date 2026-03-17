@@ -1,4 +1,5 @@
 import groq from "groq";
+import { unstable_cache } from "next/cache";
 import type { PortableTextBlock } from "sanity";
 import { FALLBACK_PRODUCTS } from "@/data/fallback-products";
 import { getSanityClient, isSanityConfigured, urlForImage } from "@/lib/sanity.client";
@@ -164,33 +165,59 @@ function mapSanityProduct(doc: SanityProductDocument): Product {
   };
 }
 
-export async function getAllProducts(): Promise<Product[]> {
+function cloneProduct(product: Product): Product {
+  return {
+    ...product,
+    images: product.images.map((image) => ({ ...image })),
+    highlights: product.highlights ? [...product.highlights] : [],
+    tags: product.tags ? [...product.tags] : [],
+    alternatePricing: product.alternatePricing ? { ...product.alternatePricing } : null,
+  };
+}
+
+function cloneFallbackProducts(): Product[] {
+  return FALLBACK_PRODUCTS.map(cloneProduct);
+}
+
+async function fetchAllProductsUncached(): Promise<Product[]> {
   if (!isSanityConfigured) {
     warnAboutFallbackUsage();
-    return FALLBACK_PRODUCTS.map((product) => ({
-      ...product,
-      images: product.images.map((image) => ({ ...image })),
-    }));
+    return cloneFallbackProducts();
   }
   const docs = await getSanityClient().fetch<SanityProductDocument[]>(ALL_PRODUCTS_QUERY);
   return docs.map(mapSanityProduct);
 }
 
-export async function getProductBySlug(slug: string): Promise<Product> {
+async function fetchProductBySlugUncached(slug: string): Promise<Product> {
   if (!isSanityConfigured) {
     warnAboutFallbackUsage();
     const fallback = FALLBACK_PRODUCTS.find((item) => item.slug === slug);
     if (!fallback) {
       throw new Error("Producto no encontrado");
     }
-    return {
-      ...fallback,
-      images: fallback.images.map((image) => ({ ...image })),
-    };
+    return cloneProduct(fallback);
   }
   const doc = await getSanityClient().fetch<SanityProductDocument>(PRODUCT_BY_SLUG_QUERY, { slug });
   if (!doc?._id) {
     throw new Error("Producto no encontrado");
   }
   return mapSanityProduct(doc);
+}
+
+const getAllProductsCached = unstable_cache(fetchAllProductsUncached, ["products-all"], {
+  revalidate: 180,
+  tags: ["products"],
+});
+
+const getProductBySlugCached = unstable_cache(fetchProductBySlugUncached, ["products-by-slug"], {
+  revalidate: 180,
+  tags: ["products"],
+});
+
+export async function getAllProducts(): Promise<Product[]> {
+  return getAllProductsCached();
+}
+
+export async function getProductBySlug(slug: string): Promise<Product> {
+  return getProductBySlugCached(slug);
 }

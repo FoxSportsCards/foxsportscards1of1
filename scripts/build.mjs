@@ -30,6 +30,12 @@ function run(command, args) {
   }
 }
 
+function cleanNextDirectory() {
+  run("node", ["scripts/clean-next.mjs"]);
+}
+
+cleanNextDirectory();
+
 if (isVercelBuild) {
   console.log("[build] Detected Vercel build environment. Running Next.js build only.");
   run("npx", ["next", "build"]);
