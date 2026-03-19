@@ -5,6 +5,7 @@ import { formatLocaleTag, type Locale } from "@/lib/locale";
 import { getProductPrices } from "@/lib/pricing";
 import { getAllProducts } from "@/lib/products";
 
+export const runtime = "edge";
 export const revalidate = 180;
 
 function formatReleaseDate(dateString: string | null | undefined, locale: Locale) {
@@ -147,4 +148,3 @@ export default async function LanzamientosPage() {
     </section>
   );
 }
-

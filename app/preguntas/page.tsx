@@ -1,5 +1,7 @@
 import { getServerLocale } from "@/lib/getServerLocale";
 
+export const runtime = "edge";
+
 export default function FaqPage() {
   const locale = getServerLocale();
   const isEn = locale === "en";
@@ -82,4 +84,3 @@ export default function FaqPage() {
     </section>
   );
 }
-

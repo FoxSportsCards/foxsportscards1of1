@@ -14,6 +14,8 @@ type ConnectionLike = {
   effectiveType?: string;
   addEventListener?: (type: "change", listener: () => void) => void;
   removeEventListener?: (type: "change", listener: () => void) => void;
+  addListener?: (listener: () => void) => void;
+  removeListener?: (listener: () => void) => void;
 };
 
 function shouldDisableVideo(connection: ConnectionLike | undefined, reducedMotion: boolean, reducedData: boolean) {
@@ -24,7 +26,7 @@ function shouldDisableVideo(connection: ConnectionLike | undefined, reducedMotio
 }
 
 export default function HeroMedia({ poster, desktopSrc, mobileSrc }: HeroMediaProps) {
-  const [playVideo, setPlayVideo] = useState(true);
+  const [playVideo, setPlayVideo] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -44,14 +46,42 @@ export default function HeroMedia({ poster, desktopSrc, mobileSrc }: HeroMediaPr
 
     updatePlayback();
 
-    reducedMotion.addEventListener("change", updatePlayback);
-    reducedData.addEventListener("change", updatePlayback);
-    connection?.addEventListener?.("change", updatePlayback);
+    if (typeof reducedMotion.addEventListener === "function") {
+      reducedMotion.addEventListener("change", updatePlayback);
+    } else {
+      reducedMotion.addListener(updatePlayback);
+    }
+
+    if (typeof reducedData.addEventListener === "function") {
+      reducedData.addEventListener("change", updatePlayback);
+    } else {
+      reducedData.addListener(updatePlayback);
+    }
+
+    if (typeof connection?.addEventListener === "function") {
+      connection.addEventListener("change", updatePlayback);
+    } else {
+      connection?.addListener?.(updatePlayback);
+    }
 
     return () => {
-      reducedMotion.removeEventListener("change", updatePlayback);
-      reducedData.removeEventListener("change", updatePlayback);
-      connection?.removeEventListener?.("change", updatePlayback);
+      if (typeof reducedMotion.removeEventListener === "function") {
+        reducedMotion.removeEventListener("change", updatePlayback);
+      } else {
+        reducedMotion.removeListener(updatePlayback);
+      }
+
+      if (typeof reducedData.removeEventListener === "function") {
+        reducedData.removeEventListener("change", updatePlayback);
+      } else {
+        reducedData.removeListener(updatePlayback);
+      }
+
+      if (typeof connection?.removeEventListener === "function") {
+        connection.removeEventListener("change", updatePlayback);
+      } else {
+        connection?.removeListener?.(updatePlayback);
+      }
     };
   }, []);
 

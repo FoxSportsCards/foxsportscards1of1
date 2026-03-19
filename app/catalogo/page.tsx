@@ -2,6 +2,7 @@ import { getAllProducts } from "@/lib/products";
 import { getServerLocale } from "@/lib/getServerLocale";
 import { CatalogClient } from "./CatalogClient";
 
+export const runtime = "edge";
 export const revalidate = 180;
 
 export const metadata = {

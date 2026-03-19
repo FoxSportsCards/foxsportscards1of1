@@ -7,6 +7,7 @@ import { formatLocaleTag, type Locale } from "@/lib/locale";
 import { getProductPrices } from "@/lib/pricing";
 import { getAllProducts } from "@/lib/products";
 
+export const runtime = "edge";
 export const revalidate = 180;
 
 function toTimestamp(value: string | null | undefined): number {

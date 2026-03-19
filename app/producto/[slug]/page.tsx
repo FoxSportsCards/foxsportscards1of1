@@ -12,6 +12,7 @@ import ProductCard from "@/components/ProductCard";
 import type { Locale } from "@/lib/locale";
 import type { Product, ProductImage } from "@/types/product";
 
+export const runtime = "edge";
 export const revalidate = 180;
 
 function ensureImages(product: Product): ProductImage[] {
@@ -242,4 +243,3 @@ export default async function ProductPage({ params }: ProductPageProps) {
     </section>
   );
 }
-
