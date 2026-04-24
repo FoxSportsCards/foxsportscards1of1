@@ -256,19 +256,6 @@ export default defineType({
           type: "image",
           title: "Imagen",
           options: { hotspot: true },
-          fields: [
-            defineField({
-              name: "alt",
-              type: "string",
-              title: "Texto alternativo",
-            }),
-            defineField({
-              name: "displayName",
-              type: "string",
-              title: "Etiqueta",
-              description: "Ej. Front, Back, Detalle, etc.",
-            }),
-          ],
         }),
       ],
       validation: (Rule) => Rule.min(1),
