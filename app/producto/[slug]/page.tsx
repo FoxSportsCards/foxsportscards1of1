@@ -3,6 +3,7 @@ import { PortableText } from "@portabletext/react";
 import Link from "next/link";
 import { getServerLocale } from "@/lib/getServerLocale";
 import { getProductPrices } from "@/lib/pricing";
+import { getProductCategoryLabel } from "@/lib/productLabels";
 import { getAllProducts, getProductBySlug } from "@/lib/products";
 import ProductActionButtons from "@/components/ProductActionButtons";
 import ProductBackButton from "@/components/ProductBackButton";
@@ -64,6 +65,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const productImages = ensureImages(product);
   const prices = getProductPrices(product, locale);
   const serviceNotes = getServiceNotes(locale);
+  const categoryLabel = getProductCategoryLabel(product, locale);
   const recommendations = allProducts
     .filter((item) => item.slug !== product.slug)
     .sort((a, b) => {
@@ -93,7 +95,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           <div className="glass-card space-y-5 p-6">
             <div className="flex flex-wrap gap-2">
               <span className="rounded-full border border-line bg-surface-elevated px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">
-                {product.sport ?? product.productType ?? (isEn ? "Collectible" : "Coleccionable")}
+                {categoryLabel}
               </span>
               {product.year ? (
                 <span className="rounded-full border border-line bg-surface-elevated px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">

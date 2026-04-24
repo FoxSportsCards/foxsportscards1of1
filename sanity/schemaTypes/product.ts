@@ -4,14 +4,21 @@ const sportOptions = [
   { title: "Baloncesto", value: "nba" },
   { title: "Béisbol", value: "mlb" },
   { title: "Fútbol", value: "soccer" },
+  { title: "Fútbol americano", value: "nfl" },
+  { title: "Pokémon", value: "pokemon" },
   { title: "TCG", value: "tcg" },
   { title: "F1", value: "f1" },
   { title: "Otros", value: "other" },
 ];
 
 const productTypeOptions = [
-  { title: "Single", value: "single" },
-  { title: "Sealed Box", value: "sealed" },
+  { title: "Carta individual", value: "single" },
+  { title: "Carta deportiva", value: "sports-card" },
+  { title: "Carta Pokémon", value: "pokemon-card" },
+  { title: "Caja sellada", value: "sealed" },
+  { title: "Jersey firmado", value: "signed-jersey" },
+  { title: "Pelota firmada", value: "signed-ball" },
+  { title: "Artículo firmado", value: "signed-memorabilia" },
   { title: "Memorabilia", value: "memorabilia" },
   { title: "Break", value: "break" },
 ];

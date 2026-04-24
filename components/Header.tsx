@@ -3,10 +3,15 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import clsx from "clsx";
 import { usePathname, useRouter } from "next/navigation";
 import CartDrawer from "./CartDrawer";
 import { LOCALE_COOKIE_NAME, type Locale } from "@/lib/locale";
+
+const AuthNavButton = dynamic(() => import("./AuthNavButton"), {
+  ssr: false,
+});
 
 type HeaderProps = {
   locale: Locale;
@@ -142,6 +147,8 @@ export default function Header({ locale }: HeaderProps) {
               {copy.whatsapp}
             </a>
 
+            <AuthNavButton locale={activeLocale} />
+
             <CartDrawer locale={activeLocale} />
 
             <button
@@ -207,6 +214,8 @@ export default function Header({ locale }: HeaderProps) {
             >
               {copy.whatsapp}
             </a>
+
+            <AuthNavButton locale={activeLocale} mobile />
           </nav>
         </div>
       ) : null}

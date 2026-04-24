@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getServerLocale } from "@/lib/getServerLocale";
 import { formatLocaleTag, type Locale } from "@/lib/locale";
 import { getProductPrices } from "@/lib/pricing";
+import { getProductCategoryLabel } from "@/lib/productLabels";
 import { getAllProducts } from "@/lib/products";
 
 export const runtime = "edge";
@@ -97,7 +98,7 @@ export default async function LanzamientosPage() {
                 <div className="space-y-4 p-5">
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted">
-                      {product.sport ?? product.productType ?? (isEn ? "Collectible" : "Coleccionable")}
+                      {getProductCategoryLabel(product, locale)}
                     </p>
                     <h2 className="mt-2 text-xl font-heading font-bold text-ink">{product.title}</h2>
                     <p className="mt-2 text-sm text-muted">

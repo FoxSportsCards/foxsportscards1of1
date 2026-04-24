@@ -5,6 +5,7 @@ import HeroMedia from "@/components/HeroMedia";
 import { getServerLocale } from "@/lib/getServerLocale";
 import { formatLocaleTag, type Locale } from "@/lib/locale";
 import { getProductPrices } from "@/lib/pricing";
+import { getProductCategoryLabel } from "@/lib/productLabels";
 import { getAllProducts } from "@/lib/products";
 
 export const runtime = "edge";
@@ -49,7 +50,7 @@ export default async function HomePage() {
         heroEyebrow: "Trusted sports card store",
         heroTitle: "Premium collectibles with guaranteed authenticity.",
         heroText:
-          "Find cards, autos and memorabilia in a clear shop format: real photos, direct prices and quick checkout by cart or WhatsApp.",
+          "Find sports cards, Pokémon cards, signed jerseys, balls and memorabilia in a clear shop format with direct prices.",
         ctaPrimary: "Shop catalog",
         ctaSecondary: "See upcoming drops",
         trustPoints: [
@@ -102,7 +103,7 @@ export default async function HomePage() {
         heroEyebrow: "Tienda confiable de sports cards",
         heroTitle: "Coleccionables premium, autenticidad garantizada.",
         heroText:
-          "Compra cartas, autos y memorabilia en formato de tienda real: fotos claras, precio directo y cierre rápido por carrito o WhatsApp.",
+          "Compra sports cards, cartas Pokémon, jerseys firmados, pelotas y memorabilia con fotos claras y precio directo.",
         ctaPrimary: "Ver catálogo",
         ctaSecondary: "Ver próximos drops",
         trustPoints: [
@@ -172,13 +173,15 @@ export default async function HomePage() {
 
   const categoryEntries = Array.from(
     available.reduce((map, product) => {
-      const key = product.sport ?? product.productType;
+      const key = product.productType ?? product.sport;
       if (!key) return map;
-      map.set(key, (map.get(key) ?? 0) + 1);
+      const current = map.get(key);
+      const label = getProductCategoryLabel(product, locale);
+      map.set(key, { label, count: (current?.count ?? 0) + 1 });
       return map;
-    }, new Map<string, number>()),
+    }, new Map<string, { label: string; count: number }>()),
   )
-    .map(([label, count]) => ({ label, count }))
+    .map(([value, entry]) => ({ value, ...entry }))
     .sort((a, b) => b.count - a.count)
     .slice(0, 4);
 
@@ -294,7 +297,7 @@ export default async function HomePage() {
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {categoryEntries.map((entry, index) => (
             <Link
-              key={entry.label}
+              key={entry.value}
               href={`/catalogo?filtro=${encodeURIComponent(entry.label)}`}
               className="glass-card group border-line bg-white p-5 hover:border-blue/35"
             >

@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import Image from "next/image";
 import clsx from "clsx";
 import { useCart } from "@/store/cart";
+import { BANK_PAYMENT_DETAILS } from "@/lib/payment";
 import { formatCurrency, getProductPrices } from "@/lib/pricing";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import type { Locale } from "@/lib/locale";
@@ -18,6 +19,8 @@ type CartDrawerProps = {
 export default function CartDrawer({ locale = "es" }: CartDrawerProps) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const items = useCart((state) => state.items);
   const remove = useCart((state) => state.remove);
   const clear = useCart((state) => state.clear);
@@ -36,8 +39,15 @@ export default function CartDrawer({ locale = "es" }: CartDrawerProps) {
           total: "Total",
           alternateTotal: "Alternate total",
           confirm: "Confirm on WhatsApp",
+          confirming: "Preparing order...",
           clear: "Clear cart",
           intro: "Hi, I want to confirm this order:",
+          paymentTitle: "Bank transfer",
+          paymentNote: "Use these details after we confirm stock and delivery.",
+          beneficiary: "Beneficiary",
+          account: "Account",
+          savedInfoNote: "If you are logged in, your saved delivery profile is added to WhatsApp and order history.",
+          historyError: "The order could not be saved to your history, but WhatsApp will still open.",
         }
       : {
           cart: "Carrito",
@@ -51,8 +61,16 @@ export default function CartDrawer({ locale = "es" }: CartDrawerProps) {
           total: "Total",
           alternateTotal: "Total alterno",
           confirm: "Confirmar por WhatsApp",
+          confirming: "Preparando pedido...",
           clear: "Vaciar carrito",
           intro: "Hola, quiero confirmar este pedido:",
+          paymentTitle: "Transferencia bancaria",
+          paymentNote: "Usa estos datos luego de que confirmemos stock y entrega.",
+          beneficiary: "Beneficiario",
+          account: "Cuenta",
+          savedInfoNote:
+            "Si iniciaste sesión, agregamos tus datos de entrega al WhatsApp y guardamos el pedido en tu historial.",
+          historyError: "No se pudo guardar el pedido en tu historial, pero WhatsApp se abrirá igual.",
         };
 
   const itemCount = useMemo(() => items.reduce((sum, item) => sum + item.qty, 0), [items]);
@@ -80,20 +98,66 @@ export default function CartDrawer({ locale = "es" }: CartDrawerProps) {
     return { currency, total };
   }, [items]);
 
-  const whatsappLink = useMemo(() => {
-    if (!items.length) return "#";
-    const lines = items.map(({ product, qty }) => ({
+  const cartLines = useMemo(
+    () =>
+      items.map(({ product, qty }) => ({
       title: product.title,
       qty,
       price: product.price,
       currency: product.currency ?? "DOP",
       slug: product.slug,
-    }));
-    return buildWhatsAppUrl(WHATSAPP_NUMBER, lines, {
+      })),
+    [items],
+  );
+
+  const whatsappLink = useMemo(() => {
+    if (!cartLines.length) return "#";
+    return buildWhatsAppUrl(WHATSAPP_NUMBER, cartLines, {
       introMessage: copy.intro,
+      includePaymentDetails: true,
       locale,
     });
-  }, [copy.intro, items, locale]);
+  }, [cartLines, copy.intro, locale]);
+
+  const handleCheckout = async () => {
+    if (!cartLines.length || checkoutLoading) return;
+    setCheckoutLoading(true);
+    setCheckoutError(null);
+
+    const checkoutWindow = window.open("about:blank", "_blank");
+    let finalUrl = whatsappLink;
+
+    try {
+      const { createCustomerOrder, profileToCustomerSummary } = await import("@/lib/customerOrders");
+      const result = await createCustomerOrder(cartLines, copy.intro);
+      const customer = profileToCustomerSummary(result.profile);
+
+      if (result.status === "error") {
+        setCheckoutError(copy.historyError);
+      }
+
+      finalUrl = buildWhatsAppUrl(WHATSAPP_NUMBER, cartLines, {
+        introMessage: copy.intro,
+        locale,
+        customer,
+        includePaymentDetails: true,
+        orderNumber: result.orderNumber,
+      });
+    } catch (error) {
+      console.error("[cart] checkout handoff failed", error);
+      setCheckoutError(copy.historyError);
+    } finally {
+      setCheckoutLoading(false);
+    }
+
+    if (checkoutWindow) {
+      checkoutWindow.opener = null;
+      checkoutWindow.location.href = finalUrl;
+    } else {
+      window.location.href = finalUrl;
+    }
+    setOpen(false);
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -242,24 +306,47 @@ export default function CartDrawer({ locale = "es" }: CartDrawerProps) {
                     </div>
                   ) : null}
 
+                  <div className="rounded-2xl border border-blue/15 bg-white px-4 py-3">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-blue">
+                          {copy.paymentTitle}
+                        </p>
+                        <p className="mt-1 text-xs text-muted">{copy.paymentNote}</p>
+                      </div>
+                      <div className="text-left text-xs font-semibold text-ink sm:text-right">
+                        <p>{BANK_PAYMENT_DETAILS.bank}</p>
+                        <p>
+                          {copy.beneficiary}: {BANK_PAYMENT_DETAILS.beneficiary}
+                        </p>
+                        <p>
+                          {copy.account}: {BANK_PAYMENT_DETAILS.accountNumber} | {BANK_PAYMENT_DETAILS.currency}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="mt-2 text-[11px] text-muted">{copy.savedInfoNote}</p>
+                  </div>
+
+                  {checkoutError ? (
+                    <p className="rounded-2xl border border-red/20 bg-red/10 px-4 py-2 text-xs font-semibold text-red">
+                      {checkoutError}
+                    </p>
+                  ) : null}
+
                   <div className="grid gap-2 sm:grid-cols-2">
-                    <a
-                      href={whatsappLink}
-                      target="_blank"
-                      rel="noreferrer"
+                    <button
+                      type="button"
+                      onClick={handleCheckout}
+                      disabled={!items.length || checkoutLoading}
                       className={clsx(
                         "inline-flex items-center justify-center rounded-full px-4 py-3 text-sm font-semibold uppercase tracking-[0.16em]",
                         items.length
-                          ? "bg-blue text-white shadow-glow hover:brightness-95"
-                          : "pointer-events-none bg-line text-muted",
+                          ? "bg-blue text-white shadow-glow hover:brightness-95 disabled:cursor-wait disabled:opacity-75"
+                          : "cursor-not-allowed bg-line text-muted",
                       )}
-                      onClick={() => {
-                        if (!items.length) return;
-                        setOpen(false);
-                      }}
                     >
-                      {copy.confirm}
-                    </a>
+                      {checkoutLoading ? copy.confirming : copy.confirm}
+                    </button>
                     <button
                       type="button"
                       onClick={() => {

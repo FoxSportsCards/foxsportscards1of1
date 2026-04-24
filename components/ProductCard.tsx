@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import clsx from "clsx";
 import { getProductPrices } from "@/lib/pricing";
+import { getProductCategoryLabel } from "@/lib/productLabels";
 import type { Locale } from "@/lib/locale";
 import type { Product } from "@/types/product";
 
@@ -31,7 +32,7 @@ export default function ProductCard({ product, locale = "es", priority = false, 
   const alt = product.images[0]?.alt ?? product.title;
   const status = (product.status ?? "available") as NonNullable<Product["status"]>;
   const prices = getProductPrices(product, locale);
-  const fallbackType = locale === "en" ? "Collectible" : "Coleccionable";
+  const categoryLabel = getProductCategoryLabel(product, locale);
 
   return (
     <Link
@@ -63,7 +64,7 @@ export default function ProductCard({ product, locale = "es", priority = false, 
 
       <div className="space-y-3 p-4">
         <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.2em] text-muted">
-          <span className="truncate">{product.sport ?? product.productType ?? fallbackType}</span>
+          <span className="truncate">{categoryLabel}</span>
           {product.year ? <span>{product.year}</span> : null}
         </div>
         <h3 className="line-clamp-2 min-h-[2.8rem] text-base font-semibold text-ink">{product.title}</h3>
@@ -84,4 +85,3 @@ export default function ProductCard({ product, locale = "es", priority = false, 
     </Link>
   );
 }
-

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import clsx from "clsx";
 import ProductCard from "@/components/ProductCard";
 import type { Locale } from "@/lib/locale";
+import { getProductTypeLabel, getSportLabel } from "@/lib/productLabels";
 import type { Product } from "@/types/product";
 
 type Props = {
@@ -61,8 +62,10 @@ export function CatalogClient({ products, locale = "es", initialFilter = "Todos"
   const filterOptions = useMemo(() => {
     const collected = new Map<string, string>();
     products.forEach((product) => {
-      if (product.sport) collected.set(normalize(product.sport), product.sport);
-      if (product.productType) collected.set(normalize(product.productType), product.productType);
+      const sportLabel = getSportLabel(product.sport, locale);
+      const productTypeLabel = getProductTypeLabel(product.productType, locale);
+      if (sportLabel) collected.set(normalize(sportLabel), sportLabel);
+      if (productTypeLabel) collected.set(normalize(productTypeLabel), productTypeLabel);
       (product.tags ?? []).forEach((tag) => {
         if (tag) collected.set(normalize(tag), tag);
       });
@@ -73,7 +76,7 @@ export function CatalogClient({ products, locale = "es", initialFilter = "Todos"
     return merged.filter(
       (option, index) => merged.findIndex((value) => normalize(value) === normalize(option)) === index,
     );
-  }, [products, filters]);
+  }, [products, filters, locale]);
 
   useEffect(() => {
     const found = filterOptions.some((option) => normalize(option) === normalize(activeFilter));
@@ -105,7 +108,13 @@ export function CatalogClient({ products, locale = "es", initialFilter = "Todos"
                 ? status === "upcoming"
                 : isStatusAlias(active, "sold")
                   ? status === "sold"
-                  : [product.sport, product.productType, ...(product.tags ?? [])]
+                  : [
+                      product.sport,
+                      product.productType,
+                      getSportLabel(product.sport, locale),
+                      getProductTypeLabel(product.productType, locale),
+                      ...(product.tags ?? []),
+                    ]
                       .filter(Boolean)
                       .map((value) => normalize(value as string))
                       .includes(active);
@@ -120,7 +129,7 @@ export function CatalogClient({ products, locale = "es", initialFilter = "Todos"
 
       return statusMatch && searchMatch;
     });
-  }, [products, activeFilter, searchTerm]);
+  }, [products, activeFilter, searchTerm, locale]);
 
   const availableCount = products.filter((product) => (product.status ?? "available") === "available").length;
 
@@ -223,4 +232,3 @@ export function CatalogClient({ products, locale = "es", initialFilter = "Todos"
     </section>
   );
 }
-
