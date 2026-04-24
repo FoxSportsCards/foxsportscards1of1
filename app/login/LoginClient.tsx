@@ -50,7 +50,7 @@ export default function LoginClient({ locale = "es" }: LoginClientProps) {
         email: "Correo",
         password: "Contraseña",
         google: "Continuar con Google",
-        submitSignin: "Entrar",
+        submitSignin: "Iniciar sesión",
         submitSignup: "Crear cuenta",
         loading: "Procesando...",
         notConfigured: "Supabase todavía no está configurado. Agrega la URL pública y anon key para activar el login.",

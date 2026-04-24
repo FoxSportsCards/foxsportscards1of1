@@ -165,8 +165,8 @@ export default function Header({ locale }: HeaderProps) {
       </div>
 
       {menuOpen ? (
-        <div className="absolute inset-x-0 top-full z-50 border-t border-line bg-white/95 px-4 pb-4 pt-3 shadow-soft backdrop-blur-xl lg:hidden">
-          <nav className="container grid gap-1">
+        <div className="absolute inset-x-0 top-full z-[60] h-[calc(100dvh-80px)] overflow-y-auto border-t border-line bg-white px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-4 shadow-[0_28px_70px_rgba(15,23,42,0.16)] lg:hidden">
+          <nav className="container grid gap-2">
             {NAV_ITEMS.map((item) => {
               const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
               return (
@@ -174,8 +174,10 @@ export default function Header({ locale }: HeaderProps) {
                   key={item.href}
                   href={item.href}
                   className={clsx(
-                    "rounded-2xl px-4 py-3 text-sm font-semibold uppercase tracking-[0.13em]",
-                    isActive ? "bg-blue text-white" : "text-muted hover:bg-surface-elevated hover:text-ink",
+                    "rounded-2xl px-4 py-3 text-sm font-semibold uppercase tracking-[0.13em] transition-colors",
+                    isActive
+                      ? "bg-blue text-white shadow-glow"
+                      : "bg-surface text-ink hover:bg-surface-elevated hover:text-blue",
                   )}
                 >
                   {item.label[activeLocale]}
@@ -183,7 +185,7 @@ export default function Header({ locale }: HeaderProps) {
               );
             })}
 
-            <div className="mt-2 flex items-center justify-center gap-2 rounded-2xl border border-line bg-white p-2">
+            <div className="mt-3 flex items-center justify-center gap-2 rounded-2xl border border-line bg-white p-2 shadow-soft">
               <button
                 type="button"
                 onClick={() => switchLocale("es")}
@@ -210,7 +212,7 @@ export default function Header({ locale }: HeaderProps) {
               href="https://wa.me/18492617328"
               target="_blank"
               rel="noreferrer"
-              className="mt-2 inline-flex items-center justify-center rounded-2xl border border-green/30 bg-green/10 px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-green"
+              className="mt-2 inline-flex items-center justify-center rounded-2xl border border-green/30 bg-green/10 px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-green shadow-soft"
             >
               {copy.whatsapp}
             </a>

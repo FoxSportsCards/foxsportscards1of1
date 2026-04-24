@@ -23,7 +23,7 @@ export default function AuthNavButton({ locale = "es", mobile = false }: AuthNav
           signOut: "Sign out",
         }
       : {
-          signIn: "Entrar",
+          signIn: "Iniciar sesión",
           account: "Cuenta",
           signOut: "Salir",
         };
