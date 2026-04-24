@@ -260,15 +260,6 @@ export default defineType({
       ],
       validation: (Rule) => Rule.min(1),
     }),
-    defineField({
-      name: "heroVideo",
-      title: "Video Hero (opcional)",
-      type: "file",
-      group: "media",
-      options: {
-        accept: "video/mp4,video/quicktime",
-      },
-    }),
   ],
   preview: {
     select: {

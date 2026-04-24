@@ -521,14 +521,6 @@
         "name": "gallery",
         "type": "array",
         "title": "Galería de imágenes"
-      },
-      {
-        "options": {
-          "accept": "video/mp4,video/quicktime"
-        },
-        "name": "heroVideo",
-        "type": "file",
-        "title": "Video Hero (opcional)"
       }
     ],
     "name": "product",
