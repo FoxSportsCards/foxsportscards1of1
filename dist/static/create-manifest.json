@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "createdAt": "2025-10-26T12:56:18.776Z",
+  "createdAt": "2026-04-24T15:54:04.097Z",
   "workspaces": [
     {
       "name": "foxsportscards1of1-studio",
@@ -12,7 +12,7 @@
       "mediaLibrary": {
         "enabled": false
       },
-      "schema": "bc39e6c9.create-schema.json",
+      "schema": "c2692d03.create-schema.json",
       "tools": "918180e5.create-tools.json"
     }
   ]

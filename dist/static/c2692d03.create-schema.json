@@ -316,7 +316,7 @@
               },
               {
                 "flag": "max",
-                "constraint": 2026
+                "constraint": 2027
               }
             ],
             "level": "error"
@@ -514,19 +514,6 @@
             "options": {
               "hotspot": true
             },
-            "fields": [
-              {
-                "name": "alt",
-                "type": "string",
-                "title": "Texto alternativo"
-              },
-              {
-                "description": "Ej. Front, Back, Detalle, etc.",
-                "name": "displayName",
-                "type": "string",
-                "title": "Etiqueta"
-              }
-            ],
             "type": "image",
             "title": "Imagen"
           }
