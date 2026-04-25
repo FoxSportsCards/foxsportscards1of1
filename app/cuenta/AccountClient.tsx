@@ -71,6 +71,7 @@ function getStatusLabel(status: CustomerOrder["status"], locale: Locale) {
   const labels: Record<CustomerOrder["status"], Record<Locale, string>> = {
     requested: { es: "Solicitado", en: "Requested" },
     confirmed: { es: "Confirmado", en: "Confirmed" },
+    rejected: { es: "Rechazado", en: "Rejected" },
     paid: { es: "Pagado", en: "Paid" },
     shipped: { es: "Enviado", en: "Shipped" },
     completed: { es: "Completado", en: "Completed" },

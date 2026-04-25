@@ -48,6 +48,7 @@ export default function CartDrawer({ locale = "es" }: CartDrawerProps) {
           account: "Account",
           savedInfoNote: "If you are logged in, your saved delivery profile is added to WhatsApp and order history.",
           historyError: "The order could not be saved to your history, but WhatsApp will still open.",
+          checkoutError: "The order could not be created. Check stock or try again.",
         }
       : {
           cart: "Carrito",
@@ -71,6 +72,7 @@ export default function CartDrawer({ locale = "es" }: CartDrawerProps) {
           savedInfoNote:
             "Si iniciaste sesión, agregamos tus datos de entrega al WhatsApp y guardamos el pedido en tu historial.",
           historyError: "No se pudo guardar el pedido en tu historial, pero WhatsApp se abrirá igual.",
+          checkoutError: "No se pudo crear el pedido. Revisa el stock o intenta de nuevo.",
         };
 
   const itemCount = useMemo(() => items.reduce((sum, item) => sum + item.qty, 0), [items]);
@@ -101,11 +103,11 @@ export default function CartDrawer({ locale = "es" }: CartDrawerProps) {
   const cartLines = useMemo(
     () =>
       items.map(({ product, qty }) => ({
-      title: product.title,
-      qty,
-      price: product.price,
-      currency: product.currency ?? "DOP",
-      slug: product.slug,
+        title: product.title,
+        qty,
+        price: product.price,
+        currency: product.currency ?? "DOP",
+        slug: product.slug,
       })),
     [items],
   );
@@ -133,7 +135,10 @@ export default function CartDrawer({ locale = "es" }: CartDrawerProps) {
       const customer = profileToCustomerSummary(result.profile);
 
       if (result.status === "error") {
-        setCheckoutError(copy.historyError);
+        const message = "errorMessage" in result && result.errorMessage ? result.errorMessage : copy.checkoutError;
+        setCheckoutError(message);
+        checkoutWindow?.close();
+        return;
       }
 
       finalUrl = buildWhatsAppUrl(WHATSAPP_NUMBER, cartLines, {

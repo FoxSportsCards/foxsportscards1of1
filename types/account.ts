@@ -2,6 +2,7 @@ import type { Database } from "@/types/supabase";
 
 export type CustomerProfile = Database["public"]["Tables"]["customer_profiles"]["Row"];
 export type CustomerOrder = Database["public"]["Tables"]["customer_orders"]["Row"];
+export type ProductInventory = Database["public"]["Tables"]["product_inventory"]["Row"];
 
 export type CustomerSummary = {
   fullName?: string | null;

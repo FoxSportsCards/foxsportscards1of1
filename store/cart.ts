@@ -14,10 +14,15 @@ type State = {
 export const useCart = create<State>()(persist((set, get) => ({
   items: [],
   add: (product, qty) => {
+    const inventory = typeof product.inventory === 'number' ? product.inventory : null;
+    if (product.status === 'sold' || (inventory !== null && inventory <= 0)) return;
     const items = [...get().items];
     const i = items.findIndex(it => it.product.slug === product.slug);
-    if (i >= 0) items[i].qty += qty;
-    else items.push({ product, qty });
+    if (i >= 0) {
+      const nextQty = items[i].qty + qty;
+      items[i].qty = inventory === null ? nextQty : Math.min(nextQty, inventory);
+    }
+    else items.push({ product, qty: inventory === null ? qty : Math.min(qty, inventory) });
     set({ items });
   },
   remove: (slug) => set({ items: get().items.filter(it => it.product.slug !== slug) }),

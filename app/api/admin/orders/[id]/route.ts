@@ -1,0 +1,50 @@
+import { NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/adminAuth";
+import { editTelegramMessage } from "@/lib/telegram";
+
+export const runtime = "edge";
+
+type RouteContext = {
+  params: {
+    id: string;
+  };
+};
+
+type ActionPayload = {
+  action?: "confirm" | "reject";
+  note?: string | null;
+};
+
+async function syncTelegramStatus(messageId: number | null, text: string) {
+  const chatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
+  if (!chatId || !messageId) return;
+  await editTelegramMessage(chatId, messageId, text);
+}
+
+export async function PATCH(request: Request, { params }: RouteContext) {
+  const auth = await requireAdmin(request);
+  if (!auth.ok) return auth.response;
+
+  const payload = (await request.json().catch(() => null)) as ActionPayload | null;
+  const action = payload?.action;
+
+  if (action !== "confirm" && action !== "reject") {
+    return NextResponse.json({ error: "Invalid action." }, { status: 400 });
+  }
+
+  const result =
+    action === "confirm"
+      ? await auth.admin.rpc("confirm_customer_order", { order_id: params.id })
+      : await auth.admin.rpc("reject_customer_order", { order_id: params.id, note: payload?.note ?? null });
+
+  if (result.error || !result.data) {
+    return NextResponse.json({ error: result.error?.message ?? "Order action failed." }, { status: 400 });
+  }
+
+  await syncTelegramStatus(
+    result.data.telegram_message_id,
+    `Pedido ${result.data.order_number}: ${action === "confirm" ? "confirmado" : "rechazado"}.`,
+  );
+
+  return NextResponse.json({ order: result.data });
+}

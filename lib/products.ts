@@ -2,6 +2,7 @@ import groq from "groq";
 import { cache } from "react";
 import type { PortableTextBlock } from "sanity";
 import { FALLBACK_PRODUCTS } from "@/data/fallback-products";
+import { applyInventory } from "@/lib/inventory";
 import { getSanityClient, isSanityConfigured, urlForImage } from "@/lib/sanity.client";
 import type { Product, ProductImage } from "@/types/product";
 
@@ -88,6 +89,12 @@ const PRODUCT_FIELDS = groq`
 const ALL_PRODUCTS_QUERY = groq`*[_type == "product" && defined(slug.current)] | order(coalesce(featured, false) desc, _createdAt desc) {
   ${PRODUCT_FIELDS}
 }`;
+
+const CATALOG_PRODUCTS_QUERY = groq`*[_type == "product" && defined(slug.current)] | order(coalesce(featured, false) desc, _createdAt desc)[$start...$end] {
+  ${PRODUCT_FIELDS}
+}`;
+
+const PRODUCT_COUNT_QUERY = groq`count(*[_type == "product" && defined(slug.current)])`;
 
 const PRODUCT_BY_SLUG_QUERY = groq`*[_type == "product" && slug.current == $slug][0] {
   ${PRODUCT_FIELDS}
@@ -182,10 +189,10 @@ function cloneFallbackProducts(): Product[] {
 async function fetchAllProductsUncached(): Promise<Product[]> {
   if (!isSanityConfigured) {
     warnAboutFallbackUsage();
-    return cloneFallbackProducts();
+    return applyInventory(cloneFallbackProducts());
   }
   const docs = await getSanityClient().fetch<SanityProductDocument[]>(ALL_PRODUCTS_QUERY);
-  return docs.map(mapSanityProduct);
+  return applyInventory(docs.map(mapSanityProduct));
 }
 
 async function fetchProductBySlugUncached(slug: string): Promise<Product> {
@@ -195,13 +202,15 @@ async function fetchProductBySlugUncached(slug: string): Promise<Product> {
     if (!fallback) {
       throw new Error("Producto no encontrado");
     }
-    return cloneProduct(fallback);
+    const [product] = await applyInventory([cloneProduct(fallback)]);
+    return product;
   }
   const doc = await getSanityClient().fetch<SanityProductDocument>(PRODUCT_BY_SLUG_QUERY, { slug });
   if (!doc?._id) {
     throw new Error("Producto no encontrado");
   }
-  return mapSanityProduct(doc);
+  const [product] = await applyInventory([mapSanityProduct(doc)]);
+  return product;
 }
 
 const getAllProductsCached = cache(fetchAllProductsUncached);
@@ -214,4 +223,30 @@ export async function getAllProducts(): Promise<Product[]> {
 
 export async function getProductBySlug(slug: string): Promise<Product> {
   return getProductBySlugCached(slug);
+}
+
+export async function getCatalogProducts(page: number, pageSize: number): Promise<{ products: Product[]; total: number }> {
+  const safePage = Math.max(1, Math.floor(page));
+  const safePageSize = Math.max(1, Math.min(48, Math.floor(pageSize)));
+  const start = (safePage - 1) * safePageSize;
+  const end = start + safePageSize;
+
+  if (!isSanityConfigured) {
+    warnAboutFallbackUsage();
+    const fallback = cloneFallbackProducts();
+    return {
+      products: await applyInventory(fallback.slice(start, end)),
+      total: fallback.length,
+    };
+  }
+
+  const [docs, total] = await Promise.all([
+    getSanityClient().fetch<SanityProductDocument[]>(CATALOG_PRODUCTS_QUERY, { start, end }),
+    getSanityClient().fetch<number>(PRODUCT_COUNT_QUERY),
+  ]);
+
+  return {
+    products: await applyInventory(docs.map(mapSanityProduct)),
+    total,
+  };
 }

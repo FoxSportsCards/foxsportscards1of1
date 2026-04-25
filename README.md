@@ -41,6 +41,25 @@ Cada cambio publicado en Sanity se refleja en el sitio gracias a ISR (`revalidat
 Edita el número por defecto en `components/WhatsAppBuy.tsx` (`formato internacional sin +`).  
 El mensaje puede personalizarse por producto desde Sanity; las utilidades para el carrito están en `lib/whatsapp.ts`.
 
+## Pedidos, inventario y admin
+
+Supabase maneja el inventario operativo, pedidos, perfiles de entrega y estados administrativos. Sanity sigue siendo el CMS visual del producto.
+
+- El carrito crea pedidos en `/api/orders`.
+- El panel admin vive en `/admin/pedidos`.
+- La confirmación descuenta inventario con una función SQL atómica.
+- Telegram puede confirmar o rechazar pedidos desde botones del bot.
+
+Variables necesarias para producción:
+
+```env
+SUPABASE_SERVICE_ROLE_KEY=
+ADMIN_EMAILS=correo-admin@dominio.com
+TELEGRAM_BOT_TOKEN=
+TELEGRAM_ADMIN_CHAT_ID=
+TELEGRAM_WEBHOOK_SECRET=
+```
+
 ## Cloudflare Pages
 
 1. Usa `npm run build` para asegurarte de que compila.

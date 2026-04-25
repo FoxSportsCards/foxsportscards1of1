@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import clsx from "clsx";
 import ProductCard from "@/components/ProductCard";
 import type { Locale } from "@/lib/locale";
@@ -11,6 +12,9 @@ type Props = {
   products: Product[];
   locale?: Locale;
   initialFilter?: string;
+  page?: number;
+  pageSize?: number;
+  totalProducts?: number;
 };
 
 const STATUS_FILTERS: Record<
@@ -54,7 +58,14 @@ function isStatusAlias(activeFilter: string, statusKey: keyof typeof FILTER_ALIA
   return FILTER_ALIASES[statusKey].includes(active);
 }
 
-export function CatalogClient({ products, locale = "es", initialFilter = "Todos" }: Props) {
+export function CatalogClient({
+  products,
+  locale = "es",
+  initialFilter = "Todos",
+  page = 1,
+  pageSize = 24,
+  totalProducts = products.length,
+}: Props) {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState(initialFilter);
   const filters = STATUS_FILTERS[locale];
@@ -132,6 +143,7 @@ export function CatalogClient({ products, locale = "es", initialFilter = "Todos"
   }, [products, activeFilter, searchTerm, locale]);
 
   const availableCount = products.filter((product) => (product.status ?? "available") === "available").length;
+  const totalPages = Math.max(1, Math.ceil(totalProducts / pageSize));
 
   const copy =
     locale === "en"
@@ -144,6 +156,8 @@ export function CatalogClient({ products, locale = "es", initialFilter = "Todos"
           clear: "Clear",
           available: "available",
           visible: "visible",
+          page: "page",
+          of: "of",
           empty:
             "No results for the current filters. Change filters or contact us on WhatsApp to locate your exact item.",
         }
@@ -156,6 +170,8 @@ export function CatalogClient({ products, locale = "es", initialFilter = "Todos"
           clear: "Limpiar",
           available: "disponibles",
           visible: "visibles",
+          page: "página",
+          of: "de",
           empty:
             "No encontramos resultados con los filtros actuales. Cambia el filtro o escribe por WhatsApp para localizar la pieza exacta.",
         };
@@ -196,6 +212,9 @@ export function CatalogClient({ products, locale = "es", initialFilter = "Todos"
           <span className="rounded-full border border-line bg-white px-3 py-1">
             {visibleProducts.length} {copy.visible}
           </span>
+          <span className="rounded-full border border-line bg-white px-3 py-1">
+            {copy.page} {page} {copy.of} {totalPages}
+          </span>
         </div>
       </div>
 
@@ -229,6 +248,25 @@ export function CatalogClient({ products, locale = "es", initialFilter = "Todos"
           <p className="text-sm text-muted">{copy.empty}</p>
         </div>
       )}
+
+      {totalPages > 1 ? (
+        <nav className="flex flex-wrap items-center justify-center gap-2" aria-label="Paginación del catálogo">
+          {Array.from({ length: totalPages }, (_, index) => index + 1).map((nextPage) => (
+            <Link
+              key={nextPage}
+              href={`/catalogo?pagina=${nextPage}`}
+              className={clsx(
+                "focus-ring inline-flex h-10 min-w-10 items-center justify-center rounded-full border px-3 text-sm font-semibold",
+                nextPage === page
+                  ? "border-blue bg-blue text-white"
+                  : "border-line bg-white text-muted hover:border-blue/35 hover:text-blue",
+              )}
+            >
+              {nextPage}
+            </Link>
+          ))}
+        </nav>
+      ) : null}
     </section>
   );
 }

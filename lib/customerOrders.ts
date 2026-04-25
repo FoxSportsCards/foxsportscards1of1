@@ -35,6 +35,32 @@ function makeOrderNumber() {
 
 export async function createCustomerOrder(lines: CartLine[], whatsappMessage: string) {
   const supabase = getSupabaseBrowserClient();
+  const {
+    data: { session },
+  } = supabase ? await supabase.auth.getSession() : { data: { session: null } };
+
+  const response = await fetch("/api/orders", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      ...(session?.access_token ? { authorization: `Bearer ${session.access_token}` } : {}),
+    },
+    body: JSON.stringify({ lines, whatsappMessage }),
+  });
+
+  if (response.ok) {
+    const payload = (await response.json()) as {
+      profile: CustomerProfile | null;
+      orderNumber: string | null;
+    };
+    return { status: "created" as const, profile: payload.profile, orderNumber: payload.orderNumber };
+  }
+
+  if (response.status !== 503) {
+    const payload = (await response.json().catch(() => null)) as { error?: string } | null;
+    return { status: "error" as const, profile: null, orderNumber: null, errorMessage: payload?.error ?? null };
+  }
+
   if (!supabase) return { status: "not-configured" as const, profile: null, orderNumber: null };
 
   const {

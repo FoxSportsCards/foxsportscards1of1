@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import clsx from "clsx";
+import { isSoldOut } from "@/lib/productAvailability";
 import { getProductPrices } from "@/lib/pricing";
 import { getProductCategoryLabel } from "@/lib/productLabels";
 import type { Locale } from "@/lib/locale";
@@ -31,6 +32,7 @@ export default function ProductCard({ product, locale = "es", priority = false, 
   const cover = product.images[0]?.url ?? "/hero.jpg";
   const alt = product.images[0]?.alt ?? product.title;
   const status = (product.status ?? "available") as NonNullable<Product["status"]>;
+  const soldOut = isSoldOut(product);
   const prices = getProductPrices(product, locale);
   const categoryLabel = getProductCategoryLabel(product, locale);
 
@@ -58,7 +60,7 @@ export default function ProductCard({ product, locale = "es", priority = false, 
             STATUS_STYLE[status],
           )}
         >
-          {STATUS_TEXT[status][locale]}
+          {soldOut ? (locale === "en" ? "Sold out" : "Agotado") : STATUS_TEXT[status][locale]}
         </span>
       </div>
 
