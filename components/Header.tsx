@@ -69,8 +69,8 @@ export default function Header({ locale }: HeaderProps) {
 
   return (
     <header className="relative sticky top-0 z-50 border-b border-line/90 bg-white/80 backdrop-blur-xl">
-      <div className="container">
-        <div className="flex min-h-[80px] items-center justify-between gap-2 py-3">
+      <div className="mx-auto w-full max-w-[1480px] px-5 sm:px-6 lg:px-8 xl:px-10">
+        <div className="flex min-h-[80px] items-center justify-center gap-3 py-3">
           <Link href="/" className="flex min-w-0 flex-1 items-center gap-2 pr-1 md:pr-2 lg:shrink-0 lg:flex-none lg:gap-3">
             <span className="relative flex h-12 w-12 shrink-0 items-center justify-center">
               <Image
