@@ -87,6 +87,7 @@ export default function AdminOrdersClient() {
   const [inventoryStatus, setInventoryStatus] = useState("all");
   const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [savingAction, setSavingAction] = useState<"confirm" | "reject" | null>(null);
   const [testingTelegram, setTestingTelegram] = useState(false);
   const [telegramMessage, setTelegramMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -177,6 +178,7 @@ export default function AdminOrdersClient() {
 
   async function handleOrderAction(orderId: string, action: "confirm" | "reject") {
     setSavingId(orderId);
+    setSavingAction(action);
     setError(null);
     setTelegramMessage(null);
     try {
@@ -184,12 +186,13 @@ export default function AdminOrdersClient() {
         method: "PATCH",
         body: JSON.stringify({ action }),
       });
-      await loadDashboard();
       setTelegramMessage(action === "confirm" ? "Pedido confirmado." : "Pedido rechazado.");
+      await loadDashboard({ silent: true });
     } catch (actionError) {
       setError(getFriendlyError(actionError, "No se pudo actualizar el pedido. Inténtalo de nuevo."));
     } finally {
       setSavingId(null);
+      setSavingAction(null);
     }
   }
 
@@ -379,7 +382,7 @@ export default function AdminOrdersClient() {
                         disabled={savingId === order.id}
                         className="btn-primary disabled:opacity-60"
                       >
-                        Confirmar
+                        {savingId === order.id && savingAction === "confirm" ? "Confirmando..." : "Confirmar"}
                       </button>
                       <button
                         type="button"
@@ -387,7 +390,7 @@ export default function AdminOrdersClient() {
                         disabled={savingId === order.id}
                         className="btn-ghost text-red hover:border-red/35 hover:text-red disabled:opacity-60"
                       >
-                        Rechazar
+                        {savingId === order.id && savingAction === "reject" ? "Rechazando..." : "Rechazar"}
                       </button>
                     </div>
                   ) : null}

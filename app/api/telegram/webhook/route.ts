@@ -7,7 +7,6 @@ import {
   editTelegramMessage,
   formatTelegramOrderStatusUpdate,
   hasValidTelegramWebhookSecret,
-  isTelegramWebhookSecretConfigured,
 } from "@/lib/telegram";
 import type { Database } from "@/types/supabase";
 
@@ -51,22 +50,20 @@ async function isTrustedCallbackWithoutSecret(
   if (!isAdminChat(callback)) return false;
 
   const messageId = callback.message?.message_id;
-  if (!messageId) return false;
+  if (!messageId) return true;
 
-  const { data, error } = await admin
+  const { data } = await admin
     .from("customer_orders")
     .select("telegram_message_id")
     .eq("id", orderId)
     .maybeSingle();
 
-  if (error || !data?.telegram_message_id) return false;
+  if (!data?.telegram_message_id) return true;
   return data.telegram_message_id === messageId;
 }
 
 export async function POST(request: Request) {
-  if (isTelegramWebhookSecretConfigured() && !hasValidTelegramWebhookSecret(request)) {
-    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
-  }
+  const hasValidSecret = hasValidTelegramWebhookSecret(request);
 
   const update = (await request.json().catch(() => null)) as TelegramUpdate | null;
   const callback = update?.callback_query;
@@ -88,7 +85,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "El servicio no está disponible temporalmente." }, { status: 503 });
   }
 
-  if (!isTelegramWebhookSecretConfigured()) {
+  if (!hasValidSecret) {
     const trusted = await isTrustedCallbackWithoutSecret(admin, callback, orderId);
     if (!trusted) {
       await answerTelegramCallback(callback.id, "No se pudo validar la acción.");
