@@ -157,6 +157,7 @@ export function CatalogClient({
   const availableCount = products.filter((product) => (product.status ?? "available") === "available").length;
   const totalPages = Math.max(1, Math.ceil(totalProducts / pageSize));
   const activeIsAll = isStatusAlias(activeFilter, "all");
+  const activeIsCategory = !activeIsAll && !statusOptions.some((opt) => normalize(opt) === normalize(activeFilter));
 
   const copy =
     locale === "en"
@@ -212,15 +213,21 @@ export function CatalogClient({
       </header>
 
       <div className="relative">
-        <div className="glass-card grid gap-4 p-4 lg:grid-cols-[1fr_auto] lg:items-center">
+        <div className="glass-card space-y-3 p-4">
+
+          {/* Barra de búsqueda */}
           <label className="relative block">
             <span className="sr-only">{copy.searchLabel}</span>
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" aria-hidden="true">
+              <circle cx="8.5" cy="8.5" r="5.25" />
+              <path d="M12.5 12.5 17 17" strokeLinecap="round" />
+            </svg>
             <input
               type="search"
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
               placeholder={copy.searchPlaceholder}
-              className="focus-ring w-full rounded-full border border-line bg-white px-5 py-3 text-sm text-ink placeholder:text-muted"
+              className="focus-ring w-full rounded-full border border-line bg-white py-3 pl-10 pr-20 text-sm text-ink placeholder:text-muted"
             />
             {searchTerm ? (
               <button
@@ -233,51 +240,94 @@ export function CatalogClient({
             ) : null}
           </label>
 
-          <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-muted">
-            <span className="rounded-full border border-green/25 bg-green/10 px-3 py-1 text-green">
-              {availableCount} {copy.available}
-            </span>
-            <span className="rounded-full border border-line bg-white px-3 py-1">
-              {visibleProducts.length} {copy.visible}
-            </span>
-            <span className="rounded-full border border-line bg-white px-3 py-1">
-              {copy.page} {page} {copy.of} {totalPages}
-            </span>
-            <button
-              type="button"
-              onClick={() => setFiltersOpen((current) => !current)}
-              aria-expanded={filtersOpen}
-              className={clsx(
-                "focus-ring inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.15em] shadow-soft",
-                filtersOpen || !activeIsAll
-                  ? "border-blue bg-blue text-white"
-                  : "border-line bg-white text-muted hover:border-blue/35 hover:text-blue",
-              )}
-            >
-              {copy.filters}
-              {!activeIsAll ? <span className="hidden sm:inline">· {activeFilter}</span> : null}
-            </button>
+          {/* Filtros de estado siempre visibles + botón categorías */}
+          <div className="flex gap-2 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {statusOptions.map((option) => {
+              const isActive = normalize(option) === normalize(activeFilter);
+              return (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => setActiveFilter(option)}
+                  className={clsx(
+                    "focus-ring flex-none rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] whitespace-nowrap transition-colors",
+                    isActive
+                      ? "border-blue bg-blue text-white shadow-glow"
+                      : "border-line bg-white text-muted hover:border-blue/35 hover:text-blue",
+                  )}
+                >
+                  {option}
+                </button>
+              );
+            })}
+            {dynamicFilterOptions.length > 0 ? (
+              <button
+                type="button"
+                onClick={() => setFiltersOpen((current) => !current)}
+                aria-expanded={filtersOpen}
+                className={clsx(
+                  "focus-ring flex-none inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] whitespace-nowrap transition-colors",
+                  filtersOpen || activeIsCategory
+                    ? "border-blue bg-blue text-white"
+                    : "border-line bg-white text-muted hover:border-blue/35 hover:text-blue",
+                )}
+              >
+                {copy.categories}
+                {activeIsCategory ? <span className="hidden sm:inline">· {activeFilter}</span> : null}
+                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.8" className={clsx("h-3 w-3 transition-transform", filtersOpen && "rotate-180")} aria-hidden="true">
+                  <path d="M2 4l4 4 4-4" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+            ) : null}
+          </div>
+
+          {/* Línea de stats */}
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-semibold uppercase tracking-[0.15em]">
+            <span className="text-green">{availableCount} {copy.available}</span>
+            <span className="text-muted/40">·</span>
+            <span className="text-muted">{visibleProducts.length} {copy.visible}</span>
+            {totalPages > 1 ? (
+              <>
+                <span className="text-muted/40">·</span>
+                <span className="text-muted">{copy.page} {page} {copy.of} {totalPages}</span>
+              </>
+            ) : null}
+            {activeIsCategory ? (
+              <>
+                <span className="text-muted/40">·</span>
+                <button
+                  type="button"
+                  onClick={() => setActiveFilter(filters.all)}
+                  className="inline-flex items-center gap-1 text-blue hover:opacity-70"
+                >
+                  {activeFilter}
+                  <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" className="h-3 w-3" aria-hidden="true">
+                    <path d="M2 2l8 8M10 2l-8 8" strokeLinecap="round" />
+                  </svg>
+                </button>
+              </>
+            ) : null}
           </div>
         </div>
 
-        {filtersOpen ? (
-          <div className="absolute left-0 right-0 top-[calc(100%+0.75rem)] z-30 max-h-[68vh] overflow-y-auto rounded-[2rem] border border-line bg-white p-4 shadow-glass sm:max-h-[520px]">
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
+        {/* Dropdown de categorías */}
+        {filtersOpen && dynamicFilterOptions.length > 0 ? (
+          <div className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-30 rounded-[2rem] border border-line bg-white p-5 shadow-glass">
+            <div className="mb-4 flex items-center justify-between gap-3 border-b border-line pb-4">
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-blue">{copy.filters}</p>
-                <p className="mt-1 text-sm text-muted">
-                  {copy.activeFilter}: {activeIsAll ? copy.allFilters : activeFilter}
-                </p>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue">{copy.categories}</p>
+                {activeIsCategory ? (
+                  <p className="mt-0.5 text-sm font-semibold text-ink">{activeFilter}</p>
+                ) : (
+                  <p className="mt-0.5 text-sm text-muted">{copy.allFilters}</p>
+                )}
               </div>
-              <div className="flex flex-wrap gap-2">
-                {!activeIsAll ? (
+              <div className="flex gap-2">
+                {activeIsCategory ? (
                   <button
                     type="button"
-                    onClick={() => {
-                      setActiveFilter(filters.all);
-                      setFiltersOpen(false);
-                    }}
-                    className="focus-ring rounded-full border border-line bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-muted hover:border-blue/35 hover:text-blue"
+                    onClick={() => { setActiveFilter(filters.all); setFiltersOpen(false); }}
+                    className="focus-ring rounded-full border border-line bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted hover:border-blue/35 hover:text-blue"
                   >
                     {copy.clear}
                   </button>
@@ -285,92 +335,35 @@ export function CatalogClient({
                 <button
                   type="button"
                   onClick={() => setFiltersOpen(false)}
-                  className="focus-ring rounded-full border border-line bg-surface px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-muted hover:border-blue/35 hover:text-blue"
+                  className="focus-ring rounded-full border border-line bg-surface px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted hover:border-blue/35 hover:text-blue"
                 >
                   {copy.closeFilters}
                 </button>
               </div>
             </div>
-
-            <div className="grid gap-5 lg:grid-cols-[0.72fr_1.28fr]">
-              <div>
-                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-muted">{copy.status}</p>
-                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
-                  {statusOptions.map((option) => {
-                    const active = normalize(option) === normalize(activeFilter);
-                    return (
-                      <button
-                        key={option}
-                        type="button"
-                        onClick={() => {
-                          setActiveFilter(option);
-                          setFiltersOpen(false);
-                        }}
-                        className={clsx(
-                          "focus-ring rounded-2xl border px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.15em]",
-                          active
-                            ? "border-blue bg-blue text-white shadow-glow"
-                            : "border-line bg-surface text-muted hover:border-blue/35 hover:text-blue",
-                        )}
-                      >
-                        {option}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div>
-                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-muted">{copy.categories}</p>
-                {dynamicFilterOptions.length > 0 ? (
-                  <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-                    {dynamicFilterOptions.map((option) => {
-                      const active = normalize(option) === normalize(activeFilter);
-                      return (
-                        <button
-                          key={option}
-                          type="button"
-                          onClick={() => {
-                            setActiveFilter(option);
-                            setFiltersOpen(false);
-                          }}
-                          className={clsx(
-                            "focus-ring rounded-2xl border px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.15em]",
-                            active
-                              ? "border-blue bg-blue text-white shadow-glow"
-                              : "border-line bg-surface text-muted hover:border-blue/35 hover:text-blue",
-                          )}
-                        >
-                          {option}
-                        </button>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <p className="rounded-2xl border border-line bg-surface px-4 py-5 text-sm text-muted">
-                    {copy.noExtraFilters}
-                  </p>
-                )}
-              </div>
+            <div className="flex flex-wrap gap-2">
+              {dynamicFilterOptions.map((option) => {
+                const isActive = normalize(option) === normalize(activeFilter);
+                return (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => { setActiveFilter(option); setFiltersOpen(false); }}
+                    className={clsx(
+                      "focus-ring rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.14em]",
+                      isActive
+                        ? "border-blue bg-blue text-white shadow-glow"
+                        : "border-line bg-white text-muted hover:border-blue/35 hover:text-blue",
+                    )}
+                  >
+                    {option}
+                  </button>
+                );
+              })}
             </div>
           </div>
         ) : null}
       </div>
-
-      {!activeIsAll ? (
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-full border border-blue/20 bg-blue/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-blue">
-            {copy.activeFilter}: {activeFilter}
-          </span>
-          <button
-            type="button"
-            onClick={() => setActiveFilter(filters.all)}
-            className="focus-ring rounded-full border border-line bg-white px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted hover:border-blue/35 hover:text-blue"
-          >
-            {copy.clear}
-          </button>
-        </div>
-      ) : null}
       {visibleProducts.length > 0 ? (
         <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-5">
           {visibleProducts.map((product, index) => (
