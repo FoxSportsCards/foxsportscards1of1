@@ -80,6 +80,16 @@ function getStatusLabel(status: CustomerOrder["status"], locale: Locale) {
   return labels[status]?.[locale] ?? status;
 }
 
+function getStatusBadgeClass(status: CustomerOrder["status"]) {
+  if (status === "rejected" || status === "cancelled") {
+    return "border-red/25 bg-red/10 text-red";
+  }
+  if (status === "requested") {
+    return "border-blue/25 bg-blue/10 text-blue";
+  }
+  return "border-green/25 bg-green/10 text-green";
+}
+
 export default function AccountClient({ locale = "es" }: AccountClientProps) {
   const supabase = useMemo(() => getSupabaseBrowserClient(), []);
   const [user, setUser] = useState<User | null>(null);
@@ -340,25 +350,31 @@ export default function AccountClient({ locale = "es" }: AccountClientProps) {
           </button>
         </form>
 
-        <aside className="glass-card p-5 sm:p-6">
-          <h2 className="text-2xl font-heading font-bold text-ink">{copy.orders}</h2>
+        <aside className="glass-card flex flex-col p-5 sm:p-6">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-2xl font-heading font-bold text-ink">{copy.orders}</h2>
+            {orders.length > 0 && (
+              <span className="text-xs font-semibold text-muted">{orders.length} pedidos</span>
+            )}
+          </div>
 
           {orders.length === 0 ? (
             <p className="mt-4 rounded-2xl border border-line bg-white px-4 py-6 text-center text-sm text-muted">
               {copy.emptyOrders}
             </p>
           ) : (
-            <div className="mt-5 space-y-4">
+            <div className="mt-4 max-h-[520px] overflow-y-auto space-y-3 pr-1">
               {orders.map((order) => {
                 const items = parseOrderItems(order);
+                const extraCount = items.length > 2 ? items.length - 2 : 0;
                 return (
-                  <article key={order.id} className="rounded-3xl border border-line bg-white p-4">
+                  <article key={order.id} className="rounded-2xl border border-line bg-white p-3">
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-blue">
                           {order.order_number}
                         </p>
-                        <p className="mt-1 text-xs text-muted">
+                        <p className="mt-0.5 text-[11px] text-muted">
                           {new Date(order.created_at).toLocaleDateString(locale === "en" ? "en-US" : "es-DO", {
                             day: "numeric",
                             month: "short",
@@ -366,20 +382,25 @@ export default function AccountClient({ locale = "es" }: AccountClientProps) {
                           })}
                         </p>
                       </div>
-                      <span className="rounded-full border border-green/25 bg-green/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-green">
+                      <span className={`rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] ${getStatusBadgeClass(order.status)}`}>
                         {getStatusLabel(order.status, locale)}
                       </span>
                     </div>
 
-                    <ul className="mt-3 space-y-1">
-                      {items.slice(0, 4).map((item, index) => (
-                        <li key={`${order.id}-${item.slug ?? item.title}-${index}`} className="text-sm text-muted">
+                    <ul className="mt-2 space-y-0.5">
+                      {items.slice(0, 2).map((item, index) => (
+                        <li key={`${order.id}-${item.slug ?? item.title}-${index}`} className="text-xs text-muted">
                           {item.qty}x {item.title}
                         </li>
                       ))}
+                      {extraCount > 0 && (
+                        <li className="text-xs font-semibold text-muted">
+                          +{extraCount} {isEn ? "more" : "más"}
+                        </li>
+                      )}
                     </ul>
 
-                    <p className="mt-3 text-lg font-heading font-bold text-ink">
+                    <p className="mt-2 text-sm font-heading font-bold text-ink">
                       {formatCurrency(Number(order.total_amount), order.currency, locale)}
                     </p>
                   </article>

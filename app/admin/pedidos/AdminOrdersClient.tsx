@@ -345,7 +345,7 @@ export default function AdminOrdersClient() {
             </div>
           </div>
           {loading ? <p className="mt-4 text-sm text-muted">Cargando...</p> : null}
-          <div className="mt-5 space-y-4">
+          <div className="mt-5 max-h-[640px] overflow-y-auto space-y-4 pr-1">
             {orders.map((order) => {
               const items = parseItems(order);
               const canAct = order.status === "requested";
@@ -450,7 +450,7 @@ export default function AdminOrdersClient() {
             {visibleInventory.length} productos visibles
           </p>
 
-          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-5 max-h-[640px] overflow-y-auto grid gap-3 md:grid-cols-2 xl:grid-cols-3 pr-1">
             {visibleInventory.map((item) => {
               const currentQuantity = item.row?.quantity ?? item.sanityQuantity ?? 0;
               return (
