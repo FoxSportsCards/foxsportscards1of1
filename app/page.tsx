@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import ProductCard from "@/components/ProductCard";
 import HeroMedia from "@/components/HeroMedia";
+import WhatsAppBuy from "@/components/WhatsAppBuy";
 import { getServerLocale } from "@/lib/getServerLocale";
 import { formatLocaleTag, type Locale } from "@/lib/locale";
 import { getProductPrices } from "@/lib/pricing";
@@ -89,7 +90,7 @@ export default async function HomePage() {
           },
           {
             title: "Add",
-            text: "Save items to cart or open WhatsApp to close your order directly.",
+            text: "Save items to cart or start a direct purchase from the product page.",
           },
           {
             title: "Receive",
@@ -142,7 +143,7 @@ export default async function HomePage() {
           },
           {
             title: "Agrega",
-            text: "Guarda tus piezas en carrito o escribe por WhatsApp para cerrar directo.",
+            text: "Guarda tus piezas en carrito o inicia una compra directa desde la ficha del producto.",
           },
           {
             title: "Recibe",
@@ -373,18 +374,7 @@ export default async function HomePage() {
                   <Link href={`/producto/${product.slug}`} className="btn-ghost">
                     {copy.productCardCta}
                   </Link>
-                  <a
-                    href={`https://wa.me/18492617328?text=${encodeURIComponent(
-                      isEn
-                        ? `Hi, I want to reserve ${product.title}.`
-                        : `Hola, quiero reservar ${product.title}.`,
-                    )}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="btn-secondary"
-                  >
-                    {copy.reserve}
-                  </a>
+                  <WhatsAppBuy product={product} locale={locale} mode="reserve" />
                 </div>
               </article>
             ))}

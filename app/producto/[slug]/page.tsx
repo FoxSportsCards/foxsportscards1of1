@@ -25,13 +25,13 @@ function getServiceNotes(locale: Locale) {
   if (locale === "en") {
     return [
       "Verified authenticity backed by the seller.",
-      "Direct checkout by cart or WhatsApp.",
+      "Direct purchase with saved order details.",
       "Insured shipping with follow-up until delivery.",
     ];
   }
   return [
     "Autenticidad verificada con respaldo del vendedor.",
-    "Compra directa por carrito o WhatsApp.",
+    "Compra directa con datos de pedido guardados.",
     "Envíos asegurados y seguimiento hasta la entrega.",
   ];
 }

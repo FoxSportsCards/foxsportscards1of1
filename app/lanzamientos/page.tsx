@@ -5,6 +5,7 @@ import { formatLocaleTag, type Locale } from "@/lib/locale";
 import { getProductPrices } from "@/lib/pricing";
 import { getProductCategoryLabel } from "@/lib/productLabels";
 import { getAllProducts } from "@/lib/products";
+import WhatsAppBuy from "@/components/WhatsAppBuy";
 
 export const runtime = "edge";
 export const revalidate = 180;
@@ -54,8 +55,8 @@ export default async function LanzamientosPage() {
         </h1>
         <p className="text-sm text-muted">
           {isEn
-            ? "Reserve future pieces from this page. Every release includes date, product page and direct WhatsApp access."
-            : "Reserva piezas futuras desde esta página. Cada lanzamiento incluye fecha, ficha y acceso directo a WhatsApp."}
+            ? "Reserve future pieces from this page. Every release includes date, product page and a saved order request."
+            : "Reserva piezas futuras desde esta página. Cada lanzamiento incluye fecha, ficha y solicitud guardada."}
         </p>
       </header>
 
@@ -127,18 +128,7 @@ export default async function LanzamientosPage() {
                     <Link href={`/producto/${product.slug}`} className="btn-ghost">
                       {isEn ? "View item" : "Ver ficha"}
                     </Link>
-                    <a
-                      href={`https://wa.me/18492617328?text=${encodeURIComponent(
-                        isEn
-                          ? `Hi, I want to reserve ${product.title}.`
-                          : `Hola, quiero reservar ${product.title}.`,
-                      )}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="btn-secondary"
-                    >
-                      {isEn ? "Reserve" : "Reservar"}
-                    </a>
+                    <WhatsAppBuy product={product} locale={locale} mode="reserve" />
                   </div>
                 </div>
               </article>

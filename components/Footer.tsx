@@ -14,7 +14,7 @@ export default function Footer({ locale }: FooterProps) {
           eyebrow: "Online boutique",
           title: "Collect real pieces with confidence.",
           text: "Premium cards, signed jerseys and authenticated memorabilia for serious collectors.",
-          buy: "Buy via WhatsApp",
+          buy: "Buy",
           shop: "Shop",
           brand: "Brand",
           contact: "Direct contact",
@@ -32,7 +32,7 @@ export default function Footer({ locale }: FooterProps) {
           eyebrow: "Boutique digital",
           title: "Colecciona piezas reales con confianza.",
           text: "Cartas premium, jerseys firmados y memorabilia autenticada para coleccionistas exigentes.",
-          buy: "Comprar por WhatsApp",
+          buy: "Comprar",
           shop: "Tienda",
           brand: "Marca",
           contact: "Contacto directo",
@@ -66,9 +66,9 @@ export default function Footer({ locale }: FooterProps) {
             <p className="eyebrow">{copy.eyebrow}</p>
             <h2 className="max-w-lg text-3xl font-heading font-bold text-ink">{copy.title}</h2>
             <p className="max-w-md text-sm text-muted">{copy.text}</p>
-            <a href="https://wa.me/18492617328" target="_blank" rel="noreferrer" className="btn-primary">
+            <Link href="/catalogo" className="btn-primary">
               {copy.buy}
-            </a>
+            </Link>
           </div>
 
           <div className="space-y-3">
