@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { syncConfirmedInventoryToSanity } from "@/lib/orderInventory";
+import { notifyLowStockAfterOrder, syncConfirmedInventoryToSanity } from "@/lib/orderInventory";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import {
   answerTelegramCallback,
+  buildPostConfirmButtons,
   editTelegramMessage,
   formatTelegramOrderStatusUpdate,
   hasValidTelegramWebhookSecret,
@@ -105,6 +106,7 @@ export async function POST(request: Request) {
 
   if (action === "confirm") {
     await syncConfirmedInventoryToSanity(admin, result.data.items);
+    await notifyLowStockAfterOrder(admin, result.data.items);
   }
 
   const statusText = action === "confirm" ? "confirmado" : "rechazado";
@@ -117,6 +119,7 @@ export async function POST(request: Request) {
       chatId,
       messageId,
       formatTelegramOrderStatusUpdate(result.data, statusText, "Acción ejecutada desde Telegram."),
+      action === "confirm" ? buildPostConfirmButtons(result.data) : undefined,
     );
   }
 

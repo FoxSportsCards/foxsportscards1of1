@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/adminAuth";
-import { syncConfirmedInventoryToSanity } from "@/lib/orderInventory";
-import { editTelegramMessage, formatTelegramOrderStatusUpdate } from "@/lib/telegram";
+import { notifyLowStockAfterOrder, syncConfirmedInventoryToSanity } from "@/lib/orderInventory";
+import {
+  buildPostConfirmButtons,
+  editTelegramMessage,
+  formatTelegramOrderStatusUpdate,
+} from "@/lib/telegram";
 
 export const runtime = "edge";
 
@@ -16,10 +20,14 @@ type ActionPayload = {
   note?: string | null;
 };
 
-async function syncTelegramStatus(messageId: number | null, text: string) {
+async function syncTelegramStatus(
+  messageId: number | null,
+  text: string,
+  buttons?: ReturnType<typeof buildPostConfirmButtons>,
+) {
   const chatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
   if (!chatId || !messageId) return;
-  await editTelegramMessage(chatId, messageId, text);
+  await editTelegramMessage(chatId, messageId, text, buttons);
 }
 
 export async function PATCH(request: Request, { params }: RouteContext) {
@@ -44,6 +52,10 @@ export async function PATCH(request: Request, { params }: RouteContext) {
 
   const sanitySync = action === "confirm" ? await syncConfirmedInventoryToSanity(auth.admin, result.data.items) : [];
 
+  if (action === "confirm") {
+    await notifyLowStockAfterOrder(auth.admin, result.data.items);
+  }
+
   await syncTelegramStatus(
     result.data.telegram_message_id,
     formatTelegramOrderStatusUpdate(
@@ -51,6 +63,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
       action === "confirm" ? "confirmado" : "rechazado",
       "Acción ejecutada desde el panel admin.",
     ),
+    action === "confirm" ? buildPostConfirmButtons(result.data) : undefined,
   );
 
   return NextResponse.json({ order: result.data, sanitySync });

@@ -2,10 +2,9 @@ import { formatCurrency } from "@/lib/pricing";
 import type { CartLine } from "@/lib/whatsapp";
 import type { CustomerOrder, CustomerProfile } from "@/types/account";
 
-type TelegramButton = {
-  text: string;
-  callback_data: string;
-};
+type TelegramButton =
+  | { text: string; callback_data: string }
+  | { text: string; url: string };
 
 function getTelegramConfig() {
   const token = process.env.TELEGRAM_BOT_TOKEN;
@@ -34,6 +33,12 @@ function formatItems(items: CartLine[]) {
 
 function parseItems(order: CustomerOrder): CartLine[] {
   return Array.isArray(order.items) ? (order.items as unknown as CartLine[]) : [];
+}
+
+function cleanPhone(phone: string): string | null {
+  const digits = phone.replace(/\D/g, "");
+  if (!digits) return null;
+  return digits.length === 10 && !digits.startsWith("1") ? `1${digits}` : digits;
 }
 
 function formatProfile(profile: CustomerProfile | null) {
@@ -148,12 +153,42 @@ export async function sendTelegramOrderNotification(order: CustomerOrder, profil
 
   const buttons: TelegramButton[][] = [
     [
-      { text: "Confirmar pedido", callback_data: `confirm:${order.id}` },
-      { text: "Rechazar pedido", callback_data: `reject:${order.id}` },
+      { text: "✅ Confirmar pedido", callback_data: `confirm:${order.id}` },
+      { text: "❌ Rechazar pedido", callback_data: `reject:${order.id}` },
     ],
   ];
 
+  const rawPhone = profile?.whatsapp;
+  if (rawPhone) {
+    const phone = cleanPhone(rawPhone);
+    if (phone) {
+      buttons.push([{ text: "💬 WhatsApp cliente", url: `https://wa.me/${phone}` }]);
+    }
+  }
+
   return sendTelegramMessage(text, buttons);
+}
+
+export function buildPostConfirmButtons(order: CustomerOrder): TelegramButton[][] | undefined {
+  const snapshot = order.customer_snapshot as Record<string, unknown> | null;
+  const rawPhone = snapshot?.whatsapp as string | undefined;
+  if (!rawPhone) return undefined;
+  const phone = cleanPhone(rawPhone);
+  if (!phone) return undefined;
+
+  const name = snapshot?.full_name as string | undefined;
+  const greeting = name ? `Hola ${name}` : "Hola";
+  const msg = `${greeting}, tu pedido ${order.order_number} ha sido confirmado ✅. Puedes proceder con el pago. ¡Gracias por tu compra en Fox Sports Cards!`;
+
+  return [[{ text: "✉️ Avisar al cliente", url: `https://wa.me/${phone}?text=${encodeURIComponent(msg)}` }]];
+}
+
+export async function sendTelegramLowStockAlert(productTitle: string, qty: number) {
+  const text =
+    qty <= 0
+      ? `🔴 Stock agotado: ${productTitle}`
+      : `⚠️ Stock bajo: ${productTitle} — ${qty} ${qty === 1 ? "pieza" : "piezas"}`;
+  return sendTelegramMessage(text);
 }
 
 export async function sendTelegramTestNotification() {
@@ -186,12 +221,22 @@ export async function answerTelegramCallback(callbackQueryId: string, text: stri
   });
 }
 
-export async function editTelegramMessage(chatId: number | string, messageId: number, text: string) {
+export async function editTelegramMessage(
+  chatId: number | string,
+  messageId: number,
+  text: string,
+  buttons?: TelegramButton[][],
+) {
   const config = getTelegramConfig();
   if (!config.ok) return;
   await fetch(getTelegramApiUrl(config.token, "editMessageText"), {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ chat_id: chatId, message_id: messageId, text }),
+    body: JSON.stringify({
+      chat_id: chatId,
+      message_id: messageId,
+      text,
+      reply_markup: { inline_keyboard: buttons ?? [] },
+    }),
   });
 }
