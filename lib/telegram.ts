@@ -10,12 +10,13 @@ type TelegramButton = {
 function getTelegramConfig() {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
-  if (!token || !chatId) return null;
-  return { token, chatId };
+  if (!token) return { ok: false as const, reason: "missing-token" as const };
+  if (!chatId) return { ok: false as const, reason: "missing-chat-id" as const };
+  return { ok: true as const, token, chatId };
 }
 
-function getTelegramApiUrl(method: string) {
-  return `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/${method}`;
+function getTelegramApiUrl(token: string, method: string) {
+  return `https://api.telegram.org/bot${token}/${method}`;
 }
 
 function formatItems(items: CartLine[]) {
@@ -47,13 +48,41 @@ function formatProfile(profile: CustomerProfile | null) {
 }
 
 export function isTelegramConfigured() {
-  return Boolean(getTelegramConfig());
+  return getTelegramConfig().ok;
+}
+
+async function sendTelegramMessage(text: string, buttons?: TelegramButton[][]) {
+  const config = getTelegramConfig();
+  if (!config.ok) {
+    console.error(`[telegram] ${config.reason}`);
+    return { ok: false as const, messageId: null, reason: config.reason };
+  }
+
+  try {
+    const response = await fetch(getTelegramApiUrl(config.token, "sendMessage"), {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        chat_id: config.chatId,
+        text,
+        ...(buttons ? { reply_markup: { inline_keyboard: buttons } } : {}),
+      }),
+    });
+
+    if (!response.ok) {
+      console.error("[telegram] sendMessage failed", await response.text());
+      return { ok: false as const, messageId: null, reason: "send-failed" as const };
+    }
+
+    const payload = (await response.json()) as { result?: { message_id?: number } };
+    return { ok: true as const, messageId: payload.result?.message_id ?? null };
+  } catch (error) {
+    console.error("[telegram] sendMessage error", error);
+    return { ok: false as const, messageId: null, reason: "send-failed" as const };
+  }
 }
 
 export async function sendTelegramOrderNotification(order: CustomerOrder, profile: CustomerProfile | null) {
-  const config = getTelegramConfig();
-  if (!config) return { ok: false as const, messageId: null };
-
   const items = parseItems(order);
   const text = [
     `Nuevo pedido ${order.order_number}`,
@@ -72,28 +101,17 @@ export async function sendTelegramOrderNotification(order: CustomerOrder, profil
     ],
   ];
 
-  const response = await fetch(getTelegramApiUrl("sendMessage"), {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      chat_id: config.chatId,
-      text,
-      reply_markup: { inline_keyboard: buttons },
-    }),
-  });
+  return sendTelegramMessage(text, buttons);
+}
 
-  if (!response.ok) {
-    console.error("[telegram] sendMessage failed", await response.text());
-    return { ok: false as const, messageId: null };
-  }
-
-  const payload = (await response.json()) as { result?: { message_id?: number } };
-  return { ok: true as const, messageId: payload.result?.message_id ?? null };
+export async function sendTelegramTestNotification() {
+  return sendTelegramMessage("Prueba desde el panel de Fox Sports Cards. Telegram está conectado.");
 }
 
 export async function answerTelegramCallback(callbackQueryId: string, text: string) {
-  if (!process.env.TELEGRAM_BOT_TOKEN) return;
-  await fetch(getTelegramApiUrl("answerCallbackQuery"), {
+  const config = getTelegramConfig();
+  if (!config.ok) return;
+  await fetch(getTelegramApiUrl(config.token, "answerCallbackQuery"), {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ callback_query_id: callbackQueryId, text }),
@@ -101,8 +119,9 @@ export async function answerTelegramCallback(callbackQueryId: string, text: stri
 }
 
 export async function editTelegramMessage(chatId: number | string, messageId: number, text: string) {
-  if (!process.env.TELEGRAM_BOT_TOKEN) return;
-  await fetch(getTelegramApiUrl("editMessageText"), {
+  const config = getTelegramConfig();
+  if (!config.ok) return;
+  await fetch(getTelegramApiUrl(config.token, "editMessageText"), {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ chat_id: chatId, message_id: messageId, text }),

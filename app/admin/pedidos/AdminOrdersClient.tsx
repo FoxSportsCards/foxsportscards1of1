@@ -68,6 +68,7 @@ function getFriendlyError(error: unknown, fallback: string) {
     "no se pudo",
     "no se pudieron",
     "falta seleccionar",
+    "falta conectar",
     "acción no válida",
   ];
   return safeMessages.some((safeMessage) => message.includes(safeMessage)) ? error.message : fallback;
@@ -86,6 +87,8 @@ export default function AdminOrdersClient() {
   const [inventoryStatus, setInventoryStatus] = useState("all");
   const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [testingTelegram, setTestingTelegram] = useState(false);
+  const [telegramMessage, setTelegramMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -201,6 +204,20 @@ export default function AdminOrdersClient() {
     }
   }
 
+  async function handleTelegramTest() {
+    setTestingTelegram(true);
+    setTelegramMessage(null);
+    setError(null);
+    try {
+      await apiFetch("/api/admin/telegram-test", { method: "POST" });
+      setTelegramMessage("Prueba enviada a Telegram.");
+    } catch (testError) {
+      setError(getFriendlyError(testError, "No se pudo probar Telegram. Revisa la conexión del bot."));
+    } finally {
+      setTestingTelegram(false);
+    }
+  }
+
   if (!supabase) {
     return (
       <section className="container py-14">
@@ -235,13 +252,23 @@ export default function AdminOrdersClient() {
             Gestiona pedidos, ventas y disponibilidad desde un solo lugar.
           </p>
         </div>
-        <button type="button" onClick={loadDashboard} className="btn-ghost">
-          Actualizar
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button type="button" onClick={handleTelegramTest} disabled={testingTelegram} className="btn-ghost disabled:opacity-60">
+            {testingTelegram ? "Probando..." : "Probar Telegram"}
+          </button>
+          <button type="button" onClick={loadDashboard} className="btn-ghost">
+            Actualizar
+          </button>
+        </div>
       </header>
 
       {error ? (
         <p className="rounded-2xl border border-red/20 bg-red/10 px-4 py-3 text-sm font-semibold text-red">{error}</p>
+      ) : null}
+      {telegramMessage ? (
+        <p className="rounded-2xl border border-green/20 bg-green/10 px-4 py-3 text-sm font-semibold text-green">
+          {telegramMessage}
+        </p>
       ) : null}
 
       <div className="grid gap-4 md:grid-cols-3">
