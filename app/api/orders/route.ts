@@ -62,14 +62,14 @@ async function getCurrentUser(request: Request) {
 export async function POST(request: Request) {
   const admin = getSupabaseAdminClient();
   if (!admin) {
-    return NextResponse.json({ error: "Supabase admin is not configured." }, { status: 503 });
+    return NextResponse.json({ error: "El pedido no está disponible temporalmente." }, { status: 503 });
   }
 
   const payload = (await request.json().catch(() => null)) as OrderPayload | null;
   const requestedLines = cleanLines(payload?.lines);
 
   if (!requestedLines.length) {
-    return NextResponse.json({ error: "Cart is empty." }, { status: 400 });
+    return NextResponse.json({ error: "El carrito está vacío." }, { status: 400 });
   }
 
   const user = await getCurrentUser(request);
@@ -109,7 +109,7 @@ export async function POST(request: Request) {
 
     if (trackInventory && availableQuantity < quantity) {
       return NextResponse.json(
-        { error: `Insufficient stock for ${product.title}.`, slug: product.slug },
+        { error: `No hay stock suficiente para ${product.title}.`, slug: product.slug },
         { status: 409 },
       );
     }
@@ -142,7 +142,7 @@ export async function POST(request: Request) {
     .single();
 
   if (error || !order) {
-    return NextResponse.json({ error: error?.message ?? "Order could not be created." }, { status: 500 });
+    return NextResponse.json({ error: "No se pudo crear el pedido." }, { status: 500 });
   }
 
   const telegram = await sendTelegramOrderNotification(order, profile);

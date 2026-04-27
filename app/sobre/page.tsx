@@ -47,8 +47,8 @@ export default function AboutPage() {
         </h1>
         <p className="text-sm text-muted">
           {isEn
-            ? "We are a digital boutique focused on sports cards, memorabilia and signed pieces. This storefront prioritizes product visibility, speed and direct checkout."
-            : "Somos una boutique digital enfocada en cartas deportivas, memorabilia y piezas firmadas. Este rediseño prioriza visibilidad de producto, velocidad y compra directa."}
+            ? "We are a digital boutique focused on sports cards, memorabilia and signed pieces, with clear prices, reliable availability and direct checkout."
+            : "Somos una boutique digital enfocada en cartas deportivas, memorabilia y piezas firmadas, con precios claros, disponibilidad confiable y compra directa."}
         </p>
       </div>
 

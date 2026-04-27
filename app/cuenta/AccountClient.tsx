@@ -96,7 +96,7 @@ export default function AccountClient({ locale = "es" }: AccountClientProps) {
         eyebrow: "My account",
         title: "Delivery profile and order history",
         text: "Save your details once and reuse them when sending orders through WhatsApp.",
-        notConfigured: "Supabase is not configured yet. Add the public URL and anon key to enable accounts.",
+        notConfigured: "Account access is temporarily unavailable. Please try again later.",
         notLogged: "You need to sign in to manage delivery details.",
         login: "Sign in",
         profile: "Delivery profile",
@@ -125,7 +125,7 @@ export default function AccountClient({ locale = "es" }: AccountClientProps) {
         eyebrow: "Mi cuenta",
         title: "Datos de entrega e historial de pedidos",
         text: "Guarda tus datos una vez y los reutilizamos cuando confirmes pedidos por WhatsApp.",
-        notConfigured: "Supabase todavía no está configurado. Agrega la URL pública y anon key para activar cuentas.",
+        notConfigured: "Tu cuenta no está disponible temporalmente. Inténtalo más tarde.",
         notLogged: "Necesitas iniciar sesión para manejar tus datos de entrega.",
         login: "Iniciar sesión",
         profile: "Perfil de entrega",
@@ -232,7 +232,7 @@ export default function AccountClient({ locale = "es" }: AccountClientProps) {
     setSaving(false);
 
     if (saveError) {
-      setError(saveError.message);
+      setError(isEn ? "We could not save your details. Please try again." : "No pudimos guardar tus datos. Inténtalo de nuevo.");
       return;
     }
 

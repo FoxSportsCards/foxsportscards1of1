@@ -26,7 +26,7 @@ export default function LoginClient({ locale = "es" }: LoginClientProps) {
     ? {
         eyebrow: "Customer access",
         title: "Sign in to save delivery details",
-        text: "Use your account to reuse address, phone and order history without slowing down the storefront.",
+        text: "Use your account to reuse address, phone and order history when placing an order.",
         signin: "Sign in",
         signup: "Create account",
         fullName: "Full name",
@@ -36,14 +36,14 @@ export default function LoginClient({ locale = "es" }: LoginClientProps) {
         submitSignin: "Sign in",
         submitSignup: "Create account",
         loading: "Working...",
-        notConfigured: "Supabase is not configured yet. Add the public URL and anon key to enable login.",
+        notConfigured: "Customer access is temporarily unavailable. Please try again later.",
         checkEmail: "Account created. Check your email if confirmation is required.",
         back: "Back to catalog",
       }
     : {
         eyebrow: "Acceso de cliente",
         title: "Inicia sesión para guardar tus datos de entrega",
-        text: "Tu cuenta guarda dirección, celular e historial de pedidos sin cargar la vitrina principal.",
+        text: "Tu cuenta guarda dirección, celular e historial de pedidos para comprar más rápido.",
         signin: "Iniciar sesión",
         signup: "Crear cuenta",
         fullName: "Nombre completo",
@@ -53,10 +53,19 @@ export default function LoginClient({ locale = "es" }: LoginClientProps) {
         submitSignin: "Iniciar sesión",
         submitSignup: "Crear cuenta",
         loading: "Procesando...",
-        notConfigured: "Supabase todavía no está configurado. Agrega la URL pública y anon key para activar el login.",
-        checkEmail: "Cuenta creada. Revisa tu correo si Supabase pide confirmación.",
+        notConfigured: "El acceso de clientes no está disponible temporalmente. Inténtalo más tarde.",
+        checkEmail: "Cuenta creada. Revisa tu correo si se requiere confirmación.",
         back: "Volver al catálogo",
       };
+
+  const authError =
+    mode === "signup"
+      ? isEn
+        ? "We could not create the account. Check the information and try again."
+        : "No pudimos crear la cuenta. Revisa los datos e intenta de nuevo."
+      : isEn
+        ? "We could not sign you in. Check your email and password."
+        : "No pudimos iniciar sesión. Revisa tu correo y contraseña.";
 
   const handleEmailAuth = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -83,7 +92,7 @@ export default function LoginClient({ locale = "es" }: LoginClientProps) {
         : await supabase.auth.signInWithPassword({ email, password });
 
     if (result.error) {
-      setError(result.error.message);
+      setError(authError);
       setLoading(false);
       return;
     }
@@ -111,7 +120,7 @@ export default function LoginClient({ locale = "es" }: LoginClientProps) {
       },
     });
     if (googleError) {
-      setError(googleError.message);
+      setError(isEn ? "Google sign-in is unavailable right now." : "El acceso con Google no está disponible ahora mismo.");
       setLoading(false);
     }
   };

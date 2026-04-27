@@ -43,7 +43,7 @@ export default function ContactPage() {
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-blue">Instagram</p>
           <p className="mt-2 text-xl font-heading font-bold text-ink">@foxsportscards1of1</p>
           <p className="mt-2 text-sm text-muted">
-            {isEn ? "Daily showcase with new pieces." : "Vitrina diaria con nuevas piezas."}
+            {isEn ? "Daily selection with new pieces." : "Selección diaria con nuevas piezas."}
           </p>
         </a>
 

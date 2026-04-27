@@ -30,7 +30,7 @@ export async function POST(request: Request) {
 
   const admin = getSupabaseAdminClient();
   if (!admin) {
-    return NextResponse.json({ error: "Supabase admin is not configured." }, { status: 503 });
+    return NextResponse.json({ error: "El servicio no está disponible temporalmente." }, { status: 503 });
   }
 
   const update = (await request.json().catch(() => null)) as TelegramUpdate | null;
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
 
   const [action, orderId] = data.split(":");
   if (!orderId || (action !== "confirm" && action !== "reject")) {
-    await answerTelegramCallback(callback.id, "Accion no valida.");
+    await answerTelegramCallback(callback.id, "Acción no válida.");
     return NextResponse.json({ ok: true });
   }
 
@@ -53,7 +53,7 @@ export async function POST(request: Request) {
       : await admin.rpc("reject_customer_order", { order_id: orderId, note: "Rechazado desde Telegram" });
 
   if (result.error || !result.data) {
-    await answerTelegramCallback(callback.id, result.error?.message ?? "No se pudo procesar.");
+    await answerTelegramCallback(callback.id, "No se pudo procesar.");
     return NextResponse.json({ ok: true });
   }
 

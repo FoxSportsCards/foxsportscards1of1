@@ -61,7 +61,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
   const action = payload?.action;
 
   if (action !== "confirm" && action !== "reject") {
-    return NextResponse.json({ error: "Invalid action." }, { status: 400 });
+    return NextResponse.json({ error: "Acción no válida." }, { status: 400 });
   }
 
   const result =
@@ -70,7 +70,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
       : await auth.admin.rpc("reject_customer_order", { order_id: params.id, note: payload?.note ?? null });
 
   if (result.error || !result.data) {
-    return NextResponse.json({ error: result.error?.message ?? "Order action failed." }, { status: 400 });
+    return NextResponse.json({ error: "No se pudo actualizar el pedido." }, { status: 400 });
   }
 
   const sanitySync = action === "confirm" ? await syncConfirmedInventoryToSanity(auth.admin, result.data.items) : [];

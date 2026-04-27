@@ -79,9 +79,9 @@ export default async function HomePage() {
         releaseDateFallback: "Date to be confirmed",
         noReleases: "No scheduled releases yet. Ask us on WhatsApp for priority alerts.",
         processEyebrow: "Simple process",
-        processTitle: "Built like a real store, not a generic template",
+        processTitle: "A clear way to buy collectibles",
         processText:
-          "Every section was redesigned to improve product visibility and make buying faster on desktop and mobile.",
+          "Products, prices, availability and checkout are organized so you can decide quickly from any device.",
         steps: [
           {
             title: "Browse",
@@ -132,9 +132,9 @@ export default async function HomePage() {
         releaseDateFallback: "Fecha por definir",
         noReleases: "No hay lanzamientos programados. Solicita alertas personalizadas por WhatsApp.",
         processEyebrow: "Proceso simple",
-        processTitle: "Diseñada como tienda real, no como plantilla genérica",
+        processTitle: "Una forma clara de comprar coleccionables",
         processText:
-          "Cada bloque se ajustó para que el producto sea protagonista y para comprar rápido en desktop y móvil.",
+          "Productos, precios, disponibilidad y compra están organizados para decidir rápido desde cualquier dispositivo.",
         steps: [
           {
             title: "Explora",
@@ -275,8 +275,8 @@ export default async function HomePage() {
             <div className="glass-card p-8 text-center">
               <p className="text-sm text-muted">
                 {isEn
-                  ? "There are no products yet. Add products in Sanity to show your storefront."
-                  : "Aún no hay productos cargados. Agrega productos en Sanity para mostrar la vitrina."}
+                  ? "There are no products available right now. Please check back soon."
+                  : "No hay productos disponibles por ahora. Vuelve pronto para ver nuevas piezas."}
               </p>
             </div>
           )}

@@ -150,7 +150,7 @@ export function CatalogClient({
       ? {
           eyebrow: "Shop catalog",
           title: "Find collectibles by status, category and price",
-          text: "Storefront view with practical filters and clear stock so every product is easy to find.",
+          text: "Practical filters, clear availability and direct prices so every product is easy to find.",
           searchLabel: "Search products",
           searchPlaceholder: "Search player, team, set or collectible type",
           clear: "Clear",

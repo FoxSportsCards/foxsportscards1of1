@@ -24,7 +24,7 @@ export async function GET(request: Request) {
   ]);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: "No se pudo cargar el inventario." }, { status: 500 });
   }
 
   const inventoryMap = new Map((inventoryRows ?? []).map((row) => [row.product_slug, row]));
@@ -48,7 +48,7 @@ export async function PUT(request: Request) {
   const productSlug = payload?.productSlug?.trim();
 
   if (!productSlug) {
-    return NextResponse.json({ error: "Missing product slug." }, { status: 400 });
+    return NextResponse.json({ error: "Falta seleccionar el producto." }, { status: 400 });
   }
 
   const quantity = Math.max(0, Number(payload?.quantity ?? 0));
@@ -67,7 +67,7 @@ export async function PUT(request: Request) {
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: "No se pudo guardar el inventario." }, { status: 500 });
   }
 
   const sanitySync = await syncSanityInventory(productSlug, quantity);

@@ -41,7 +41,7 @@ export async function GET(request: Request) {
   const { data, error } = await query;
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: "No se pudieron cargar los pedidos." }, { status: 500 });
   }
 
   const [{ data: revenueRows, error: revenueError }, { count: pendingCount, error: pendingError }] = await Promise.all([
@@ -50,7 +50,7 @@ export async function GET(request: Request) {
   ]);
 
   if (revenueError || pendingError) {
-    return NextResponse.json({ error: revenueError?.message ?? pendingError?.message }, { status: 500 });
+    return NextResponse.json({ error: "No se pudo calcular el resumen de ventas." }, { status: 500 });
   }
 
   const revenueByCurrency = (revenueRows ?? []).reduce<Record<string, number>>((totals, order) => {

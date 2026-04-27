@@ -23,21 +23,21 @@ export async function requireAdmin(request: Request) {
   if (!admin) {
     return {
       ok: false as const,
-      response: NextResponse.json({ error: "Supabase admin is not configured." }, { status: 503 }),
+      response: NextResponse.json({ error: "El panel no está disponible temporalmente." }, { status: 503 }),
     };
   }
 
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
     return {
       ok: false as const,
-      response: NextResponse.json({ error: "Supabase public auth is not configured." }, { status: 503 }),
+      response: NextResponse.json({ error: "El panel no está disponible temporalmente." }, { status: 503 }),
     };
   }
 
   if (!token) {
     return {
       ok: false as const,
-      response: NextResponse.json({ error: "Missing session." }, { status: 401 }),
+      response: NextResponse.json({ error: "Tu sesión expiró. Inicia sesión de nuevo." }, { status: 401 }),
     };
   }
 
@@ -60,7 +60,7 @@ export async function requireAdmin(request: Request) {
   if (error || !user?.email) {
     return {
       ok: false as const,
-      response: NextResponse.json({ error: "Invalid session." }, { status: 401 }),
+      response: NextResponse.json({ error: "Tu sesión expiró. Inicia sesión de nuevo." }, { status: 401 }),
     };
   }
 
@@ -77,7 +77,7 @@ export async function requireAdmin(request: Request) {
   if (!allowedByEnv && !adminUser) {
     return {
       ok: false as const,
-      response: NextResponse.json({ error: "Admin access required." }, { status: 403 }),
+      response: NextResponse.json({ error: "No tienes acceso a este panel." }, { status: 403 }),
     };
   }
 

@@ -161,6 +161,7 @@ export default function CartDrawer({ locale = "es" }: CartDrawerProps) {
     } else {
       window.location.href = finalUrl;
     }
+    clear();
     setOpen(false);
   };
 

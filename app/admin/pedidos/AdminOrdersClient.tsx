@@ -59,6 +59,20 @@ function formatRevenue(summary: DashboardSummary) {
     .join(" / ");
 }
 
+function getFriendlyError(error: unknown, fallback: string) {
+  if (!(error instanceof Error) || !error.message) return fallback;
+  const message = error.message.toLowerCase();
+  const safeMessages = [
+    "tu sesión expiró",
+    "no tienes acceso",
+    "no se pudo",
+    "no se pudieron",
+    "falta seleccionar",
+    "acción no válida",
+  ];
+  return safeMessages.some((safeMessage) => message.includes(safeMessage)) ? error.message : fallback;
+}
+
 export default function AdminOrdersClient() {
   const supabase = getSupabaseBrowserClient();
   const [sessionToken, setSessionToken] = useState<string | null>(null);
@@ -86,7 +100,7 @@ export default function AdminOrdersClient() {
   }, [supabase]);
 
   async function apiFetch(path: string, init?: RequestInit) {
-    if (!sessionToken) throw new Error("Debes iniciar sesion como admin.");
+    if (!sessionToken) throw new Error("Debes iniciar sesión como administrador.");
     const response = await fetch(path, {
       ...init,
       headers: {
@@ -113,7 +127,7 @@ export default function AdminOrdersClient() {
       setSummary(ordersPayload.summary ?? { confirmedCount: 0, pendingCount: 0, revenue: [] });
       setInventory(inventoryPayload.inventory ?? []);
     } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : "No se pudo cargar el panel.");
+      setError(getFriendlyError(loadError, "No se pudo cargar el panel. Inténtalo de nuevo."));
     } finally {
       setLoading(false);
     }
@@ -159,7 +173,7 @@ export default function AdminOrdersClient() {
       });
       await loadDashboard();
     } catch (actionError) {
-      setError(actionError instanceof Error ? actionError.message : "No se pudo actualizar el pedido.");
+      setError(getFriendlyError(actionError, "No se pudo actualizar el pedido. Inténtalo de nuevo."));
     } finally {
       setSavingId(null);
     }
@@ -181,7 +195,7 @@ export default function AdminOrdersClient() {
       });
       await loadDashboard();
     } catch (saveError) {
-      setError(saveError instanceof Error ? saveError.message : "No se pudo guardar inventario.");
+      setError(getFriendlyError(saveError, "No se pudo guardar el inventario. Inténtalo de nuevo."));
     } finally {
       setSavingId(null);
     }
@@ -191,7 +205,7 @@ export default function AdminOrdersClient() {
     return (
       <section className="container py-14">
         <div className="glass-card mx-auto max-w-2xl p-6 text-center text-sm text-red">
-          Supabase no esta configurado.
+          El panel no está disponible temporalmente.
         </div>
       </section>
     );
@@ -202,9 +216,9 @@ export default function AdminOrdersClient() {
       <section className="container py-14">
         <div className="glass-card mx-auto max-w-2xl p-6 text-center">
           <h1 className="text-3xl font-heading font-bold text-ink">Panel admin</h1>
-          <p className="mt-2 text-sm text-muted">Inicia sesion con un usuario autorizado para ver pedidos.</p>
+          <p className="mt-2 text-sm text-muted">Inicia sesión con un usuario autorizado para ver pedidos.</p>
           <Link href="/login" className="btn-primary mt-5">
-            Iniciar sesion
+            Iniciar sesión
           </Link>
         </div>
       </section>
@@ -218,7 +232,7 @@ export default function AdminOrdersClient() {
           <span className="eyebrow">Operaciones</span>
           <h1 className="mt-3 text-4xl font-heading font-bold text-ink">Pedidos e inventario</h1>
           <p className="mt-2 max-w-2xl text-sm text-muted">
-            Confirma pedidos, descuenta inventario y ajusta stock sin afectar la vitrina principal.
+            Gestiona pedidos, ventas y disponibilidad desde un solo lugar.
           </p>
         </div>
         <button type="button" onClick={loadDashboard} className="btn-ghost">
@@ -234,17 +248,17 @@ export default function AdminOrdersClient() {
         <div className="rounded-3xl border border-line bg-white p-5 shadow-soft">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">Ventas confirmadas</p>
           <p className="mt-2 text-3xl font-heading font-bold text-ink">{formatRevenue(summary)}</p>
-          <p className="mt-1 text-xs text-muted">{summary.confirmedCount} pedidos confirmados o avanzados</p>
+          <p className="mt-1 text-xs text-muted">{summary.confirmedCount} pedidos confirmados o en proceso</p>
         </div>
         <div className="rounded-3xl border border-line bg-white p-5 shadow-soft">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">Pendientes</p>
           <p className="mt-2 text-3xl font-heading font-bold text-ink">{summary.pendingCount}</p>
-          <p className="mt-1 text-xs text-muted">Pedidos esperando confirmacion</p>
+          <p className="mt-1 text-xs text-muted">Pedidos esperando confirmación</p>
         </div>
         <div className="rounded-3xl border border-line bg-white p-5 shadow-soft">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">Inventario visible</p>
           <p className="mt-2 text-3xl font-heading font-bold text-ink">{inventory.length}</p>
-          <p className="mt-1 text-xs text-muted">Busca por producto, slug o categoria</p>
+          <p className="mt-1 text-xs text-muted">Busca por producto o categoría</p>
         </div>
       </div>
 
@@ -353,7 +367,7 @@ export default function AdminOrdersClient() {
             <div>
               <h2 className="text-2xl font-heading font-bold text-ink">Inventario</h2>
               <p className="mt-1 text-sm text-muted">
-                Stock operativo en Supabase. Si `SANITY_WRITE_TOKEN` esta configurado, tambien se actualiza Sanity.
+                Actualiza cantidades, revisa agotados y localiza productos rápido.
               </p>
             </div>
             <div className="grid gap-2 sm:grid-cols-3 lg:min-w-[620px]">
@@ -369,7 +383,7 @@ export default function AdminOrdersClient() {
                 onChange={(event) => setInventoryCategory(event.target.value)}
                 className="focus-ring rounded-full border border-line bg-white px-4 py-2 text-sm text-ink"
               >
-                <option value="all">Todas las categorias</option>
+                <option value="all">Todas las categorías</option>
                 {inventoryCategories.map((category) => (
                   <option key={category} value={category}>
                     {category}
@@ -441,7 +455,6 @@ function InventoryRow({
         <div className="min-w-0">
           <p className="line-clamp-2 text-sm font-semibold text-ink">{item.productTitle}</p>
           <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-muted">{item.categoryLabel}</p>
-          <p className="mt-1 break-all text-[11px] text-muted">{item.productSlug}</p>
         </div>
         <input
           type="number"
