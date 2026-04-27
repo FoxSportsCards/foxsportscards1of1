@@ -9,9 +9,10 @@ import type { Product } from "@/types/product";
 type AddToCartProps = {
   product: Product;
   locale?: Locale;
+  quantity?: number;
 };
 
-export default function AddToCart({ product, locale = "es" }: AddToCartProps) {
+export default function AddToCart({ product, locale = "es", quantity = 1 }: AddToCartProps) {
   const add = useCart((state) => state.add);
   const [justAdded, setJustAdded] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -19,7 +20,7 @@ export default function AddToCart({ product, locale = "es" }: AddToCartProps) {
 
   const handleClick = () => {
     if (soldOut) return;
-    add(product, 1);
+    add(product, Math.max(1, quantity));
     setJustAdded(true);
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => setJustAdded(false), 1800);

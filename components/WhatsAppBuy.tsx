@@ -24,15 +24,16 @@ type WhatsAppBuyProps = {
   product: Product;
   mode?: WhatsAppMode;
   locale?: Locale;
+  quantity?: number;
 };
 
-export default function WhatsAppBuy({ product, mode = "buy", locale = "es" }: WhatsAppBuyProps) {
+export default function WhatsAppBuy({ product, mode = "buy", locale = "es", quantity = 1 }: WhatsAppBuyProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const introMessage = product.whatsappMessage ?? DEFAULT_MESSAGES[locale][mode];
   const line = {
     title: product.title,
-    qty: 1,
+    qty: Math.max(1, quantity),
     price: product.price,
     currency: product.currency,
     slug: product.slug,

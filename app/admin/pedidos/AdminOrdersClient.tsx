@@ -117,10 +117,12 @@ export default function AdminOrdersClient() {
     return payload;
   }
 
-  async function loadDashboard() {
+  async function loadDashboard(options?: { silent?: boolean }) {
     if (!sessionToken) return;
-    setLoading(true);
-    setError(null);
+    if (!options?.silent) {
+      setLoading(true);
+      setError(null);
+    }
     try {
       const [ordersPayload, inventoryPayload] = await Promise.all([
         apiFetch(`/api/admin/orders?status=${status}`),
@@ -130,9 +132,11 @@ export default function AdminOrdersClient() {
       setSummary(ordersPayload.summary ?? { confirmedCount: 0, pendingCount: 0, revenue: [] });
       setInventory(inventoryPayload.inventory ?? []);
     } catch (loadError) {
-      setError(getFriendlyError(loadError, "No se pudo cargar el panel. Inténtalo de nuevo."));
+      if (!options?.silent) {
+        setError(getFriendlyError(loadError, "No se pudo cargar el panel. Inténtalo de nuevo."));
+      }
     } finally {
-      setLoading(false);
+      if (!options?.silent) setLoading(false);
     }
   }
 
@@ -162,19 +166,26 @@ export default function AdminOrdersClient() {
   }, [inventory, inventoryCategory, inventorySearch, inventoryStatus]);
 
   useEffect(() => {
+    if (!sessionToken) return;
     loadDashboard();
+    const interval = window.setInterval(() => {
+      loadDashboard({ silent: true });
+    }, 15000);
+    return () => window.clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionToken, status]);
 
   async function handleOrderAction(orderId: string, action: "confirm" | "reject") {
     setSavingId(orderId);
     setError(null);
+    setTelegramMessage(null);
     try {
       await apiFetch(`/api/admin/orders/${orderId}`, {
         method: "PATCH",
         body: JSON.stringify({ action }),
       });
       await loadDashboard();
+      setTelegramMessage(action === "confirm" ? "Pedido confirmado." : "Pedido rechazado.");
     } catch (actionError) {
       setError(getFriendlyError(actionError, "No se pudo actualizar el pedido. Inténtalo de nuevo."));
     } finally {
@@ -185,6 +196,7 @@ export default function AdminOrdersClient() {
   async function handleInventorySave(item: InventoryView, quantity: number) {
     setSavingId(item.productSlug);
     setError(null);
+    setTelegramMessage(null);
     try {
       await apiFetch("/api/admin/inventory", {
         method: "PUT",
@@ -197,6 +209,7 @@ export default function AdminOrdersClient() {
         }),
       });
       await loadDashboard();
+      setTelegramMessage("Inventario actualizado.");
     } catch (saveError) {
       setError(getFriendlyError(saveError, "No se pudo guardar el inventario. Inténtalo de nuevo."));
     } finally {
@@ -256,7 +269,7 @@ export default function AdminOrdersClient() {
           <button type="button" onClick={handleTelegramTest} disabled={testingTelegram} className="btn-ghost disabled:opacity-60">
             {testingTelegram ? "Probando..." : "Probar Telegram"}
           </button>
-          <button type="button" onClick={loadDashboard} className="btn-ghost">
+          <button type="button" onClick={() => loadDashboard()} className="btn-ghost">
             Actualizar
           </button>
         </div>

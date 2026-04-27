@@ -15,6 +15,10 @@ function getTelegramConfig() {
   return { ok: true as const, token, chatId };
 }
 
+function getWebhookSecret() {
+  return process.env.TELEGRAM_WEBHOOK_SECRET?.trim() || null;
+}
+
 function getTelegramApiUrl(token: string, method: string) {
   return `https://api.telegram.org/bot${token}/${method}`;
 }
@@ -39,7 +43,7 @@ function formatProfile(profile: CustomerProfile | null) {
     profile.whatsapp ? `WhatsApp: ${profile.whatsapp}` : null,
     profile.phone ? `Celular: ${profile.phone}` : null,
     profile.email ? `Correo: ${profile.email}` : null,
-    profile.address_line1 ? `Direccion: ${profile.address_line1}` : null,
+    profile.address_line1 ? `Dirección: ${profile.address_line1}` : null,
     profile.address_line2 ? `Referencia: ${profile.address_line2}` : null,
     profile.city || profile.province ? `Zona: ${[profile.city, profile.province].filter(Boolean).join(", ")}` : null,
     profile.delivery_notes ? `Notas: ${profile.delivery_notes}` : null,
@@ -49,6 +53,16 @@ function formatProfile(profile: CustomerProfile | null) {
 
 export function isTelegramConfigured() {
   return getTelegramConfig().ok;
+}
+
+export function isTelegramWebhookSecretConfigured() {
+  return Boolean(getWebhookSecret());
+}
+
+export function hasValidTelegramWebhookSecret(request: Request) {
+  const secret = getWebhookSecret();
+  if (!secret) return false;
+  return request.headers.get("x-telegram-bot-api-secret-token") === secret;
 }
 
 async function sendTelegramMessage(text: string, buttons?: TelegramButton[][]) {
@@ -82,6 +96,44 @@ async function sendTelegramMessage(text: string, buttons?: TelegramButton[][]) {
   }
 }
 
+export async function configureTelegramWebhook(origin: string) {
+  const config = getTelegramConfig();
+  if (!config.ok) {
+    console.error(`[telegram] ${config.reason}`);
+    return { ok: false as const, reason: config.reason };
+  }
+
+  const secret = getWebhookSecret();
+
+  try {
+    const response = await fetch(getTelegramApiUrl(config.token, "setWebhook"), {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        url: `${origin}/api/telegram/webhook`,
+        allowed_updates: ["callback_query"],
+        ...(secret ? { secret_token: secret } : {}),
+      }),
+    });
+
+    if (!response.ok) {
+      console.error("[telegram] setWebhook failed", await response.text());
+      return { ok: false as const, reason: "webhook-failed" as const };
+    }
+
+    const payload = (await response.json()) as { ok?: boolean; description?: string };
+    if (!payload.ok) {
+      console.error("[telegram] setWebhook rejected", payload.description);
+      return { ok: false as const, reason: "webhook-failed" as const };
+    }
+
+    return { ok: true as const };
+  } catch (error) {
+    console.error("[telegram] setWebhook error", error);
+    return { ok: false as const, reason: "webhook-failed" as const };
+  }
+}
+
 export async function sendTelegramOrderNotification(order: CustomerOrder, profile: CustomerProfile | null) {
   const items = parseItems(order);
   const text = [
@@ -106,6 +158,22 @@ export async function sendTelegramOrderNotification(order: CustomerOrder, profil
 
 export async function sendTelegramTestNotification() {
   return sendTelegramMessage("Prueba desde el panel de Fox Sports Cards. Telegram está conectado.");
+}
+
+export function formatTelegramOrderStatusUpdate(
+  order: CustomerOrder,
+  label: "confirmado" | "rechazado",
+  source: string,
+) {
+  const items = parseItems(order);
+
+  return [
+    `Pedido ${order.order_number}: ${label}.`,
+    source,
+    `Total: ${formatCurrency(Number(order.total_amount), order.currency, "es")}`,
+    "",
+    formatItems(items),
+  ].join("\n");
 }
 
 export async function answerTelegramCallback(callbackQueryId: string, text: string) {
