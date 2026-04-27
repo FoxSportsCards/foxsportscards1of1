@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import clsx from "clsx";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -11,9 +11,16 @@ import type { CustomerOrder, ProductInventory } from "@/types/account";
 type InventoryView = {
   productSlug: string;
   productTitle: string;
+  categoryLabel: string;
   sanityQuantity: number | null;
   status: string | null;
   row: ProductInventory | null;
+};
+
+type DashboardSummary = {
+  confirmedCount: number;
+  pendingCount: number;
+  revenue: Array<{ currency: string; total: number }>;
 };
 
 const STATUS_LABELS: Record<CustomerOrder["status"], string> = {
@@ -37,12 +44,32 @@ function getCustomerText(order: CustomerOrder) {
   return [data.full_name, data.whatsapp, data.phone, data.email].filter(Boolean).join(" | ") || "Cliente sin perfil";
 }
 
+function normalize(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLowerCase()
+    .trim();
+}
+
+function formatRevenue(summary: DashboardSummary) {
+  if (!summary.revenue.length) return "RD$0";
+  return summary.revenue
+    .map((entry) => formatCurrency(entry.total, entry.currency, "es"))
+    .join(" / ");
+}
+
 export default function AdminOrdersClient() {
   const supabase = getSupabaseBrowserClient();
   const [sessionToken, setSessionToken] = useState<string | null>(null);
   const [orders, setOrders] = useState<CustomerOrder[]>([]);
   const [inventory, setInventory] = useState<InventoryView[]>([]);
+  const [summary, setSummary] = useState<DashboardSummary>({ confirmedCount: 0, pendingCount: 0, revenue: [] });
+  const [activePanel, setActivePanel] = useState<"orders" | "inventory">("orders");
   const [status, setStatus] = useState("requested");
+  const [inventorySearch, setInventorySearch] = useState("");
+  const [inventoryCategory, setInventoryCategory] = useState("all");
+  const [inventoryStatus, setInventoryStatus] = useState("all");
   const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -83,6 +110,7 @@ export default function AdminOrdersClient() {
         apiFetch("/api/admin/inventory"),
       ]);
       setOrders(ordersPayload.orders ?? []);
+      setSummary(ordersPayload.summary ?? { confirmedCount: 0, pendingCount: 0, revenue: [] });
       setInventory(inventoryPayload.inventory ?? []);
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : "No se pudo cargar el panel.");
@@ -90,6 +118,31 @@ export default function AdminOrdersClient() {
       setLoading(false);
     }
   }
+
+  const inventoryCategories = useMemo(() => {
+    return Array.from(new Set(inventory.map((item) => item.categoryLabel).filter(Boolean))).sort((a, b) =>
+      a.localeCompare(b),
+    );
+  }, [inventory]);
+
+  const visibleInventory = useMemo(() => {
+    const search = normalize(inventorySearch);
+    return inventory.filter((item) => {
+      const quantity = item.row?.quantity ?? item.sanityQuantity ?? 0;
+      const textMatch =
+        !search ||
+        [item.productTitle, item.productSlug, item.categoryLabel]
+          .filter(Boolean)
+          .some((value) => normalize(value).includes(search));
+      const categoryMatch = inventoryCategory === "all" || item.categoryLabel === inventoryCategory;
+      const statusMatch =
+        inventoryStatus === "all" ||
+        (inventoryStatus === "low" && quantity > 0 && quantity <= (item.row?.low_stock_threshold ?? 1)) ||
+        (inventoryStatus === "out" && quantity <= 0) ||
+        (inventoryStatus === "available" && quantity > 0);
+      return textMatch && categoryMatch && statusMatch;
+    });
+  }, [inventory, inventoryCategory, inventorySearch, inventoryStatus]);
 
   useEffect(() => {
     loadDashboard();
@@ -177,25 +230,63 @@ export default function AdminOrdersClient() {
         <p className="rounded-2xl border border-red/20 bg-red/10 px-4 py-3 text-sm font-semibold text-red">{error}</p>
       ) : null}
 
-      <div className="flex flex-wrap gap-2">
-        {(["requested", "confirmed", "rejected", "all"] as const).map((option) => (
+      <div className="grid gap-4 md:grid-cols-3">
+        <div className="rounded-3xl border border-line bg-white p-5 shadow-soft">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">Ventas confirmadas</p>
+          <p className="mt-2 text-3xl font-heading font-bold text-ink">{formatRevenue(summary)}</p>
+          <p className="mt-1 text-xs text-muted">{summary.confirmedCount} pedidos confirmados o avanzados</p>
+        </div>
+        <div className="rounded-3xl border border-line bg-white p-5 shadow-soft">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">Pendientes</p>
+          <p className="mt-2 text-3xl font-heading font-bold text-ink">{summary.pendingCount}</p>
+          <p className="mt-1 text-xs text-muted">Pedidos esperando confirmacion</p>
+        </div>
+        <div className="rounded-3xl border border-line bg-white p-5 shadow-soft">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">Inventario visible</p>
+          <p className="mt-2 text-3xl font-heading font-bold text-ink">{inventory.length}</p>
+          <p className="mt-1 text-xs text-muted">Busca por producto, slug o categoria</p>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-2 rounded-full border border-line bg-white p-1 shadow-soft sm:w-max">
+        {[
+          ["orders", "Pedidos"],
+          ["inventory", "Inventario"],
+        ].map(([value, label]) => (
           <button
-            key={option}
+            key={value}
             type="button"
-            onClick={() => setStatus(option)}
+            onClick={() => setActivePanel(value as "orders" | "inventory")}
             className={clsx(
-              "focus-ring rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.15em]",
-              status === option ? "border-blue bg-blue text-white" : "border-line bg-white text-muted",
+              "focus-ring rounded-full px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.15em]",
+              activePanel === value ? "bg-blue text-white" : "text-muted hover:text-blue",
             )}
           >
-            {option === "all" ? "Todos" : STATUS_LABELS[option]}
+            {label}
           </button>
         ))}
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+      {activePanel === "orders" ? (
         <section className="glass-card p-5">
-          <h2 className="text-2xl font-heading font-bold text-ink">Pedidos</h2>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <h2 className="text-2xl font-heading font-bold text-ink">Pedidos</h2>
+            <div className="flex flex-wrap gap-2">
+              {(["requested", "confirmed", "rejected", "all"] as const).map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => setStatus(option)}
+                  className={clsx(
+                    "focus-ring rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.15em]",
+                    status === option ? "border-blue bg-blue text-white" : "border-line bg-white text-muted",
+                  )}
+                >
+                  {option === "all" ? "Todos" : STATUS_LABELS[option]}
+                </button>
+              ))}
+            </div>
+          </div>
           {loading ? <p className="mt-4 text-sm text-muted">Cargando...</p> : null}
           <div className="mt-5 space-y-4">
             {orders.map((order) => {
@@ -256,11 +347,54 @@ export default function AdminOrdersClient() {
             ) : null}
           </div>
         </section>
-
+      ) : (
         <section className="glass-card p-5">
-          <h2 className="text-2xl font-heading font-bold text-ink">Inventario</h2>
-          <div className="mt-5 max-h-[760px] space-y-3 overflow-y-auto pr-1">
-            {inventory.map((item) => {
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <h2 className="text-2xl font-heading font-bold text-ink">Inventario</h2>
+              <p className="mt-1 text-sm text-muted">
+                Stock operativo en Supabase. Si `SANITY_WRITE_TOKEN` esta configurado, tambien se actualiza Sanity.
+              </p>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-3 lg:min-w-[620px]">
+              <input
+                type="search"
+                value={inventorySearch}
+                onChange={(event) => setInventorySearch(event.target.value)}
+                placeholder="Buscar producto"
+                className="focus-ring rounded-full border border-line bg-white px-4 py-2 text-sm text-ink"
+              />
+              <select
+                value={inventoryCategory}
+                onChange={(event) => setInventoryCategory(event.target.value)}
+                className="focus-ring rounded-full border border-line bg-white px-4 py-2 text-sm text-ink"
+              >
+                <option value="all">Todas las categorias</option>
+                {inventoryCategories.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={inventoryStatus}
+                onChange={(event) => setInventoryStatus(event.target.value)}
+                className="focus-ring rounded-full border border-line bg-white px-4 py-2 text-sm text-ink"
+              >
+                <option value="all">Todos los estados</option>
+                <option value="available">Con stock</option>
+                <option value="low">Stock bajo</option>
+                <option value="out">Agotados</option>
+              </select>
+            </div>
+          </div>
+
+          <p className="mt-4 text-xs font-semibold uppercase tracking-[0.16em] text-muted">
+            {visibleInventory.length} productos visibles
+          </p>
+
+          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {visibleInventory.map((item) => {
               const currentQuantity = item.row?.quantity ?? item.sanityQuantity ?? 0;
               return (
                 <InventoryRow
@@ -272,9 +406,14 @@ export default function AdminOrdersClient() {
                 />
               );
             })}
+            {visibleInventory.length === 0 ? (
+              <p className="rounded-2xl border border-line bg-white px-4 py-6 text-center text-sm text-muted md:col-span-2 xl:col-span-3">
+                No hay productos con esos filtros.
+              </p>
+            ) : null}
           </div>
         </section>
-      </div>
+      )}
     </section>
   );
 }
@@ -301,7 +440,8 @@ function InventoryRow({
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="line-clamp-2 text-sm font-semibold text-ink">{item.productTitle}</p>
-          <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-muted">{item.productSlug}</p>
+          <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-muted">{item.categoryLabel}</p>
+          <p className="mt-1 break-all text-[11px] text-muted">{item.productSlug}</p>
         </div>
         <input
           type="number"

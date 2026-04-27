@@ -11,6 +11,7 @@
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
    - `SUPABASE_SERVICE_ROLE_KEY` (secret, server only)
    - `ADMIN_EMAILS` (comma-separated admin emails)
+   - `SANITY_WRITE_TOKEN` (optional, needed to sync stock changes back to Sanity)
 6. Optional Google login: enable Google in `Authentication > Providers` and add the Google OAuth credentials there.
 
 To enable admin access through the database instead of `ADMIN_EMAILS`, add an admin row:

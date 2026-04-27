@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/adminAuth";
+import { getProductCategoryLabel } from "@/lib/productLabels";
 import { getAllProducts } from "@/lib/products";
+import { syncSanityInventory } from "@/lib/sanity.admin";
 
 export const runtime = "edge";
 
@@ -29,6 +31,7 @@ export async function GET(request: Request) {
   const inventory = products.map((product) => ({
     productSlug: product.slug,
     productTitle: product.title,
+    categoryLabel: getProductCategoryLabel(product, "es"),
     sanityQuantity: product.inventory,
     status: product.status,
     row: inventoryMap.get(product.slug) ?? null,
@@ -67,5 +70,7 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ inventory: data });
+  const sanitySync = await syncSanityInventory(productSlug, quantity);
+
+  return NextResponse.json({ inventory: data, sanitySync });
 }

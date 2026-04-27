@@ -49,12 +49,14 @@ Supabase maneja el inventario operativo, pedidos, perfiles de entrega y estados 
 - El panel admin vive en `/admin/pedidos`.
 - La confirmación descuenta inventario con una función SQL atómica.
 - Telegram puede confirmar o rechazar pedidos desde botones del bot.
+- Si configuras `SANITY_WRITE_TOKEN`, los cambios de stock tambien se reflejan en el campo `inventory` de Sanity.
 
 Variables necesarias para producción:
 
 ```env
 SUPABASE_SERVICE_ROLE_KEY=
 ADMIN_EMAILS=correo-admin@dominio.com
+SANITY_WRITE_TOKEN=
 TELEGRAM_BOT_TOKEN=
 TELEGRAM_ADMIN_CHAT_ID=
 TELEGRAM_WEBHOOK_SECRET=
