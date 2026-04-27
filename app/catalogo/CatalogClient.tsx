@@ -68,9 +68,15 @@ export function CatalogClient({
 }: Props) {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState(initialFilter);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const filters = STATUS_FILTERS[locale];
 
-  const filterOptions = useMemo(() => {
+  const statusOptions = useMemo(
+    () => [filters.all, filters.available, filters.reserved, filters.upcoming, filters.sold],
+    [filters],
+  );
+
+  const dynamicFilterOptions = useMemo(() => {
     const collected = new Map<string, string>();
     products.forEach((product) => {
       const sportLabel = getSportLabel(product.sport, locale);
@@ -82,12 +88,18 @@ export function CatalogClient({
       });
     });
 
-    const dynamicFilters = Array.from(collected.values()).sort((a, b) => a.localeCompare(b));
-    const merged = [filters.all, filters.available, filters.reserved, filters.upcoming, filters.sold, ...dynamicFilters];
+    const statusSet = new Set(statusOptions.map((option) => normalize(option)));
+    return Array.from(collected.values())
+      .filter((option) => !statusSet.has(normalize(option)))
+      .sort((a, b) => a.localeCompare(b));
+  }, [products, statusOptions, locale]);
+
+  const filterOptions = useMemo(() => {
+    const merged = [...statusOptions, ...dynamicFilterOptions];
     return merged.filter(
       (option, index) => merged.findIndex((value) => normalize(value) === normalize(option)) === index,
     );
-  }, [products, filters, locale]);
+  }, [dynamicFilterOptions, statusOptions]);
 
   useEffect(() => {
     const found = filterOptions.some((option) => normalize(option) === normalize(activeFilter));
@@ -144,6 +156,7 @@ export function CatalogClient({
 
   const availableCount = products.filter((product) => (product.status ?? "available") === "available").length;
   const totalPages = Math.max(1, Math.ceil(totalProducts / pageSize));
+  const activeIsAll = isStatusAlias(activeFilter, "all");
 
   const copy =
     locale === "en"
@@ -154,6 +167,13 @@ export function CatalogClient({
           searchLabel: "Search products",
           searchPlaceholder: "Search player, team, set or collectible type",
           clear: "Clear",
+          filters: "Filters",
+          closeFilters: "Close",
+          status: "Status",
+          categories: "Categories",
+          activeFilter: "Active filter",
+          allFilters: "All products",
+          noExtraFilters: "No extra categories available on this page.",
           available: "available",
           visible: "visible",
           page: "page",
@@ -168,6 +188,13 @@ export function CatalogClient({
           searchLabel: "Buscar productos",
           searchPlaceholder: "Buscar jugador, equipo, card set o tipo de pieza",
           clear: "Limpiar",
+          filters: "Filtros",
+          closeFilters: "Cerrar",
+          status: "Estado",
+          categories: "Categorías",
+          activeFilter: "Filtro activo",
+          allFilters: "Todos los productos",
+          noExtraFilters: "No hay categorías extra en esta página.",
           available: "disponibles",
           visible: "visibles",
           page: "página",
@@ -184,59 +211,166 @@ export function CatalogClient({
         <p className="max-w-3xl text-sm text-muted">{copy.text}</p>
       </header>
 
-      <div className="glass-card grid gap-4 p-4 md:grid-cols-[1fr_auto] md:items-center">
-        <label className="relative block">
-          <span className="sr-only">{copy.searchLabel}</span>
-          <input
-            type="search"
-            value={searchTerm}
-            onChange={(event) => setSearchTerm(event.target.value)}
-            placeholder={copy.searchPlaceholder}
-            className="focus-ring w-full rounded-full border border-line bg-white px-5 py-3 text-sm text-ink placeholder:text-muted"
-          />
-          {searchTerm ? (
+      <div className="relative">
+        <div className="glass-card grid gap-4 p-4 lg:grid-cols-[1fr_auto] lg:items-center">
+          <label className="relative block">
+            <span className="sr-only">{copy.searchLabel}</span>
+            <input
+              type="search"
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              placeholder={copy.searchPlaceholder}
+              className="focus-ring w-full rounded-full border border-line bg-white px-5 py-3 text-sm text-ink placeholder:text-muted"
+            />
+            {searchTerm ? (
+              <button
+                type="button"
+                onClick={() => setSearchTerm("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full border border-line bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted hover:border-blue/35 hover:text-blue"
+              >
+                {copy.clear}
+              </button>
+            ) : null}
+          </label>
+
+          <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-muted">
+            <span className="rounded-full border border-green/25 bg-green/10 px-3 py-1 text-green">
+              {availableCount} {copy.available}
+            </span>
+            <span className="rounded-full border border-line bg-white px-3 py-1">
+              {visibleProducts.length} {copy.visible}
+            </span>
+            <span className="rounded-full border border-line bg-white px-3 py-1">
+              {copy.page} {page} {copy.of} {totalPages}
+            </span>
             <button
               type="button"
-              onClick={() => setSearchTerm("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full border border-line bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted hover:border-blue/35 hover:text-blue"
-            >
-              {copy.clear}
-            </button>
-          ) : null}
-        </label>
-
-        <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-muted">
-          <span className="rounded-full border border-green/25 bg-green/10 px-3 py-1 text-green">
-            {availableCount} {copy.available}
-          </span>
-          <span className="rounded-full border border-line bg-white px-3 py-1">
-            {visibleProducts.length} {copy.visible}
-          </span>
-          <span className="rounded-full border border-line bg-white px-3 py-1">
-            {copy.page} {page} {copy.of} {totalPages}
-          </span>
-        </div>
-      </div>
-
-      <div className="flex flex-wrap gap-2">
-        {filterOptions.map((option) => {
-          const active = normalize(option) === normalize(activeFilter);
-          return (
-            <button
-              key={option}
-              type="button"
-              onClick={() => setActiveFilter(option)}
+              onClick={() => setFiltersOpen((current) => !current)}
+              aria-expanded={filtersOpen}
               className={clsx(
-                "focus-ring rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.15em]",
-                active ? "border-blue bg-blue text-white shadow-glow" : "border-line bg-white text-muted hover:border-blue/35 hover:text-blue",
+                "focus-ring inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.15em] shadow-soft",
+                filtersOpen || !activeIsAll
+                  ? "border-blue bg-blue text-white"
+                  : "border-line bg-white text-muted hover:border-blue/35 hover:text-blue",
               )}
             >
-              {option}
+              {copy.filters}
+              {!activeIsAll ? <span className="hidden sm:inline">· {activeFilter}</span> : null}
             </button>
-          );
-        })}
+          </div>
+        </div>
+
+        {filtersOpen ? (
+          <div className="absolute left-0 right-0 top-[calc(100%+0.75rem)] z-30 max-h-[68vh] overflow-y-auto rounded-[2rem] border border-line bg-white p-4 shadow-glass sm:max-h-[520px]">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-blue">{copy.filters}</p>
+                <p className="mt-1 text-sm text-muted">
+                  {copy.activeFilter}: {activeIsAll ? copy.allFilters : activeFilter}
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {!activeIsAll ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveFilter(filters.all);
+                      setFiltersOpen(false);
+                    }}
+                    className="focus-ring rounded-full border border-line bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-muted hover:border-blue/35 hover:text-blue"
+                  >
+                    {copy.clear}
+                  </button>
+                ) : null}
+                <button
+                  type="button"
+                  onClick={() => setFiltersOpen(false)}
+                  className="focus-ring rounded-full border border-line bg-surface px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-muted hover:border-blue/35 hover:text-blue"
+                >
+                  {copy.closeFilters}
+                </button>
+              </div>
+            </div>
+
+            <div className="grid gap-5 lg:grid-cols-[0.72fr_1.28fr]">
+              <div>
+                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-muted">{copy.status}</p>
+                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
+                  {statusOptions.map((option) => {
+                    const active = normalize(option) === normalize(activeFilter);
+                    return (
+                      <button
+                        key={option}
+                        type="button"
+                        onClick={() => {
+                          setActiveFilter(option);
+                          setFiltersOpen(false);
+                        }}
+                        className={clsx(
+                          "focus-ring rounded-2xl border px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.15em]",
+                          active
+                            ? "border-blue bg-blue text-white shadow-glow"
+                            : "border-line bg-surface text-muted hover:border-blue/35 hover:text-blue",
+                        )}
+                      >
+                        {option}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-muted">{copy.categories}</p>
+                {dynamicFilterOptions.length > 0 ? (
+                  <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+                    {dynamicFilterOptions.map((option) => {
+                      const active = normalize(option) === normalize(activeFilter);
+                      return (
+                        <button
+                          key={option}
+                          type="button"
+                          onClick={() => {
+                            setActiveFilter(option);
+                            setFiltersOpen(false);
+                          }}
+                          className={clsx(
+                            "focus-ring rounded-2xl border px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.15em]",
+                            active
+                              ? "border-blue bg-blue text-white shadow-glow"
+                              : "border-line bg-surface text-muted hover:border-blue/35 hover:text-blue",
+                          )}
+                        >
+                          {option}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="rounded-2xl border border-line bg-surface px-4 py-5 text-sm text-muted">
+                    {copy.noExtraFilters}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        ) : null}
       </div>
 
+      {!activeIsAll ? (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="rounded-full border border-blue/20 bg-blue/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-blue">
+            {copy.activeFilter}: {activeFilter}
+          </span>
+          <button
+            type="button"
+            onClick={() => setActiveFilter(filters.all)}
+            className="focus-ring rounded-full border border-line bg-white px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted hover:border-blue/35 hover:text-blue"
+          >
+            {copy.clear}
+          </button>
+        </div>
+      ) : null}
       {visibleProducts.length > 0 ? (
         <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-5">
           {visibleProducts.map((product, index) => (
