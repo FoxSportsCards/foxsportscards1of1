@@ -213,76 +213,50 @@ export function CatalogClient({
       </header>
 
       <div className="relative">
-        <div className="glass-card space-y-3 p-4">
+        <div className="glass-card p-4">
+          <div className="flex gap-3">
+            {/* Barra de búsqueda */}
+            <label className="relative min-w-0 flex-1">
+              <span className="sr-only">{copy.searchLabel}</span>
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" aria-hidden="true">
+                <circle cx="8.5" cy="8.5" r="5.25" />
+                <path d="M12.5 12.5 17 17" strokeLinecap="round" />
+              </svg>
+              <input
+                type="search"
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+                placeholder={copy.searchPlaceholder}
+                className="focus-ring w-full rounded-full border border-line bg-white py-3 pl-10 pr-4 text-sm text-ink placeholder:text-muted"
+              />
+            </label>
 
-          {/* Barra de búsqueda */}
-          <label className="relative block">
-            <span className="sr-only">{copy.searchLabel}</span>
-            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" aria-hidden="true">
-              <circle cx="8.5" cy="8.5" r="5.25" />
-              <path d="M12.5 12.5 17 17" strokeLinecap="round" />
-            </svg>
-            <input
-              type="search"
-              value={searchTerm}
-              onChange={(event) => setSearchTerm(event.target.value)}
-              placeholder={copy.searchPlaceholder}
-              className="focus-ring w-full rounded-full border border-line bg-white py-3 pl-10 pr-20 text-sm text-ink placeholder:text-muted"
-            />
-            {searchTerm ? (
-              <button
-                type="button"
-                onClick={() => setSearchTerm("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full border border-line bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted hover:border-blue/35 hover:text-blue"
-              >
-                {copy.clear}
-              </button>
-            ) : null}
-          </label>
-
-          {/* Filtros de estado siempre visibles + botón categorías */}
-          <div className="flex gap-2 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {statusOptions.map((option) => {
-              const isActive = normalize(option) === normalize(activeFilter);
-              return (
-                <button
-                  key={option}
-                  type="button"
-                  onClick={() => setActiveFilter(option)}
-                  className={clsx(
-                    "focus-ring flex-none rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] whitespace-nowrap transition-colors",
-                    isActive
-                      ? "border-blue bg-blue text-white shadow-glow"
-                      : "border-line bg-white text-muted hover:border-blue/35 hover:text-blue",
-                  )}
-                >
-                  {option}
-                </button>
-              );
-            })}
-            {dynamicFilterOptions.length > 0 ? (
-              <button
-                type="button"
-                onClick={() => setFiltersOpen((current) => !current)}
-                aria-expanded={filtersOpen}
-                className={clsx(
-                  "focus-ring flex-none inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] whitespace-nowrap transition-colors",
-                  filtersOpen || activeIsCategory
-                    ? "border-blue bg-blue text-white"
-                    : "border-line bg-white text-muted hover:border-blue/35 hover:text-blue",
-                )}
-              >
-                {copy.categories}
-                {activeIsCategory ? <span className="hidden sm:inline">· {activeFilter}</span> : null}
-                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.8" className={clsx("h-3 w-3 transition-transform", filtersOpen && "rotate-180")} aria-hidden="true">
-                  <path d="M2 4l4 4 4-4" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
-            ) : null}
+            {/* Botón único de filtros */}
+            <button
+              type="button"
+              onClick={() => setFiltersOpen((current) => !current)}
+              aria-expanded={filtersOpen}
+              className={clsx(
+                "focus-ring inline-flex shrink-0 items-center gap-2 rounded-full border px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] transition-colors",
+                filtersOpen || !activeIsAll
+                  ? "border-blue bg-blue text-white shadow-glow"
+                  : "border-line bg-white text-muted hover:border-blue/35 hover:text-blue",
+              )}
+            >
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-3.5 w-3.5" aria-hidden="true">
+                <path d="M2 4h12M4 8h8M6 12h4" strokeLinecap="round" />
+              </svg>
+              <span className="hidden sm:inline">
+                {!activeIsAll ? activeFilter : copy.filters}
+              </span>
+              {!activeIsAll ? (
+                <span className="sm:hidden">1</span>
+              ) : null}
+            </button>
           </div>
 
           {/* Línea de stats */}
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-semibold uppercase tracking-[0.15em]">
+          <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-semibold uppercase tracking-[0.15em]">
             <span className="text-green">{availableCount} {copy.available}</span>
             <span className="text-muted/40">·</span>
             <span className="text-muted">{visibleProducts.length} {copy.visible}</span>
@@ -292,38 +266,28 @@ export function CatalogClient({
                 <span className="text-muted">{copy.page} {page} {copy.of} {totalPages}</span>
               </>
             ) : null}
-            {activeIsCategory ? (
-              <>
-                <span className="text-muted/40">·</span>
-                <button
-                  type="button"
-                  onClick={() => setActiveFilter(filters.all)}
-                  className="inline-flex items-center gap-1 text-blue hover:opacity-70"
-                >
-                  {activeFilter}
-                  <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" className="h-3 w-3" aria-hidden="true">
-                    <path d="M2 2l8 8M10 2l-8 8" strokeLinecap="round" />
-                  </svg>
-                </button>
-              </>
+            {!activeIsAll ? (
+              <button
+                type="button"
+                onClick={() => setActiveFilter(filters.all)}
+                className="inline-flex items-center gap-1 text-blue hover:opacity-70"
+              >
+                · {activeFilter}
+                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" className="h-3 w-3" aria-hidden="true">
+                  <path d="M2 2l8 8M10 2l-8 8" strokeLinecap="round" />
+                </svg>
+              </button>
             ) : null}
           </div>
         </div>
 
-        {/* Dropdown de categorías */}
-        {filtersOpen && dynamicFilterOptions.length > 0 ? (
+        {/* Panel de filtros */}
+        {filtersOpen ? (
           <div className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-30 rounded-[2rem] border border-line bg-white p-5 shadow-glass">
-            <div className="mb-4 flex items-center justify-between gap-3 border-b border-line pb-4">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue">{copy.categories}</p>
-                {activeIsCategory ? (
-                  <p className="mt-0.5 text-sm font-semibold text-ink">{activeFilter}</p>
-                ) : (
-                  <p className="mt-0.5 text-sm text-muted">{copy.allFilters}</p>
-                )}
-              </div>
+            <div className="mb-5 flex items-center justify-between gap-3">
+              <p className="text-sm font-heading font-bold text-ink">{copy.filters}</p>
               <div className="flex gap-2">
-                {activeIsCategory ? (
+                {!activeIsAll ? (
                   <button
                     type="button"
                     onClick={() => { setActiveFilter(filters.all); setFiltersOpen(false); }}
@@ -341,26 +305,58 @@ export function CatalogClient({
                 </button>
               </div>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {dynamicFilterOptions.map((option) => {
-                const isActive = normalize(option) === normalize(activeFilter);
-                return (
-                  <button
-                    key={option}
-                    type="button"
-                    onClick={() => { setActiveFilter(option); setFiltersOpen(false); }}
-                    className={clsx(
-                      "focus-ring rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.14em]",
-                      isActive
-                        ? "border-blue bg-blue text-white shadow-glow"
-                        : "border-line bg-white text-muted hover:border-blue/35 hover:text-blue",
-                    )}
-                  >
-                    {option}
-                  </button>
-                );
-              })}
+
+            {/* Estado */}
+            <div className="mb-5">
+              <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">{copy.status}</p>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {statusOptions.map((option) => {
+                  const isActive = normalize(option) === normalize(activeFilter);
+                  return (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => { setActiveFilter(option); setFiltersOpen(false); }}
+                      className={clsx(
+                        "focus-ring rounded-2xl border px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.14em]",
+                        isActive
+                          ? "border-blue bg-blue text-white shadow-glow"
+                          : "border-line bg-surface text-muted hover:border-blue/35 hover:text-blue",
+                      )}
+                    >
+                      {option}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
+
+            {/* Categorías */}
+            {dynamicFilterOptions.length > 0 ? (
+              <div>
+                <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">{copy.categories}</p>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  {dynamicFilterOptions.map((option) => {
+                    const isActive = normalize(option) === normalize(activeFilter);
+                    return (
+                      <button
+                        key={option}
+                        type="button"
+                        onClick={() => { setActiveFilter(option); setFiltersOpen(false); }}
+                        className={clsx(
+                          "focus-ring rounded-2xl border px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.14em]",
+                          isActive
+                            ? "border-blue bg-blue text-white shadow-glow"
+                            : "border-line bg-surface text-muted hover:border-blue/35 hover:text-blue",
+                        )}
+                      >
+                        {option}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null}
           </div>
         ) : null}
       </div>
