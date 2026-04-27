@@ -97,6 +97,7 @@ export default function AccountClient({ locale = "es" }: AccountClientProps) {
   const [orders, setOrders] = useState<CustomerOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -186,7 +187,7 @@ export default function AccountClient({ locale = "es" }: AccountClientProps) {
 
       setUser(currentUser);
 
-      const [{ data: profileData }, { data: orderData }] = await Promise.all([
+      const [{ data: profileData }, { data: orderData }, adminCheck] = await Promise.all([
         client.from("customer_profiles").select("*").eq("id", currentUser.id).maybeSingle(),
         client
           .from("customer_orders")
@@ -194,7 +195,17 @@ export default function AccountClient({ locale = "es" }: AccountClientProps) {
           .eq("user_id", currentUser.id)
           .order("created_at", { ascending: false })
           .limit(20),
+        client.auth.getSession().then(({ data: { session } }) =>
+          session
+            ? fetch("/api/admin/me", {
+                headers: { authorization: `Bearer ${session.access_token}` },
+              }).then((r) => r.json()).catch(() => ({ isAdmin: false }))
+            : Promise.resolve({ isAdmin: false }),
+        ),
       ]);
+
+      if (!active) return;
+      setIsAdmin(adminCheck?.isAdmin === true);
 
       if (!active) return;
       setProfile(mapProfileToForm(profileData ?? null, currentUser));
@@ -297,6 +308,11 @@ export default function AccountClient({ locale = "es" }: AccountClientProps) {
           <p className="text-sm text-muted">{copy.text}</p>
         </div>
         <div className="flex flex-wrap gap-2">
+          {isAdmin ? (
+            <Link href="/admin/pedidos" className="btn-primary">
+              {isEn ? "Admin panel" : "Panel admin"}
+            </Link>
+          ) : null}
           <Link href="/catalogo" className="btn-ghost">
             {copy.back}
           </Link>
