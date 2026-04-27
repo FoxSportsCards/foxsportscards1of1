@@ -3,8 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
+import Link from "next/link";
 import clsx from "clsx";
 import { useCart } from "@/store/cart";
+import { useCheckoutGuard } from "@/hooks/useCheckoutGuard";
 import { BANK_PAYMENT_DETAILS } from "@/lib/payment";
 import { formatCurrency, getProductPrices } from "@/lib/pricing";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
@@ -21,6 +23,7 @@ export default function CartDrawer({ locale = "es" }: CartDrawerProps) {
   const [mounted, setMounted] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const checkoutGuard = useCheckoutGuard();
   const items = useCart((state) => state.items);
   const remove = useCart((state) => state.remove);
   const clear = useCart((state) => state.clear);
@@ -49,6 +52,8 @@ export default function CartDrawer({ locale = "es" }: CartDrawerProps) {
           savedInfoNote: "If you are logged in, your saved delivery profile is added to WhatsApp and order history.",
           historyError: "The order could not be saved to your history, but WhatsApp will still open.",
           checkoutError: "The order could not be created. Check stock or try again.",
+          loginPrompt: "Sign in to buy",
+          profilePrompt: "Complete your name and WhatsApp to buy",
         }
       : {
           cart: "Carrito",
@@ -73,6 +78,8 @@ export default function CartDrawer({ locale = "es" }: CartDrawerProps) {
             "Si iniciaste sesión, agregamos tus datos de entrega al WhatsApp y guardamos el pedido en tu historial.",
           historyError: "No se pudo guardar el pedido en tu historial, pero WhatsApp se abrirá igual.",
           checkoutError: "No se pudo crear el pedido. Revisa el stock o intenta de nuevo.",
+          loginPrompt: "Inicia sesión para comprar",
+          profilePrompt: "Completa tu nombre y WhatsApp para comprar",
         };
 
   const itemCount = useMemo(() => items.reduce((sum, item) => sum + item.qty, 0), [items]);
@@ -340,19 +347,37 @@ export default function CartDrawer({ locale = "es" }: CartDrawerProps) {
                   ) : null}
 
                   <div className="grid gap-2 sm:grid-cols-2">
-                    <button
-                      type="button"
-                      onClick={handleCheckout}
-                      disabled={!items.length || checkoutLoading}
-                      className={clsx(
-                        "inline-flex items-center justify-center rounded-full px-4 py-3 text-sm font-semibold uppercase tracking-[0.16em]",
-                        items.length
-                          ? "bg-blue text-white shadow-glow hover:brightness-95 disabled:cursor-wait disabled:opacity-75"
-                          : "cursor-not-allowed bg-line text-muted",
-                      )}
-                    >
-                      {checkoutLoading ? copy.confirming : copy.confirm}
-                    </button>
+                    {checkoutGuard === "no-session" ? (
+                      <Link
+                        href="/login"
+                        onClick={() => setOpen(false)}
+                        className="inline-flex items-center justify-center rounded-full bg-blue px-4 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-white shadow-glow hover:brightness-95"
+                      >
+                        {copy.loginPrompt}
+                      </Link>
+                    ) : checkoutGuard === "no-profile" ? (
+                      <Link
+                        href="/cuenta"
+                        onClick={() => setOpen(false)}
+                        className="inline-flex items-center justify-center rounded-full bg-blue px-4 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-white shadow-glow hover:brightness-95"
+                      >
+                        {copy.profilePrompt}
+                      </Link>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={handleCheckout}
+                        disabled={!items.length || checkoutLoading || checkoutGuard === "loading"}
+                        className={clsx(
+                          "inline-flex items-center justify-center rounded-full px-4 py-3 text-sm font-semibold uppercase tracking-[0.16em]",
+                          items.length
+                            ? "bg-blue text-white shadow-glow hover:brightness-95 disabled:cursor-wait disabled:opacity-75"
+                            : "cursor-not-allowed bg-line text-muted",
+                        )}
+                      >
+                        {checkoutLoading ? copy.confirming : copy.confirm}
+                      </button>
+                    )}
                     <button
                       type="button"
                       onClick={() => {

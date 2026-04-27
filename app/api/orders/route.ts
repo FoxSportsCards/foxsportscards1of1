@@ -73,11 +73,26 @@ export async function POST(request: Request) {
   }
 
   const user = await getCurrentUser(request);
-  let profile: CustomerProfile | null = null;
 
-  if (user) {
-    const { data } = await admin.from("customer_profiles").select("*").eq("id", user.id).maybeSingle();
-    profile = data ?? null;
+  if (!user) {
+    return NextResponse.json(
+      { error: "Debes iniciar sesión para realizar un pedido." },
+      { status: 401 },
+    );
+  }
+
+  const { data: profileData } = await admin
+    .from("customer_profiles")
+    .select("*")
+    .eq("id", user.id)
+    .maybeSingle();
+  const profile: CustomerProfile | null = profileData ?? null;
+
+  if (!profile?.full_name || !profile?.whatsapp) {
+    return NextResponse.json(
+      { error: "Agrega tu nombre y WhatsApp en tu perfil para continuar." },
+      { status: 422 },
+    );
   }
 
   const verifiedLines: CartLine[] = [];
