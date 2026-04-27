@@ -22,6 +22,7 @@ const NAV_ITEMS = [
   { href: "/catalogo", label: { es: "Cat\u00e1logo", en: "Catalog" } },
   { href: "/lanzamientos", label: { es: "Lanzamientos", en: "Releases" } },
   { href: "/hall-of-fame", label: { es: "Hall of Fame", en: "Hall of Fame" } },
+  { href: "/ubicacion", label: { es: "Ubicación", en: "Location" } },
 ];
 
 export default function Header({ locale }: HeaderProps) {
