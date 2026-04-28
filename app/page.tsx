@@ -174,7 +174,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <section className="relative flex min-h-[calc(100dvh-4.75rem)] items-center overflow-hidden border-b border-line/80 py-8 sm:min-h-[calc(100dvh-5.4rem)] sm:py-10 lg:min-h-[calc(100dvh-6rem)] lg:py-12">
+      <section className="relative flex min-h-[calc(100dvh-4.75rem)] items-center overflow-hidden border-b border-line/80 py-10 sm:min-h-[calc(100dvh-5.4rem)] sm:py-10 lg:min-h-[calc(100dvh-6rem)] lg:py-12">
         <div className="pointer-events-none absolute inset-0">
           <HeroMedia
             poster="/videos/hero-poster.jpg"
@@ -185,17 +185,17 @@ export default async function HomePage() {
         <div className="pointer-events-none absolute inset-0 bg-black/30" />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/84 via-black/58 to-black/24 md:from-black/78 md:via-black/48 md:to-black/14" />
         <div className="pointer-events-none absolute inset-0 bg-hero-gradient opacity-30" />
-        <div className="container relative grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(260px,330px)] lg:items-center">
-          <div className="mx-auto max-w-2xl space-y-5 text-center lg:mx-0 lg:space-y-6 lg:text-left">
+        <div className="container relative grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(260px,330px)] lg:items-center lg:gap-6">
+          <div className="mx-auto max-w-2xl space-y-7 text-center lg:mx-0 lg:space-y-6 lg:text-left">
             <span
-              className="-rotate-2 inline-block font-graffiti text-[clamp(4.15rem,17vw,5.45rem)] leading-[0.9] text-white sm:text-[clamp(4.4rem,13vw,6.4rem)] lg:text-[clamp(3rem,8vw,5.5rem)]"
+              className="-rotate-2 inline-block max-w-full font-graffiti text-[clamp(3.8rem,15.4vw,4.75rem)] leading-[0.94] text-white sm:text-[clamp(4.4rem,13vw,6.4rem)] lg:text-[clamp(3rem,8vw,5.5rem)]"
               style={{
                 textShadow: "0 0 24px rgba(255,130,0,0.5), 0 3px 8px rgba(0,0,0,0.85)",
                 WebkitTextStroke: "1.5px rgba(255,255,255,0.15)",
               }}
             >
               <span className="block">Fox Sports</span>
-              <span className="block">
+              <span className="mt-1 block whitespace-nowrap text-[0.76em]">
                 Cards{" "}
                 <span
                   className="text-amber-400"
@@ -208,21 +208,27 @@ export default async function HomePage() {
                 </span>
               </span>
             </span>
-            <h1 className="mx-auto max-w-[22rem] text-[1.45rem] font-heading font-black leading-tight text-white drop-shadow-[0_10px_24px_rgba(0,0,0,0.48)] sm:max-w-2xl sm:text-3xl lg:mx-0 lg:max-w-3xl lg:text-5xl">
+            <h1 className="mx-auto max-w-[20rem] text-[1.18rem] font-heading font-black leading-snug text-white drop-shadow-[0_10px_24px_rgba(0,0,0,0.48)] sm:max-w-2xl sm:text-3xl lg:mx-0 lg:max-w-3xl lg:text-5xl">
               {copy.heroTitle}
             </h1>
-            <div className="mx-auto grid w-full max-w-[23rem] grid-cols-2 gap-3 lg:mx-0 lg:flex lg:max-w-none lg:flex-wrap lg:justify-start">
-              <Link href="/catalogo" className="btn-primary min-h-[3.25rem] px-4 text-[15px]">
+            <div className="mx-auto grid w-full max-w-[22rem] grid-cols-2 gap-3 lg:mx-0 lg:flex lg:max-w-none lg:flex-wrap lg:justify-start">
+              <Link
+                href="/catalogo"
+                className="inline-flex h-11 items-center justify-center rounded-full border border-blue/25 bg-gradient-to-r from-blue to-accent-soft px-4 text-sm font-semibold text-white shadow-[0_12px_30px_rgba(0,117,255,0.28)] hover:-translate-y-[1px] hover:opacity-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue/40 lg:h-12 lg:px-6"
+              >
                 {copy.ctaPrimary}
               </Link>
-              <Link href="/lanzamientos" className="btn-secondary min-h-[3.25rem] px-4 text-[15px]">
+              <Link
+                href="/lanzamientos"
+                className="inline-flex h-11 items-center justify-center rounded-full border border-white/70 bg-white/95 px-4 text-sm font-semibold text-ink shadow-[0_12px_30px_rgba(255,255,255,0.16)] hover:-translate-y-[1px] hover:border-green/45 focus:outline-none focus-visible:ring-2 focus-visible:ring-green/35 lg:h-12 lg:px-6"
+              >
                 {copy.ctaSecondary}
               </Link>
               <a
                 href="https://www.instagram.com/foxsportscards1of1"
                 target="_blank"
                 rel="noreferrer"
-                className="btn-secondary col-span-2 mx-auto inline-flex min-h-[3.25rem] w-[72%] items-center gap-2 px-4 text-[15px] lg:col-span-1 lg:mx-0 lg:w-auto"
+                className="col-span-2 mx-auto inline-flex h-11 w-[64%] items-center justify-center gap-2 rounded-full border border-white/70 bg-white/95 px-4 text-sm font-semibold text-ink shadow-[0_12px_30px_rgba(255,255,255,0.16)] hover:-translate-y-[1px] hover:border-green/45 focus:outline-none focus-visible:ring-2 focus-visible:ring-green/35 lg:col-span-1 lg:mx-0 lg:h-12 lg:w-auto lg:px-6"
               >
                 <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4" aria-hidden="true">
                   <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
