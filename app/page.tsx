@@ -191,7 +191,7 @@ export default async function HomePage() {
               <span
                 className="block"
                 style={{
-                  fontSize: "clamp(2.6rem, 11.2vw, 7rem)",
+                  fontSize: "clamp(2.35rem, 10.1vw, 7rem)",
                   color: "#f8fafc",
                   WebkitTextStroke: "2px #0d0d0d",
                   paintOrder: "stroke fill",
@@ -204,7 +204,7 @@ export default async function HomePage() {
               <span
                 className="block"
                 style={{
-                  fontSize: "clamp(2.4rem, 10.25vw, 6.6rem)",
+                  fontSize: "clamp(2.2rem, 9.35vw, 6.6rem)",
                   color: "#f8fafc",
                   WebkitTextStroke: "2px #0d0d0d",
                   paintOrder: "stroke fill",
