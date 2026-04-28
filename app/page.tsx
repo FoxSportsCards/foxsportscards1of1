@@ -188,24 +188,40 @@ export default async function HomePage() {
         <div className="container relative grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(260px,330px)] lg:items-center">
           <div className="max-w-2xl space-y-6">
             <span
-              className="-rotate-2 inline-block font-graffiti leading-none"
+              className="-rotate-2 inline-block font-graffiti leading-[1.05]"
               style={{
-                fontSize: "clamp(3rem, 8vw, 5.5rem)",
-                color: "#ffffff",
-                WebkitTextStroke: "6px #0a0a0a",
+                fontSize: "clamp(3.2rem, 9vw, 6rem)",
+                color: "#f8fafc",
+                WebkitTextStroke: "3px #0d0d0d",
                 paintOrder: "stroke fill",
-                textShadow:
-                  "4px 6px 0px #0a0a0a, 0 0 30px rgba(255,140,0,0.45), 0 0 60px rgba(255,100,0,0.25)",
+                textShadow: [
+                  "2px 2px 0 #111",
+                  "4px 4px 0 #111",
+                  "6px 6px 0 #0d0d0d",
+                  "8px 8px 0 #0a0a0a",
+                  "10px 10px 0 #080808",
+                  "12px 12px 0 #060606",
+                  "0 0 40px rgba(255,130,0,0.35)",
+                ].join(", "),
               }}
             >
               Fox Sports{" "}
               <span
                 style={{
                   color: "#fbbf24",
-                  WebkitTextStroke: "6px #0a0a0a",
+                  WebkitTextStroke: "3px #0d0d0d",
                   paintOrder: "stroke fill",
-                  textShadow:
-                    "4px 6px 0px #0a0a0a, 0 0 20px rgba(255,200,0,1), 0 0 45px rgba(255,150,0,0.9), 0 0 80px rgba(255,100,0,0.55)",
+                  textShadow: [
+                    "2px 2px 0 #78350f",
+                    "4px 4px 0 #6a2e0a",
+                    "6px 6px 0 #5a2507",
+                    "8px 8px 0 #451c05",
+                    "10px 10px 0 #311503",
+                    "12px 12px 0 #1a0c01",
+                    "0 0 24px rgba(255,200,0,1)",
+                    "0 0 50px rgba(255,150,0,0.85)",
+                    "0 0 90px rgba(255,100,0,0.5)",
+                  ].join(", "),
                 }}
               >
                 1of1
