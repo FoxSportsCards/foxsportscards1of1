@@ -1,7 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import clsx from "clsx";
-import { Chakra_Petch, Space_Grotesk } from "next/font/google";
+import { Chakra_Petch, Space_Grotesk, Permanent_Marker } from "next/font/google";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { getServerLocale } from "@/lib/getServerLocale";
@@ -11,6 +11,13 @@ const sans = Space_Grotesk({
   variable: "--font-sans",
   display: "swap",
   weight: ["400", "500", "600", "700"],
+});
+
+const graffiti = Permanent_Marker({
+  subsets: ["latin"],
+  variable: "--font-graffiti",
+  display: "swap",
+  weight: "400",
 });
 
 const heading = Chakra_Petch({
@@ -64,7 +71,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang={locale} className="scroll-smooth">
-      <body className={clsx(sans.variable, heading.variable, "min-h-screen")}>
+      <body className={clsx(sans.variable, heading.variable, graffiti.variable, "min-h-screen")}>
         <Header locale={locale} />
         <main className="relative min-h-[70vh]">{children}</main>
         <Footer locale={locale} />

@@ -21,6 +21,7 @@ module.exports = {
       fontFamily: {
         sans: ["var(--font-sans)", "ui-sans-serif", "sans-serif"],
         heading: ["var(--font-heading)", "ui-sans-serif", "sans-serif"],
+        graffiti: ["var(--font-graffiti)", "cursive"],
       },
       backgroundImage: {
         "hero-gradient":

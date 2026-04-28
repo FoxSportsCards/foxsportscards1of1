@@ -48,7 +48,6 @@ export default async function HomePage() {
 
   const copy = isEn
     ? {
-        heroEyebrow: "Trusted sports card store",
         heroTitle: "Premium collectibles with guaranteed authenticity.",
         heroText:
           "Find sports cards, Pokémon cards, signed jerseys, balls and memorabilia in a clear shop format with direct prices.",
@@ -95,7 +94,6 @@ export default async function HomePage() {
         productCardCta: "View item",
       }
     : {
-        heroEyebrow: "Tienda confiable de sports cards",
         heroTitle: "Coleccionables premium, autenticidad garantizada.",
         heroText:
           "Compra sports cards, cartas Pokémon, jerseys firmados, pelotas y memorabilia con fotos claras y precio directo.",
@@ -189,7 +187,9 @@ export default async function HomePage() {
         <div className="pointer-events-none absolute inset-0 bg-hero-gradient opacity-30" />
         <div className="container relative grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(260px,330px)] lg:items-center">
           <div className="max-w-2xl space-y-6">
-            <span className="eyebrow">{copy.heroEyebrow}</span>
+            <span className="font-graffiti text-4xl leading-none tracking-wide text-white drop-shadow-[0_2px_16px_rgba(255,140,0,0.55)] sm:text-5xl" style={{ WebkitTextStroke: "1px rgba(255,255,255,0.18)" }}>
+              Fox Sports <span className="text-amber-400 drop-shadow-[0_0_18px_rgba(255,180,0,0.7)]">1of1</span>
+            </span>
             <h1 className="max-w-3xl text-4xl font-heading font-black leading-tight text-white drop-shadow-[0_10px_24px_rgba(0,0,0,0.48)] sm:text-5xl">
               {copy.heroTitle}
             </h1>
