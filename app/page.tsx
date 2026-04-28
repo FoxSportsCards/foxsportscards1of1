@@ -188,19 +188,24 @@ export default async function HomePage() {
         <div className="container relative grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(260px,330px)] lg:items-center">
           <div className="max-w-2xl space-y-6">
             <span
-              className="-rotate-2 inline-block font-graffiti leading-none text-white"
+              className="-rotate-2 inline-block font-graffiti leading-none"
               style={{
                 fontSize: "clamp(3rem, 8vw, 5.5rem)",
-                textShadow: "0 0 24px rgba(255,130,0,0.5), 0 3px 8px rgba(0,0,0,0.85)",
-                WebkitTextStroke: "1.5px rgba(255,255,255,0.15)",
+                color: "#ffffff",
+                WebkitTextStroke: "6px #0a0a0a",
+                paintOrder: "stroke fill",
+                textShadow:
+                  "4px 6px 0px #0a0a0a, 0 0 30px rgba(255,140,0,0.45), 0 0 60px rgba(255,100,0,0.25)",
               }}
             >
               Fox Sports{" "}
               <span
-                className="text-amber-400"
                 style={{
+                  color: "#fbbf24",
+                  WebkitTextStroke: "6px #0a0a0a",
+                  paintOrder: "stroke fill",
                   textShadow:
-                    "0 0 18px rgba(255,200,0,1), 0 0 40px rgba(255,150,0,0.85), 0 0 70px rgba(255,100,0,0.5)",
+                    "4px 6px 0px #0a0a0a, 0 0 20px rgba(255,200,0,1), 0 0 45px rgba(255,150,0,0.9), 0 0 80px rgba(255,100,0,0.55)",
                 }}
               >
                 1of1

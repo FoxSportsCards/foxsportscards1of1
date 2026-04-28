@@ -1,7 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import clsx from "clsx";
-import { Chakra_Petch, Space_Grotesk, Permanent_Marker } from "next/font/google";
+import { Chakra_Petch, Space_Grotesk, Lilita_One } from "next/font/google";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { getServerLocale } from "@/lib/getServerLocale";
@@ -13,7 +13,7 @@ const sans = Space_Grotesk({
   weight: ["400", "500", "600", "700"],
 });
 
-const graffiti = Permanent_Marker({
+const graffiti = Lilita_One({
   subsets: ["latin"],
   variable: "--font-graffiti",
   display: "swap",

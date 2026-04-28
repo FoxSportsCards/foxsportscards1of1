@@ -99,7 +99,7 @@ export default function Header({ locale }: HeaderProps) {
                   key={item.href}
                   href={item.href}
                   className={clsx(
-                    "rounded-full px-3 py-2 font-graffiti text-[14px] normal-case tracking-wide",
+                    "rounded-full px-3 py-2 text-xs font-semibold uppercase tracking-[0.13em]",
                     isActive
                       ? "bg-blue text-white shadow-glow"
                       : "text-muted hover:bg-surface-elevated hover:text-ink",
@@ -173,7 +173,7 @@ export default function Header({ locale }: HeaderProps) {
                   key={item.href}
                   href={item.href}
                   className={clsx(
-                    "rounded-2xl px-4 py-3.5 font-graffiti text-xl normal-case tracking-wide transition-colors",
+                    "rounded-2xl px-4 py-3 text-sm font-semibold uppercase tracking-[0.13em] transition-colors",
                     isActive
                       ? "bg-blue text-white shadow-glow"
                       : "bg-surface text-ink hover:bg-surface-elevated hover:text-blue",
