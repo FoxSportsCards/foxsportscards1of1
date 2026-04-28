@@ -186,11 +186,11 @@ export default async function HomePage() {
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/84 via-black/58 to-black/24 md:from-black/78 md:via-black/48 md:to-black/14" />
         <div className="pointer-events-none absolute inset-0 bg-hero-gradient opacity-30" />
         <div className="container relative grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(260px,330px)] lg:items-center">
-          <div className="max-w-2xl space-y-6">
+          <div className="w-full space-y-4 text-center lg:max-w-2xl lg:text-left">
             <span
               className="-rotate-2 inline-block font-graffiti leading-[1.05]"
               style={{
-                fontSize: "clamp(3.2rem, 9vw, 6rem)",
+                fontSize: "clamp(2.6rem, 10vw, 6rem)",
                 color: "#f8fafc",
                 WebkitTextStroke: "3px #0d0d0d",
                 paintOrder: "stroke fill",
@@ -205,7 +205,7 @@ export default async function HomePage() {
                 ].join(", "),
               }}
             >
-              Fox Sports{" "}
+              Fox Sports Cards{" "}
               <span
                 style={{
                   color: "#fbbf24",
@@ -227,14 +227,14 @@ export default async function HomePage() {
                 1of1
               </span>
             </span>
-            <h1 className="max-w-3xl text-4xl font-heading font-black leading-tight text-white drop-shadow-[0_10px_24px_rgba(0,0,0,0.48)] sm:text-5xl">
+            <h1 className="text-sm font-heading font-semibold leading-snug text-white/80 drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)] sm:text-base lg:text-2xl lg:font-bold lg:text-white">
               {copy.heroTitle}
             </h1>
-            <p className="max-w-2xl text-base font-medium text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.44)]">
+            <p className="hidden text-sm font-medium text-white/70 drop-shadow-[0_2px_10px_rgba(0,0,0,0.44)] lg:block">
               {copy.heroText}
             </p>
 
-            <div className="flex flex-wrap justify-center gap-3">
+            <div className="flex flex-wrap justify-center gap-3 lg:justify-start">
               <Link href="/catalogo" className="btn-primary">
                 {copy.ctaPrimary}
               </Link>
