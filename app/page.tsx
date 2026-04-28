@@ -195,24 +195,23 @@ export default async function HomePage() {
                 WebkitTextStroke: "1.5px rgba(255,255,255,0.15)",
               }}
             >
-              Fox Sports{" "}
-              <span
-                className="text-amber-400"
-                style={{
-                  textShadow:
-                    "0 0 18px rgba(255,200,0,1), 0 0 40px rgba(255,150,0,0.85), 0 0 70px rgba(255,100,0,0.5)",
-                }}
-              >
-                1of1
+              <span className="block">Fox Sports</span>
+              <span className="block">
+                Cards{" "}
+                <span
+                  className="text-amber-400"
+                  style={{
+                    textShadow:
+                      "0 0 18px rgba(255,200,0,1), 0 0 40px rgba(255,150,0,0.85), 0 0 70px rgba(255,100,0,0.5)",
+                  }}
+                >
+                  1 of 1
+                </span>
               </span>
             </span>
             <h1 className="max-w-3xl text-4xl font-heading font-black leading-tight text-white drop-shadow-[0_10px_24px_rgba(0,0,0,0.48)] sm:text-5xl">
               {copy.heroTitle}
             </h1>
-            <p className="max-w-2xl text-base font-medium text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.44)]">
-              {copy.heroText}
-            </p>
-
             <div className="flex flex-wrap justify-center gap-3">
               <Link href="/catalogo" className="btn-primary">
                 {copy.ctaPrimary}
