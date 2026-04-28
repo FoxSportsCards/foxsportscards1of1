@@ -187,46 +187,42 @@ export default async function HomePage() {
         <div className="pointer-events-none absolute inset-0 bg-hero-gradient opacity-30" />
         <div className="container relative grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(260px,330px)] lg:items-center">
           <div className="w-full space-y-4 text-center lg:max-w-2xl lg:text-left">
-            <span
-              className="-rotate-2 inline-block font-graffiti leading-[1.05]"
-              style={{
-                fontSize: "clamp(2.6rem, 10vw, 6rem)",
-                color: "#f8fafc",
-                WebkitTextStroke: "3px #0d0d0d",
-                paintOrder: "stroke fill",
-                textShadow: [
-                  "2px 2px 0 #111",
-                  "4px 4px 0 #111",
-                  "6px 6px 0 #0d0d0d",
-                  "8px 8px 0 #0a0a0a",
-                  "10px 10px 0 #080808",
-                  "12px 12px 0 #060606",
-                  "0 0 40px rgba(255,130,0,0.35)",
-                ].join(", "),
-              }}
-            >
-              Fox Sports Cards{" "}
+            <div className="-rotate-2 inline-block font-graffiti leading-[1.1]">
               <span
+                className="block"
                 style={{
-                  color: "#fbbf24",
+                  fontSize: "clamp(3rem, 13vw, 6.5rem)",
+                  color: "#f8fafc",
                   WebkitTextStroke: "3px #0d0d0d",
                   paintOrder: "stroke fill",
-                  textShadow: [
-                    "2px 2px 0 #78350f",
-                    "4px 4px 0 #6a2e0a",
-                    "6px 6px 0 #5a2507",
-                    "8px 8px 0 #451c05",
-                    "10px 10px 0 #311503",
-                    "12px 12px 0 #1a0c01",
-                    "0 0 24px rgba(255,200,0,1)",
-                    "0 0 50px rgba(255,150,0,0.85)",
-                    "0 0 90px rgba(255,100,0,0.5)",
-                  ].join(", "),
+                  textShadow: "2px 2px 0 #111,4px 4px 0 #111,6px 6px 0 #0d0d0d,8px 8px 0 #0a0a0a,10px 10px 0 #080808,12px 12px 0 #060606,0 0 40px rgba(255,130,0,0.35)",
                 }}
               >
-                1of1
+                Fox Sports
               </span>
-            </span>
+              <span
+                className="block"
+                style={{
+                  fontSize: "clamp(3rem, 13vw, 6.5rem)",
+                  color: "#f8fafc",
+                  WebkitTextStroke: "3px #0d0d0d",
+                  paintOrder: "stroke fill",
+                  textShadow: "2px 2px 0 #111,4px 4px 0 #111,6px 6px 0 #0d0d0d,8px 8px 0 #0a0a0a,10px 10px 0 #080808,12px 12px 0 #060606,0 0 40px rgba(255,130,0,0.35)",
+                }}
+              >
+                Cards{" "}
+                <span
+                  style={{
+                    color: "#fbbf24",
+                    WebkitTextStroke: "3px #0d0d0d",
+                    paintOrder: "stroke fill",
+                    textShadow: "2px 2px 0 #78350f,4px 4px 0 #6a2e0a,6px 6px 0 #5a2507,8px 8px 0 #451c05,10px 10px 0 #311503,12px 12px 0 #1a0c01,0 0 24px rgba(255,200,0,1),0 0 50px rgba(255,150,0,0.85),0 0 90px rgba(255,100,0,0.5)",
+                  }}
+                >
+                  1of1
+                </span>
+              </span>
+            </div>
             <h1 className="text-sm font-heading font-semibold leading-snug text-white/80 drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)] sm:text-base lg:text-2xl lg:font-bold lg:text-white">
               {copy.heroTitle}
             </h1>
