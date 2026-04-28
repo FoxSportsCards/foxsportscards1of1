@@ -68,10 +68,10 @@ export default function Header({ locale }: HeaderProps) {
 
   return (
     <header className="relative sticky top-0 z-50 border-b border-line/90 bg-white/80 backdrop-blur-xl">
-      <div className="mx-auto w-full max-w-[1480px] px-3 sm:px-6 lg:px-8 xl:px-10">
-        <div className="flex min-h-[80px] items-center justify-center gap-2 py-3 sm:gap-3">
-          <Link href="/" className="flex w-[172px] min-w-0 flex-none items-center gap-2 pr-1 sm:flex-1 md:pr-2 lg:shrink-0 lg:flex-none lg:gap-3">
-            <span className="relative flex h-12 w-12 shrink-0 items-center justify-center sm:h-12 sm:w-12">
+      <div className="mx-auto w-full max-w-[1480px] px-5 sm:px-6 lg:px-8 xl:px-10">
+        <div className="flex min-h-[80px] items-center justify-center gap-3 py-3">
+          <Link href="/" className="flex min-w-0 flex-1 items-center gap-2 pr-1 md:pr-2 lg:shrink-0 lg:flex-none lg:gap-3">
+            <span className="relative flex h-12 w-12 shrink-0 items-center justify-center">
               <Image
                 src="/zorro-logo-final.png"
                 alt="Fox Sports Cards 1of1"
@@ -81,14 +81,8 @@ export default function Header({ locale }: HeaderProps) {
                 priority
               />
             </span>
-            <span className="min-w-0 max-w-[112px] leading-tight sm:max-w-none">
-              <span className="block truncate font-heading text-[1rem] font-bold uppercase leading-[0.9] tracking-[0.01em] text-ink sm:hidden">
-                Fox Sports
-              </span>
-              <span className="block truncate font-heading text-[1rem] font-bold uppercase leading-[0.9] tracking-[0.01em] text-ink sm:hidden">
-                Cards 1of1
-              </span>
-              <span className="hidden truncate text-base font-heading font-bold tracking-[0.02em] text-ink sm:block sm:text-lg md:text-xl">
+            <span className="min-w-0 leading-tight">
+              <span className="block truncate text-base font-heading font-bold tracking-[0.02em] text-ink sm:text-lg md:text-xl">
                 foxsportscards1of1
               </span>
               <span className="hidden whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.2em] text-blue lg:block lg:text-[11px]">
@@ -105,7 +99,7 @@ export default function Header({ locale }: HeaderProps) {
                   key={item.href}
                   href={item.href}
                   className={clsx(
-                    "rounded-full px-3 py-2 text-xs font-semibold uppercase tracking-[0.13em]",
+                    "rounded-full px-3 py-2 font-graffiti text-[14px] normal-case tracking-wide",
                     isActive
                       ? "bg-blue text-white shadow-glow"
                       : "text-muted hover:bg-surface-elevated hover:text-ink",
@@ -179,7 +173,7 @@ export default function Header({ locale }: HeaderProps) {
                   key={item.href}
                   href={item.href}
                   className={clsx(
-                    "rounded-2xl px-4 py-3 text-sm font-semibold uppercase tracking-[0.13em] transition-colors",
+                    "rounded-2xl px-4 py-3.5 font-graffiti text-xl normal-case tracking-wide transition-colors",
                     isActive
                       ? "bg-blue text-white shadow-glow"
                       : "bg-surface text-ink hover:bg-surface-elevated hover:text-blue",

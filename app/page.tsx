@@ -174,7 +174,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <section className="relative flex min-h-[calc(100svh-80px)] items-center overflow-hidden border-b border-line/80 py-6 sm:min-h-[calc(100dvh-5.4rem)] sm:py-10 lg:min-h-[calc(100dvh-6rem)] lg:py-12">
+      <section className="relative flex min-h-[calc(100dvh-4.75rem)] items-center overflow-hidden border-b border-line/80 py-8 sm:min-h-[calc(100dvh-5.4rem)] sm:py-10 lg:min-h-[calc(100dvh-6rem)] lg:py-12">
         <div className="pointer-events-none absolute inset-0">
           <HeroMedia
             poster="/videos/hero-poster.jpg"
@@ -182,58 +182,38 @@ export default async function HomePage() {
             mobileSrc="/videos/hero-mobile.mp4"
           />
         </div>
-        <div className="pointer-events-none absolute inset-0 bg-black/36 md:bg-black/30" />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/54 via-black/34 to-black/52 md:bg-gradient-to-r md:from-black/78 md:via-black/48 md:to-black/14" />
-        <div className="pointer-events-none absolute inset-0 bg-hero-gradient opacity-25" />
+        <div className="pointer-events-none absolute inset-0 bg-black/30" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/84 via-black/58 to-black/24 md:from-black/78 md:via-black/48 md:to-black/14" />
+        <div className="pointer-events-none absolute inset-0 bg-hero-gradient opacity-30" />
         <div className="container relative grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(260px,330px)] lg:items-center">
-          <div className="mx-auto w-full max-w-[36rem] space-y-5 text-center lg:mx-0 lg:max-w-2xl lg:text-left">
-            <div className="-rotate-2 inline-block max-w-full font-graffiti leading-[0.95]">
+          <div className="max-w-2xl space-y-6">
+            <span
+              className="-rotate-2 inline-block font-graffiti leading-none text-white"
+              style={{
+                fontSize: "clamp(3rem, 8vw, 5.5rem)",
+                textShadow: "0 0 24px rgba(255,130,0,0.5), 0 3px 8px rgba(0,0,0,0.85)",
+                WebkitTextStroke: "1.5px rgba(255,255,255,0.15)",
+              }}
+            >
+              Fox Sports{" "}
               <span
-                className="block"
+                className="text-amber-400"
                 style={{
-                  fontSize: "clamp(2.35rem, 10.1vw, 7rem)",
-                  color: "#f8fafc",
-                  WebkitTextStroke: "2px #0d0d0d",
-                  paintOrder: "stroke fill",
-                  whiteSpace: "nowrap",
-                  textShadow: "2px 2px 0 #111,4px 4px 0 #111,6px 6px 0 #0d0d0d,8px 8px 0 #0a0a0a,10px 10px 0 #080808,12px 12px 0 #060606,0 0 40px rgba(255,130,0,0.35)",
+                  textShadow:
+                    "0 0 18px rgba(255,200,0,1), 0 0 40px rgba(255,150,0,0.85), 0 0 70px rgba(255,100,0,0.5)",
                 }}
               >
-                Fox Sports
+                1of1
               </span>
-              <span
-                className="block"
-                style={{
-                  fontSize: "clamp(2.2rem, 9.35vw, 6.6rem)",
-                  color: "#f8fafc",
-                  WebkitTextStroke: "2px #0d0d0d",
-                  paintOrder: "stroke fill",
-                  whiteSpace: "nowrap",
-                  textShadow: "2px 2px 0 #111,4px 4px 0 #111,6px 6px 0 #0d0d0d,8px 8px 0 #0a0a0a,10px 10px 0 #080808,12px 12px 0 #060606,0 0 40px rgba(255,130,0,0.35)",
-                }}
-              >
-                Cards{" "}
-                <span
-                  style={{
-                    color: "#fbbf24",
-                    WebkitTextStroke: "2px #0d0d0d",
-                    paintOrder: "stroke fill",
-                    fontSize: "0.88em",
-                    textShadow: "2px 2px 0 #78350f,4px 4px 0 #6a2e0a,6px 6px 0 #5a2507,8px 8px 0 #451c05,10px 10px 0 #311503,12px 12px 0 #1a0c01,0 0 24px rgba(255,200,0,1),0 0 50px rgba(255,150,0,0.85),0 0 90px rgba(255,100,0,0.5)",
-                  }}
-                >
-                  1of1
-                </span>
-              </span>
-            </div>
-            <h1 className="mx-auto max-w-[20rem] text-sm font-heading font-semibold leading-snug text-white drop-shadow-[0_3px_12px_rgba(0,0,0,0.7)] sm:max-w-[34rem] sm:text-lg lg:mx-0 lg:text-2xl lg:font-bold">
+            </span>
+            <h1 className="max-w-3xl text-4xl font-heading font-black leading-tight text-white drop-shadow-[0_10px_24px_rgba(0,0,0,0.48)] sm:text-5xl">
               {copy.heroTitle}
             </h1>
-            <p className="hidden text-sm font-medium text-white/70 drop-shadow-[0_2px_10px_rgba(0,0,0,0.44)] lg:block">
+            <p className="max-w-2xl text-base font-medium text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.44)]">
               {copy.heroText}
             </p>
 
-            <div className="flex flex-wrap justify-center gap-3 lg:justify-start">
+            <div className="flex flex-wrap justify-center gap-3">
               <Link href="/catalogo" className="btn-primary">
                 {copy.ctaPrimary}
               </Link>
@@ -257,7 +237,7 @@ export default async function HomePage() {
           {spotlight ? (
             <Link
               href={`/producto/${spotlight.slug}`}
-              className="group mx-auto hidden w-full max-w-[310px] overflow-hidden rounded-3xl border border-white/35 bg-white/95 shadow-[0_18px_44px_rgba(8,17,38,0.3)] hover:border-blue/45 lg:block lg:justify-self-end"
+              className="group mx-auto w-full max-w-[310px] overflow-hidden rounded-3xl border border-white/35 bg-white/95 shadow-[0_18px_44px_rgba(8,17,38,0.3)] hover:border-blue/45 lg:justify-self-end"
             >
               <div className="relative h-[clamp(240px,44svh,430px)] overflow-hidden bg-surface-elevated">
                 <Image
