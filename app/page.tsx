@@ -188,11 +188,11 @@ export default async function HomePage() {
         <div className="container relative grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(260px,330px)] lg:items-center">
           <div className="max-w-2xl space-y-6">
             <span
-              className="-rotate-1 inline-block font-graffiti leading-none tracking-wide text-white"
+              className="-rotate-2 inline-block font-graffiti leading-none text-white"
               style={{
-                fontSize: "clamp(1.9rem, 5.5vw, 3.6rem)",
-                textShadow: "0 0 18px rgba(255,130,0,0.45), 0 2px 5px rgba(0,0,0,0.75)",
-                WebkitTextStroke: "1px rgba(255,255,255,0.14)",
+                fontSize: "clamp(3rem, 8vw, 5.5rem)",
+                textShadow: "0 0 24px rgba(255,130,0,0.5), 0 3px 8px rgba(0,0,0,0.85)",
+                WebkitTextStroke: "1.5px rgba(255,255,255,0.15)",
               }}
             >
               Fox Sports{" "}
@@ -200,7 +200,7 @@ export default async function HomePage() {
                 className="text-amber-400"
                 style={{
                   textShadow:
-                    "0 0 16px rgba(255,190,0,0.95), 0 0 36px rgba(255,140,0,0.75), 0 0 60px rgba(255,100,0,0.45)",
+                    "0 0 18px rgba(255,200,0,1), 0 0 40px rgba(255,150,0,0.85), 0 0 70px rgba(255,100,0,0.5)",
                 }}
               >
                 1of1
