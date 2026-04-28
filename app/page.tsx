@@ -174,7 +174,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <section className="relative flex min-h-[calc(100dvh-4.75rem)] items-center overflow-hidden border-b border-line/80 py-10 sm:min-h-[calc(100dvh-5.4rem)] sm:py-10 lg:min-h-[calc(100dvh-6rem)] lg:py-12">
+      <section className="relative overflow-hidden border-b border-line/80 lg:flex lg:min-h-[calc(100dvh-6rem)] lg:items-center lg:py-12">
         <div className="pointer-events-none absolute inset-0">
           <HeroMedia
             poster="/videos/hero-poster.jpg"
@@ -185,8 +185,8 @@ export default async function HomePage() {
         <div className="pointer-events-none absolute inset-0 bg-black/30" />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/84 via-black/58 to-black/24 md:from-black/78 md:via-black/48 md:to-black/14" />
         <div className="pointer-events-none absolute inset-0 bg-hero-gradient opacity-30" />
-        <div className="container relative grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(260px,330px)] lg:items-center lg:gap-6">
-          <div className="mx-auto max-w-2xl space-y-7 text-center lg:mx-0 lg:space-y-6 lg:text-left">
+        <div className="container relative grid gap-10 pb-10 lg:grid-cols-[minmax(0,1fr)_minmax(260px,330px)] lg:items-center lg:gap-6 lg:pb-0">
+          <div className="mx-auto flex min-h-[calc(100dvh-4.75rem)] max-w-2xl flex-col justify-center space-y-7 py-10 text-center sm:min-h-[calc(100dvh-5.4rem)] lg:mx-0 lg:min-h-0 lg:space-y-6 lg:py-0 lg:text-left">
             <span
               className="-rotate-2 inline-block max-w-full font-graffiti text-[clamp(3.8rem,15.4vw,4.75rem)] leading-[0.94] text-white sm:text-[clamp(4.4rem,13vw,6.4rem)] lg:text-[clamp(3rem,8vw,5.5rem)]"
               style={{
