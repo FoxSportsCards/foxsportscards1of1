@@ -99,9 +99,6 @@ export default function Footer({ locale }: FooterProps) {
 
           <div className="space-y-3">
             <h3 className="text-xs font-semibold uppercase tracking-[0.24em] text-muted">{copy.contact}</h3>
-            <a href="mailto:hola@foxsportscards1of1.com" className="block text-sm text-muted hover:text-blue">
-              hola@foxsportscards1of1.com
-            </a>
             <p className="text-sm text-muted">+1 (849) 261-7328</p>
             <a
               href="https://www.instagram.com/foxsportscards1of1"

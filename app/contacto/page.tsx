@@ -20,7 +20,7 @@ export default function ContactPage() {
         </p>
       </div>
 
-      <div className="mt-8 grid gap-4 md:grid-cols-3">
+      <div className="mt-8 grid gap-4 md:grid-cols-2">
         <a
           href="https://wa.me/18492617328"
           target="_blank"
@@ -44,16 +44,6 @@ export default function ContactPage() {
           <p className="mt-2 text-xl font-heading font-bold text-ink">@foxsportscards1of1</p>
           <p className="mt-2 text-sm text-muted">
             {isEn ? "Daily selection with new pieces." : "Selección diaria con nuevas piezas."}
-          </p>
-        </a>
-
-        <a href="mailto:hola@foxsportscards1of1.com" className="glass-card p-5 hover:border-red/35">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-red">Email</p>
-          <p className="mt-2 text-xl font-heading font-bold text-ink">hola@foxsportscards1of1.com</p>
-          <p className="mt-2 text-sm text-muted">
-            {isEn
-              ? "Support for private or business purchases."
-              : "Soporte para compras empresariales o privadas."}
           </p>
         </a>
       </div>
